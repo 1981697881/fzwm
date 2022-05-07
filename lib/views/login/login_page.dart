@@ -524,24 +524,33 @@ class _LoginPageState extends State<LoginPage> {
                 Map<String, dynamic> dataMap = Map();
                 dataMap['data'] = userMap;
                 String UserEntity = await CurrencyEntity.polling(dataMap);
-                sharedPreferences.setString('FStaffNumber', _username);
-                sharedPreferences.setString('FPwd', _password);
+
                 var resUser = jsonDecode(UserEntity);
                 if (resUser.length > 0) {
                   if (resUser[0][2] == 'A') {
-                    sharedPreferences.setString('MenuPermissions', UserEntity);
+
                     /*sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
                   sharedPreferences.setString('FWorkShopName', resUser[0][3]);*/
                     Map<String, dynamic> authorMap = Map();
-                    authorMap['auth'] = '2022PDAXY2001';
+                    authorMap['auth'] = resUser[0][3];
                     ApiResponse<AuthorizeEntity> author =
                     await AuthorizeEntity.getAuthorize(authorMap);
                     if (author.data.data.fStatus == "0") {
-                      print(author.data.data.fAuthNums);
-                      print(resUser[0]);
-                      print(resUser[0][3].split(',')[1]);
-                      if(author.data.data.fAuthNums.toString() == resUser[0][3].split(',')[1].toString()){
+                      Map<String, dynamic> empMap = Map();
+                      empMap['FormId'] = 'BD_Empinfo';
+                      empMap['FilterString'] =
+                      "FAuthCode='"+resUser[0][3]+"'";
+                      empMap['FieldKeys'] =
+                      'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode';
+                      Map<String, dynamic> empDataMap = Map();
+                      empDataMap['data'] = empMap;
+                      String EmpEntity = await CurrencyEntity.polling(empDataMap);
+                      var resEmp = jsonDecode(EmpEntity);
+                      if(author.data.data.fAuthNums > resEmp.length && resEmp.length > 0){
                         sharedPreferences.setString('menuList', jsonEncode(author.data.data));
+                        sharedPreferences.setString('FStaffNumber', _username);
+                        sharedPreferences.setString('FPwd', _password);
+                        sharedPreferences.setString('MenuPermissions', UserEntity);
                         if(author.data.data.fMessage == null){
                           ToastUtil.showInfo('登录成功');
                           Navigator.pushReplacement(

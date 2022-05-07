@@ -237,16 +237,13 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     getScan(cameraScanResult); //将获取到的参数通过HTTP请求发送到服务器
     print(cameraScanResult); //在控制台打印
   }
-
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
   void getScan(String scan) async {
     keyWord = scan;
     this.controller.text = scan;
     await getOrderList();
   }
-
   String _dateSelectText = "";
-
   void showDateSelect() async {
     //获取当前的时间
     DateTime now = DateTime.now();

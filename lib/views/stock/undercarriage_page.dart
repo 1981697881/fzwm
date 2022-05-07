@@ -77,7 +77,7 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
     selectData[DateMode.YMD] = nowDate;
 
     /// 开启监听
-    if (_subscription == null && this.fBillNo == '') {
+    if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
@@ -672,7 +672,11 @@ class _UndercarriagePageState extends State<UndercarriagePage> {
                             //改变回调
                             onChanged: (value) {
                               setState(() {
-                                _remarkContent.text = value;
+                                _remarkContent.value = TextEditingValue(
+                                  text: value,
+                                  selection: TextSelection.fromPosition(TextPosition(
+                                      affinity: TextAffinity.downstream,
+                                      offset: value.length)));
                               });
                             },
                           ),

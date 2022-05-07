@@ -768,7 +768,11 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
                             //改变回调
                             onChanged: (value) {
                               setState(() {
-                                _remarkContent.text = value;
+                                _remarkContent.value = TextEditingValue(
+                                  text: value,
+                                  selection: TextSelection.fromPosition(TextPosition(
+                                      affinity: TextAffinity.downstream,
+                                      offset: value.length)));
                               });
                             },
                           ),

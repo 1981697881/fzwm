@@ -20,7 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:fzwm/components/my_text.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:qrscan/qrscan.dart' as scanner;
 class OtherWarehousingDetail extends StatefulWidget {
   var FBillNo;
 
@@ -69,6 +69,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   var departmentList = [];
   List<dynamic> departmentListObj = [];
   List<dynamic> orderDate = [];
+  List<dynamic> materialDate = [];
   List<dynamic> collarOrderDate = [];
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
@@ -97,7 +98,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     selectData[DateMode.YMD] = nowDate;
 
     /// 开启监听
-    if (_subscription == null && this.fBillNo == '') {
+    if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
@@ -275,6 +276,17 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     this.getMaterialList();
     print("ChannelPage: $event");
     /*});*/
+  }
+  //扫码函数,最简单的那种
+  Future scan() async {
+    String cameraScanResult = await scanner.scan(); //通过扫码获取二维码中的数据
+    getScan(cameraScanResult); //将获取到的参数通过HTTP请求发送到服务器
+    print(cameraScanResult); //在控制台打印
+  }
+  //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
+  void getScan(String scan) async {
+    _code = scan;
+    await getMaterialList();
   }
   getMaterialList() async {
     Map<String, dynamic> userMap = Map();
@@ -832,6 +844,11 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
       child: Scaffold(
+          floatingActionButton: FloatingActionButton(
+            onPressed: scan,
+            tooltip: 'Increment',
+            child: Icon(Icons.filter_center_focus),
+          ),
           appBar: AppBar(
             title: Text("其他入库"),
             centerTitle: true,
@@ -879,7 +896,11 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                             //改变回调
                             onChanged: (value) {
                               setState(() {
-                                _remarkContent.text = value;
+                                _remarkContent.value = TextEditingValue(
+                                  text: value,
+                                  selection: TextSelection.fromPosition(TextPosition(
+                                      affinity: TextAffinity.downstream,
+                                      offset: value.length)));
                               });
                             },
                           ),
