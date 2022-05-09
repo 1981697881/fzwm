@@ -524,11 +524,9 @@ class _LoginPageState extends State<LoginPage> {
                 Map<String, dynamic> dataMap = Map();
                 dataMap['data'] = userMap;
                 String UserEntity = await CurrencyEntity.polling(dataMap);
-
                 var resUser = jsonDecode(UserEntity);
                 if (resUser.length > 0) {
                   if (resUser[0][2] == 'A') {
-
                     /*sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);
                   sharedPreferences.setString('FWorkShopName', resUser[0][3]);*/
                     Map<String, dynamic> authorMap = Map();

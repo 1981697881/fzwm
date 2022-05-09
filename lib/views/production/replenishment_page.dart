@@ -183,7 +183,7 @@ class _ReplenishmentPageState extends State<ReplenishmentPage> {
         });
         arr.add({
           "title": "生产序号",
-          "name": "f_wk_xh",
+          "name": "FProdOrder",
           "isHide": false,
           "value": {
             /*"label": orderDate[value][18],

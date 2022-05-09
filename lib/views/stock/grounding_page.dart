@@ -163,8 +163,14 @@ class _GroundingPageState extends State<GroundingPage> {
   }
   getMaterialList() async {
     Map<String, dynamic> userMap = Map();
-    print(fBillNo);
-    userMap['FilterString'] = "FMaterialName='$_code'";
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
+    var scanCode = _code.split(",");
+    userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockOrgId.FNumber = "+deptData[1];
+    if(scanCode[1] != ""){
+      userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockOrgId.FNumber = "+deptData[1];
+    }
     userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
     'FID,FMaterialName,FMaterialId.FNumber,FModel,FBaseUnitId.FName,FBaseUnitId.FNumber,FLot.FNumber,FQty,FStockId.FNumber,FStockName,FStockLocId,FStockId.FIsOpenLocation'; Map<String, dynamic> dataMap = Map();

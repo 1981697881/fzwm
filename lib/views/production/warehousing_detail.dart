@@ -27,7 +27,7 @@ class WarehousingDetail extends StatefulWidget {
   var FSeq;
   var FEntryId;
   var FID;
-  var f_wk_xh;
+  var FProdOrder;
   var FBarcode;
 
   WarehousingDetail({Key key,  @required this.FBillNo,
@@ -35,10 +35,10 @@ class WarehousingDetail extends StatefulWidget {
     @required this.FEntryId,
     @required this.FID,
     @required this.FBarcode,
-    @required this.f_wk_xh}) : super(key: key);
+    @required this.FProdOrder}) : super(key: key);
 
   @override
-  _WarehousingDetailState createState() => _WarehousingDetailState(FBillNo, FSeq, FEntryId, FID, f_wk_xh,FBarcode);
+  _WarehousingDetailState createState() => _WarehousingDetailState(FBillNo, FSeq, FEntryId, FID, FProdOrder,FBarcode);
 }
 
 class _WarehousingDetailState extends State<WarehousingDetail> {
@@ -79,14 +79,14 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   var fBillNo;
   var fEntryId;
   var fid;
-  var f_wk_xh;
+  var FProdOrder;
   var FBarcode;
-  _WarehousingDetailState(fBillNo, FSeq, fEntryId, fid, f_wk_xh,FBarcode) {
+  _WarehousingDetailState(fBillNo, FSeq, fEntryId, fid, FProdOrder,FBarcode) {
     this.FBillNo = fBillNo['value'];
     this.FSeq = FSeq['value'];
     this.fEntryId = fEntryId['value'];
     this.fid = fid['value'];
-    this.f_wk_xh = f_wk_xh['value'];
+    this.FProdOrder = FProdOrder['value'];
     this.FBarcode = FBarcode;
     this.getOrderList();
   }
@@ -695,14 +695,14 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     var startRes = await this.alterStatus(dataMap);
     print(startRes);
     if (startRes['Result']['ResponseStatus']['IsSuccess']) {
-      var serialNum = f_wk_xh.truncate();
+      var serialNum = FProdOrder.truncate();
       for(var i = serialNum;i<=4;i++){
         //查询生产订单
         Map<String, dynamic> userMap = Map();
-        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FStatus in (2) and f_wk_xh >= " + (i).toString() + " and f_wk_xh <" + (i + 1).toString();
+        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FStatus in (2) and FProdOrder >= " + (i).toString() + " and FProdOrder <" + (i + 1).toString();
         userMap['FormId'] = "PRD_MO";
         userMap['FieldKeys'] =
-        'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
+        'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
         Map<String, dynamic> proMoDataMap = Map();
         proMoDataMap['data'] = userMap;
         String order = await CurrencyEntity.polling(proMoDataMap);
@@ -715,10 +715,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       }
       //查询生产订单
       Map<String, dynamic> userMap = Map();
-      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (serialNum).toString() + " and f_wk_xh <" + (serialNum + 1).toString();
+      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FProdOrder >= " + (serialNum).toString() + " and FProdOrder <" + (serialNum + 1).toString();
       userMap['FormId'] = "PRD_MO";
       userMap['FieldKeys'] =
-      'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
+      'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
       Map<String, dynamic> proMoDataMap = Map();
       proMoDataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(proMoDataMap);

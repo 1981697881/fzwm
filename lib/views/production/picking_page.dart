@@ -182,7 +182,7 @@ class _PickingPageState extends State<PickingPage> {
         });
         arr.add({
           "title": "生产序号",
-          "name": "f_wk_xh",
+          "name": "FProdOrder",
           "isHide": false,
           "value": {
             "label": orderDate[value][1],/*orderDate[value][18]*/
@@ -327,7 +327,7 @@ class _PickingPageState extends State<PickingPage> {
                               FEntryId: this.hobby[i][11]
                               ['value'],
                               FID: this.hobby[i][12]['value'],
-                              f_wk_xh: this
+                              FProdOrder: this
                                   .hobby[i][7]['value'],
                               // 路由参数
                             );

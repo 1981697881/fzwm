@@ -218,7 +218,7 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
+          "value": {"label": value[6], "value": value[5],"barcode": []}
         });
         arr.add({
           "title": "规格型号",
@@ -305,71 +305,109 @@ class _ExWarehouseDetailState extends State<ExWarehouseDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FMaterialId.FNumber='$_code' and FStockOrgId.FNumber = "+deptData[1];
+    var scanCode = _code.split(",");
+    userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockOrgId.FNumber = "+deptData[1];
+    if(scanCode[1] != ""){
+      userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockOrgId.FNumber = "+deptData[1];
+    }
     userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
-    'FID,FMaterialName,FMaterialId.FNumber,FModel,FBaseUnitId.FName,FBaseUnitId.FNumber,FLot.FNumber,FQty,FStockId.FNumber,FStockName,FStockLocId,FStockId.FIsOpenLocation';
+    'FID,FMaterialName,FMaterialId.FNumber,FModel,FBaseUnitId.FName,FBaseUnitId.FNumber,FLot.FNumber,FQty,FStockId.FNumber,FStockName,FStockLocId,FStockId.FIsOpenLocation,FMaterialId.FNumber.FIsBatchManage';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
-    orderDate = [];
-    orderDate = jsonDecode(order);
+    materialDate = [];
+    materialDate = jsonDecode(order);
     FDate = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
     selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
-    if (orderDate.length > 0) {
-      hobby = [];
-      orderDate.forEach((value) {
-        List arr = [];
-        arr.add({
-          "title": "物料名称",
-          "name": "FMaterial",
-          "isHide": false,
-          "value": {"label": value[1], "value": value[2]}
+    if (materialDate.length > 0) {
+      var number = 0;
+      for (var element in hobby) {
+        //判断是否启用批号
+        if(element[5]['isHide']){//不启用
+          if(element[0]['value']['value'] == scanCode[0]){
+            if(element[0]['value']['barcode'].indexOf(_code) == -1){
+              element[0]['value']['barcode'].add(_code);
+              element[3]['value']['label']=(double.parse(element[3]['value']['label'])+1).toString();
+              element[3]['value']['value']=(double.parse(element[3]['value']['label'])+1).toString();
+              number++;
+              break;
+            }else{
+              ToastUtil.showInfo('该标签已扫描');
+              number++;
+              break;
+            }
+          }
+        }else{
+          if(element[0]['value']['value'] == scanCode[0] && element[5]['value']['value'] == scanCode[1]){
+            if(element[0]['value']['barcode'].indexOf(_code) == -1){
+              element[0]['value']['barcode'].add(_code);
+              element[3]['value']['label']=(double.parse(element[3]['value']['label'])+1).toString();
+              element[3]['value']['value']=(double.parse(element[3]['value']['label'])+1).toString();
+              number++;
+              break;
+            }else{
+              ToastUtil.showInfo('该标签已扫描');
+              number++;
+              break;
+            }
+          }
+        }
+      };
+      if(number == 0 && this.fBillNo =="") {
+        materialDate.forEach((value) {
+          List arr = [];
+          arr.add({
+            "title": "物料名称",
+            "name": "FMaterial",
+            "isHide": false,
+            "value": {"label": value[1], "value": value[2], "barcode": [_code]}
+          });
+          arr.add({
+            "title": "规格型号",
+            "isHide": false,
+            "name": "FMaterialIdFSpecification",
+            "value": {"label": value[3], "value": value[3]}
+          });
+          arr.add({
+            "title": "单位名称",
+            "name": "FUnitId",
+            "isHide": false,
+            "value": {"label": value[4], "value": value[5]}
+          });
+          arr.add({
+            "title": "出库数量",
+            "name": "FRealQty",
+            "isHide": false,
+            "value": {"label": "1", "value": "1"}
+          });
+          arr.add({
+            "title": "仓库",
+            "name": "FStockID",
+            "isHide": false,
+            "value": {"label": value[9], "value": value[8]}
+          });
+          arr.add({
+            "title": "批号",
+            "name": "FLot",
+            "isHide": value[12] != true,
+            "value": {"label": value[6], "value": value[6]}
+          });
+          arr.add({
+            "title": "仓位",
+            "name": "FStockLocID",
+            "isHide": false,
+            "value": {"label": "", "value": "", "hide": value[11]}
+          });
+          arr.add({
+            "title": "操作",
+            "name": "",
+            "isHide": false,
+            "value": {"label": "", "value": ""}
+          });
+          hobby.add(arr);
         });
-        arr.add({
-          "title": "规格型号",
-          "isHide": false,
-          "name": "FMaterialIdFSpecification",
-          "value": {"label": value[3], "value": value[3]}
-        });
-        arr.add({
-          "title": "单位名称",
-          "name": "FUnitId",
-          "isHide": false,
-          "value": {"label": value[4], "value": value[5]}
-        });
-        arr.add({
-          "title": "出库数量",
-          "name": "FRealQty",
-          "isHide": false,
-          "value": {"label": "1", "value": "1"}
-        });
-        arr.add({
-          "title": "仓库",
-          "name": "FStockID",
-          "isHide": false,
-          "value": {"label": value[9], "value": value[8]}
-        });
-        arr.add({
-          "title": "批号",
-          "name": "FLot",
-          "isHide": false,
-          "value": {"label": value[6], "value": value[6]}
-        });
-        arr.add({
-          "title": "仓位",
-          "name": "FStockLocID",
-          "isHide": false,
-          "value": {"label": "", "value": "","hide": value[11]}
-        });
-        arr.add({
-          "title": "操作",
-          "name": "",
-          "isHide": false,
-          "value": {"label": "", "value": ""}
-        });
-        hobby.add(arr);
-      });
+      }
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();

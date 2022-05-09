@@ -28,7 +28,7 @@ class PickingDetail extends StatefulWidget {
   var FSeq;
   var FEntryId;
   var FID;
-  var f_wk_xh;
+  var FProdOrder;
   var FBarcode;
 
   PickingDetail(
@@ -38,12 +38,12 @@ class PickingDetail extends StatefulWidget {
       @required this.FEntryId,
       @required this.FID,
       @required this.FBarcode,
-      @required this.f_wk_xh})
+      @required this.FProdOrder})
       : super(key: key);
 
   @override
   _PickingDetailState createState() =>
-      _PickingDetailState(FBillNo, FSeq, FEntryId, FID, f_wk_xh,FBarcode);
+      _PickingDetailState(FBillNo, FSeq, FEntryId, FID, FProdOrder,FBarcode);
 }
 class _PickingDetailState extends State<PickingDetail> {
   GlobalKey<TextWidgetState> textKey = GlobalKey();
@@ -88,15 +88,15 @@ class _PickingDetailState extends State<PickingDetail> {
   var fBillNo;
   var fEntryId;
   var fid;
-  var f_wk_xh;
+  var FProdOrder;
   var FBarcode;
 
-  _PickingDetailState(fBillNo, FSeq, fEntryId, fid, f_wk_xh,FBarcode) {
+  _PickingDetailState(fBillNo, FSeq, fEntryId, fid, FProdOrder,FBarcode) {
     this.fBillNo = fBillNo['value'];
     this.FSeq = FSeq['value'];
     this.fEntryId = fEntryId['value'];
     this.fid = fid['value'];
-    this.f_wk_xh = f_wk_xh['value'];
+    this.FProdOrder = FProdOrder['value'];
     this.FBarcode = FBarcode;
     this.getOrderList();
   }
@@ -531,14 +531,14 @@ class _PickingDetailState extends State<PickingDetail> {
     var startRes = await this.alterStatus(dataMap);
     print(startRes);
     if (startRes['Result']['ResponseStatus']['IsSuccess']) {
-      var serialNum = f_wk_xh.truncate();
+      var serialNum = FProdOrder.truncate();
       for(var i = serialNum;i<=4;i++){
         //查询生产订单
         Map<String, dynamic> userMap = Map();
-        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (serialNum).toString() + " and f_wk_xh <" + (serialNum + 1).toString();
+        userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FProdOrder >= " + (serialNum).toString() + " and FProdOrder <" + (serialNum + 1).toString();
         userMap['FormId'] = "PRD_MO";
         userMap['FieldKeys'] =
-        'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
+        'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
         Map<String, dynamic> proMoDataMap = Map();
         proMoDataMap['data'] = userMap;
         String order = await CurrencyEntity.polling(proMoDataMap);
@@ -549,10 +549,10 @@ class _PickingDetailState extends State<PickingDetail> {
       }
       //查询生产订单
       Map<String, dynamic> userMap = Map();
-      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and f_wk_xh >= " + (serialNum+1).toString() + " and f_wk_xh <" + (serialNum + 2).toString();
+      userMap['FilterString'] = "FSaleOrderNo='$FBarcode' and FProdOrder >= " + (serialNum+1).toString() + " and FProdOrder <" + (serialNum + 2).toString();
       userMap['FormId'] = "PRD_MO";
       userMap['FieldKeys'] =
-      'FBillNo,FTreeEntity_FEntryId,FID,f_wk_xh,FTreeEntity_FSeq';
+      'FBillNo,FTreeEntity_FEntryId,FID,FProdOrder,FTreeEntity_FSeq';
       Map<String, dynamic> proMoDataMap = Map();
       proMoDataMap['data'] = userMap;
       String order = await CurrencyEntity.polling(proMoDataMap);

@@ -222,7 +222,7 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
+          "value": {"label": value[6], "value": value[5], "barcode": []}
         });
         arr.add({
           "title": "规格型号",
@@ -328,113 +328,160 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FNumber='$_code' and FForbidStatus = 'A' and FUseOrgId.FNumber = "+deptData[1];
+    var scanCode = _code.split(",");
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = "+deptData[1];
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
-    orderDate = [];
-    orderDate = jsonDecode(order);
+    materialDate = [];
+    materialDate = jsonDecode(order);
     FDate = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
     selectData[DateMode.YMD] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
-    if (orderDate.length > 0) {
-      hobby = [];
-      orderDate.forEach((value) {
-        List arr = [];
-        arr.add({
-          "title": "单据编号",
-          "name": "FBillNo",
-          "isHide": false,
-          "value": {"label": "", "value": ""}
+    if (materialDate.length > 0) {
+      var number = 0;
+      for (var element in hobby) {
+        //判断是否启用批号
+        if(element[11]['isHide']){//不启用
+          if(element[4]['value']['value'] == scanCode[0]){
+            if(element[4]['value']['barcode'].indexOf(_code) == -1){
+              element[4]['value']['barcode'].add(_code);
+              element[8]['value']['label']=(double.parse(element[8]['value']['label'])+1).toString();
+              element[8]['value']['value']=(double.parse(element[8]['value']['label'])+1).toString();
+              number++;
+              break;
+            }else{
+              ToastUtil.showInfo('该标签已扫描');
+              number++;
+              break;
+            }
+          }
+        }else{
+          if(element[4]['value']['value'] == scanCode[0]){
+            if(element[4]['value']['barcode'].indexOf(_code) == -1){
+              if(element[11]['value']['value'] == scanCode[1]){
+                element[4]['value']['barcode'].add(_code);
+                element[8]['value']['label']=(double.parse(element[8]['value']['label'])+1).toString();
+                element[8]['value']['value']=(double.parse(element[8]['value']['label'])+1).toString();
+                number++;
+                break;
+              }else{
+                if(element[11]['value']['value'] == "" || element[11]['value']['value'] == null){
+                  element[4]['value']['barcode'].add(_code);
+                  element[11]['value']['label'] = scanCode[1];
+                  element[11]['value']['value'] = scanCode[1];
+                  element[8]['value']['label']=(double.parse(element[8]['value']['label'])+1).toString();
+                  element[8]['value']['value']=(double.parse(element[8]['value']['label'])+1).toString();
+                  number++;
+                  break;
+                }
+              }
+            }else{
+              ToastUtil.showInfo('该标签已扫描');
+              number++;
+              break;
+            }
+          }
+        }
+      };
+      if(number == 0 && this.fBillNo =="") {
+        materialDate.forEach((value) {
+          List arr = [];
+          arr.add({
+            "title": "单据编号",
+            "name": "FBillNo",
+            "isHide": false,
+            "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "销售组织",
+            "name": "FSaleOrgId",
+            "isHide": false,
+            "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "客户",
+            "name": "FSaleOrgId",
+            "isHide": false,
+            "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "单据日期",
+            "name": "FDate",
+            "isHide": false,
+            "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "物料名称",
+            "name": "FMaterial",
+            "isHide": false,
+            "value": {"label": value[1], "value": value[2], "barcode": [_code]}
+          });
+          arr.add({
+            "title": "规格型号",
+            "isHide": false,
+            "name": "FMaterialIdFSpecification",
+            "value": {"label": value[3], "value": value[3]}
+          });
+          arr.add({
+            "title": "单位名称",
+            "name": "FUnitId",
+            "isHide": false,
+            "value": {"label": value[4], "value": value[5]}
+          });
+          arr.add({
+            "title": "退货数量",
+            "name": "FRealQty",
+            "isHide": false,
+            "value": {"label": "0", "value": "0"}
+          });
+          arr.add({
+            "title": "数量",
+            "name": "FBaseQty",
+            "isHide": false,
+            "value": {"label": "1", "value": "1"}
+          });
+          arr.add({
+            "title": "退货日期",
+            "name": "FDeliverydate",
+            "isHide": true,
+            "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "仓库",
+            "name": "FStockID",
+            "isHide": false,
+            "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "批号",
+            "name": "FLot",
+            "isHide": value[6] != true,
+            "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "线路名称",
+            "name": "F_ora_Assistant",
+            "isHide": true,
+            "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "仓位",
+            "name": "FStockLocID",
+            "isHide": false,
+            "value": {"label": "", "value": "", "hide": false}
+          });
+          arr.add({
+            "title": "操作",
+            "name": "",
+            "isHide": false,
+            "value": {"label": "", "value": ""}
+          });
+          hobby.add(arr);
         });
-        arr.add({
-          "title": "销售组织",
-          "name": "FSaleOrgId",
-          "isHide": false,
-          "value": {"label": "", "value": ""}
-        });
-        arr.add({
-          "title": "客户",
-          "name": "FSaleOrgId",
-          "isHide": false,
-          "value": {"label": "", "value": ""}
-        });
-        arr.add({
-          "title": "单据日期",
-          "name": "FDate",
-          "isHide": false,
-          "value": {"label": "", "value": ""}
-        });
-        arr.add({
-          "title": "物料名称",
-          "name": "FMaterial",
-          "isHide": false,
-          "value": {"label": value[1], "value": value[2]}
-        });
-        arr.add({
-          "title": "规格型号",
-          "isHide": false,
-          "name": "FMaterialIdFSpecification",
-          "value": {"label": value[3], "value": value[3]}
-        });
-        arr.add({
-          "title": "单位名称",
-          "name": "FUnitId",
-          "isHide": false,
-          "value": {"label": value[4], "value": value[5]}
-        });
-        arr.add({
-          "title": "退货数量",
-          "name": "FRealQty",
-          "isHide": false,
-          "value": {"label": "0", "value": "0"}
-        });
-        arr.add({
-          "title": "数量",
-          "name": "FBaseQty",
-          "isHide": false,
-          "value": {"label": "1", "value": "1"}
-        });
-        arr.add({
-          "title": "退货日期",
-          "name": "FDeliverydate",
-          "isHide": true,
-          "value": {"label": "", "value": ""}
-        });
-        arr.add({
-          "title": "仓库",
-          "name": "FStockID",
-          "isHide": false,
-          "value": {"label": "", "value": ""}
-        });
-        arr.add({
-          "title": "批号",
-          "name": "FLot",
-          "isHide": value[6] != true,
-          "value": {"label": "", "value": ""}
-        });
-        arr.add({
-          "title": "线路名称",
-          "name": "F_ora_Assistant",
-          "isHide": true,
-          "value": {"label": "", "value": ""}
-        });
-        arr.add({
-          "title": "仓位",
-          "name": "FStockLocID",
-          "isHide": false,
-          "value": {"label": "", "value": "","hide": false}
-        });
-        arr.add({
-          "title": "操作",
-          "name": "",
-          "isHide": false,
-          "value": {"label": "", "value": ""}
-        });
-        hobby.add(arr);
-      });
+      }
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
