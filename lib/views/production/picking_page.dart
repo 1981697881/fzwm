@@ -47,11 +47,11 @@ class _PickingPageState extends State<PickingPage> {
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
 
     /// 开启监听
-    /* if (_subscription == null) {
+     if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
-    }*/
+    }
   }
 
   @override
@@ -60,9 +60,9 @@ class _PickingPageState extends State<PickingPage> {
     super.dispose();
 
     /// 取消监听
-    /*if (_subscription != null) {
+    if (_subscription != null) {
       _subscription.cancel();
-    }*/
+    }
   }
 
   // 集合
@@ -89,14 +89,16 @@ class _PickingPageState extends State<PickingPage> {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
     }
-    if (this.keyWord != '') {
+    userMap['FilterString'] =
+    "FStatus in (3) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+    var scanCode = keyWord.split(",");
+    if(this.keyWord != ''){
       userMap['FilterString'] =
-      "FSaleOrderNo='$keyWord' and FStatus in (3,4) and FNoStockInQty>0 and FWorkShopID.FNumber='$FNumber' and FDate>= '$startDate' and FDate <= '$endDate'";
-      }
+          "FSaleOrderNo='"+scanCode[0]+"' and FStatus in (3) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+    }
     userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =
     'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
-
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);

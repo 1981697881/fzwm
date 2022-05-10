@@ -43,11 +43,11 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
 
     /// 开启监听
-    /* if (_subscription == null) {
+     if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
-    }*/
+    }
   }
 
   @override
@@ -56,9 +56,9 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
     super.dispose();
 
     /// 取消监听
-    /*if (_subscription != null) {
+    if (_subscription != null) {
       _subscription.cancel();
-    }*/
+    }
   }
 
   // 集合

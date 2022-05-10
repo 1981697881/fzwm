@@ -213,62 +213,60 @@ class _IndexPageState extends State<IndexPage> {
 /*一个渐变颜色的正方形集合*/
   List<Widget> Boxs(List<Map<String, dynamic>> menu) =>
       List.generate(menu.length, (index) {
-        return Container(
-            width: 80,
-            height: 80,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black12,
-                    offset: Offset(0.0, 15.0), //阴影xy轴偏移量
-                    blurRadius: 15.0, //阴影模糊程度
-                    spreadRadius: 1.0 //阴影扩散程度
+        return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => menu[index]['router']),
+              );
+            },
+            child: Container(
+                width: 80,
+                height: 80,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black12,
+                        offset: Offset(0.0, 15.0), //阴影xy轴偏移量
+                        blurRadius: 15.0, //阴影模糊程度
+                        spreadRadius: 1.0 //阴影扩散程度
                     )
-              ],
-              borderRadius: BorderRadius.all(
-                //圆角
-                Radius.circular(10.0),
-              ),
-              gradient: LinearGradient(colors: [
-                Colors.lightBlueAccent,
-                Colors.blue,
-                Colors.blueAccent
-              ]),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => menu[index]['router']),
-                    );
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(6.0),
-                    decoration: BoxDecoration(
-                      color: menu[index]['color'],
-                      borderRadius: BorderRadius.circular(6.0),
-                    ),
-                    child: Icon(
-                      menu[index]['icon'],
-                      size: IconTheme.of(context).size - 6,
-                      color: Colors.white,
-                    ),
+                  ],
+                  borderRadius: BorderRadius.all(
+                    //圆角
+                    Radius.circular(10.0),
                   ),
+                  gradient: LinearGradient(colors: [
+                    Colors.lightBlueAccent,
+                    Colors.blue,
+                    Colors.blueAccent
+                  ]),
                 ),
-                SizedBox(
-                  height: 5.0,
-                ),
-                Text(
-                  menu[index]['text'],
-                  style: TextStyle(color: Colors.white),
-                ),
-              ],
-            ));
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(6.0),
+                      decoration: BoxDecoration(
+                        color: menu[index]['color'],
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
+                      child: Icon(
+                        menu[index]['icon'],
+                        size: IconTheme.of(context).size - 6,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5.0,
+                    ),
+                    Text(
+                      menu[index]['text'],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                )));
       });
 
   // tabs 容器

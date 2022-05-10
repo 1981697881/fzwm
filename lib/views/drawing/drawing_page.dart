@@ -36,11 +36,11 @@ class _DrawingPageState extends State<DrawingPage> {
     super.initState();
 
     /// 开启监听
-    /*if (_subscription == null) {
+    if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
-    }*/
+    }
   }
 
   void _onEvent(Object event) async {
@@ -64,9 +64,9 @@ class _DrawingPageState extends State<DrawingPage> {
     super.dispose();
 
     /// 取消监听
-    /* if (_subscription != null) {
+     if (_subscription != null) {
       _subscription.cancel();
-    }*/
+    }
   }
 
   getOrderList() async {

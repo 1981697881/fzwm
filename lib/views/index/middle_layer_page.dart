@@ -44,49 +44,47 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
   /*一个渐变颜色的正方形集合*/
   List<Widget> Boxs(List<Map<String, dynamic>> menu) =>
       List.generate(menu.length, (index) {
-        return Container(
-            width: 130,
-            height: 60,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black12,
-                    offset: Offset(4.0, 15.0), //阴影xy轴偏移量
-                    blurRadius: 15.0, //阴影模糊程度
-                    spreadRadius: 1.0 //阴影扩散程度
-                )
-              ],
-              borderRadius: BorderRadius.all(
-                //圆角
-                Radius.circular(10.0),
-              ),
-              gradient: LinearGradient(colors: [
-                Colors.lightBlueAccent,
-                Colors.blue,
-                Colors.blueAccent
-              ]),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => menu[index]['router']),
-                    );
-                  },
-                  child: Container(
-                    child: Text(
-                      menu[index]['text'],
-                      style: TextStyle(color: Colors.white),
-                    ),
+        return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => menu[index]['router']),
+              );
+            },
+            child: Container(
+                width: 130,
+                height: 60,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black12,
+                        offset: Offset(4.0, 15.0), //阴影xy轴偏移量
+                        blurRadius: 15.0, //阴影模糊程度
+                        spreadRadius: 1.0 //阴影扩散程度
+                    )
+                  ],
+                  borderRadius: BorderRadius.all(
+                    //圆角
+                    Radius.circular(10.0),
                   ),
+                  gradient: LinearGradient(colors: [
+                    Colors.lightBlueAccent,
+                    Colors.blue,
+                    Colors.blueAccent
+                  ]),
                 ),
-              ],
-            ));
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      child: Text(
+                        menu[index]['text'],
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                )));
       });
 
   // tabs 容器

@@ -37,11 +37,11 @@ class _StockPageState extends State<StockPage> {
   void initState() {
     super.initState();
     /// 开启监听
-   /* if (_subscription == null) {
+    if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
-    }*/
+    }
   }
 
   @override
@@ -50,9 +50,9 @@ class _StockPageState extends State<StockPage> {
     super.dispose();
 
     /// 取消监听
-    /*if (_subscription != null) {
+    if (_subscription != null) {
       _subscription.cancel();
-    }*/
+    }
   }
 
   // 集合
