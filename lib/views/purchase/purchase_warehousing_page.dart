@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:ui';
 import 'package:fzwm/model/currency_entity.dart';
 import 'package:fzwm/utils/toast_util.dart';
 import 'package:flutter/material.dart';
@@ -271,7 +272,9 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     DateTime selectEnd = selectTimeRange.end;
     setState(() {});
   }
-
+  double hc_ScreenWidth() {
+    return window.physicalSize.width / window.devicePixelRatio;
+  }
   @override
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
@@ -353,9 +356,11 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
                             Container(
                               height: 52.0,
                               child: new Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: new Card(
+                                padding: const EdgeInsets.all(2.0),
+                                child: Row(children: [
+                                  Card(
                                     child: new Container(
+                                        width: hc_ScreenWidth() - 80,
                                         child: Row(
                                           crossAxisAlignment:
                                           CrossAxisAlignment.center,
@@ -399,7 +404,23 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
                                             ),
                                           ],
                                         )),
-                                  )),
+                                  ),
+                                  new SizedBox(
+                                    width: 60.0,
+                                    height: 40.0,
+                                    child: new RaisedButton(
+                                      color: Colors.lightBlueAccent,
+                                      child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
+                                      onPressed: (){
+                                        setState(() {
+                                          this.keyWord = this.controller.text;
+                                          this.getOrderList();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ]),
+                              ),
                             ),
                           ],
                         )),

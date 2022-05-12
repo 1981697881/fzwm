@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:ui';
 import 'package:fzwm/model/currency_entity.dart';
 import 'package:fzwm/utils/toast_util.dart';
 import 'package:flutter/material.dart';
@@ -297,7 +298,9 @@ class _RetrievalPageState extends State<RetrievalPage> {
 
     });
   }
-
+  double hc_ScreenWidth() {
+    return window.physicalSize.width / window.devicePixelRatio;
+  }
   @override
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
@@ -344,7 +347,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
                                       height: 40.0,
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                          "开始：" +
+                                          "开始:" +
                                               (this._dateSelectText == ""
                                                   ? ""
                                                   : this
@@ -362,7 +365,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
                                       height: 40.0,
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                          "结束：" +
+                                          "结束:" +
                                               (this._dateSelectText == ""
                                                   ? ""
                                                   : this
@@ -379,52 +382,71 @@ class _RetrievalPageState extends State<RetrievalPage> {
                           Container(
                             height: 52.0,
                             child: new Padding(
-                                padding: const EdgeInsets.all(2.0),
-                                child: new Card(
+                              padding: const EdgeInsets.all(2.0),
+                              child: Row(children: [
+                                Card(
                                   child: new Container(
+                                      width: hc_ScreenWidth() - 80,
                                       child: Row(
-                                    crossAxisAlignment:
+                                        crossAxisAlignment:
                                         CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      SizedBox(
-                                        width: 6.0,
-                                      ),
-                                      Icon(
-                                        Icons.search,
-                                        color: Colors.grey,
-                                      ),
-                                      Expanded(
-                                        child: Container(
-                                          alignment: Alignment.center,
-                                          child: TextField(
-                                            controller: this.controller,
-                                            decoration: new InputDecoration(
-                                                contentPadding: EdgeInsets.only(
-                                                    bottom: 12.0),
-                                                hintText: '输入关键字',
-                                                border: InputBorder.none),
-                                            onSubmitted: (value) {
-                                              setState(() {
-                                                this.keyWord = value;
-                                                this.getOrderList();
-                                              });
-                                            },
-                                            // onChanged: onSearchTextChanged,
+                                        children: <Widget>[
+                                          SizedBox(
+                                            width: 6.0,
                                           ),
-                                        ),
-                                      ),
-                                      new IconButton(
-                                        icon: new Icon(Icons.cancel),
-                                        color: Colors.grey,
-                                        iconSize: 18.0,
-                                        onPressed: () {
-                                          this.controller.clear();
-                                          // onSearchTextChanged('');
-                                        },
-                                      ),
-                                    ],
-                                  )),
-                                )),
+                                          Icon(
+                                            Icons.search,
+                                            color: Colors.grey,
+                                          ),
+                                          Expanded(
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: TextField(
+                                                controller: this.controller,
+                                                decoration: new InputDecoration(
+                                                    contentPadding:
+                                                    EdgeInsets.only(
+                                                        bottom: 12.0),
+                                                    hintText: '输入关键字',
+                                                    border: InputBorder.none),
+                                                onSubmitted: (value) {
+                                                  setState(() {
+                                                    this.keyWord = value;
+                                                    this.getOrderList();
+                                                  });
+                                                },
+                                                // onChanged: onSearchTextChanged,
+                                              ),
+                                            ),
+                                          ),
+                                          new IconButton(
+                                            icon: new Icon(Icons.cancel),
+                                            color: Colors.grey,
+                                            iconSize: 18.0,
+                                            onPressed: () {
+                                              this.controller.clear();
+                                              // onSearchTextChanged('');
+                                            },
+                                          ),
+                                        ],
+                                      )),
+                                ),
+                                new SizedBox(
+                                  width: 60.0,
+                                  height: 40.0,
+                                  child: new RaisedButton(
+                                    color: Colors.lightBlueAccent,
+                                    child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
+                                    onPressed: (){
+                                      setState(() {
+                                        this.keyWord = this.controller.text;
+                                        this.getOrderList();
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ]),
+                            ),
                           ),
                         ],
                       ),

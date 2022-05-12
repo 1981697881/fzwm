@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:ui';
 import 'package:fzwm/model/currency_entity.dart';
 import 'package:fzwm/utils/toast_util.dart';
 import 'package:flutter/material.dart';
@@ -291,7 +292,9 @@ class _DispatchPageState extends State<DispatchPage> {
     print(_dateSelectText);
     setState(() {});
   }
-
+  double hc_ScreenWidth() {
+    return window.physicalSize.width / window.devicePixelRatio;
+  }
   @override
   Widget build(BuildContext context) {
     return FlutterEasyLoading(
@@ -338,7 +341,7 @@ class _DispatchPageState extends State<DispatchPage> {
                                       height: 40.0,
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                          "开始：" +
+                                          "开始:" +
                                               (this._dateSelectText == ""
                                                   ? ""
                                                   : this
@@ -356,7 +359,7 @@ class _DispatchPageState extends State<DispatchPage> {
                                       height: 40.0,
                                       alignment: Alignment.centerLeft,
                                       child: Text(
-                                          "结束：" +
+                                          "结束:" +
                                               (this._dateSelectText == ""
                                                   ? ""
                                                   : this
@@ -373,9 +376,11 @@ class _DispatchPageState extends State<DispatchPage> {
                           Container(
                             height: 52.0,
                             child: new Padding(
-                                padding: const EdgeInsets.all(2.0),
-                                child: new Card(
+                              padding: const EdgeInsets.all(2.0),
+                              child: Row(children: [
+                                Card(
                                   child: new Container(
+                                      width: hc_ScreenWidth() - 80,
                                       child: Row(
                                         crossAxisAlignment:
                                         CrossAxisAlignment.center,
@@ -393,7 +398,8 @@ class _DispatchPageState extends State<DispatchPage> {
                                               child: TextField(
                                                 controller: this.controller,
                                                 decoration: new InputDecoration(
-                                                    contentPadding: EdgeInsets.only(
+                                                    contentPadding:
+                                                    EdgeInsets.only(
                                                         bottom: 12.0),
                                                     hintText: '输入关键字',
                                                     border: InputBorder.none),
@@ -418,7 +424,23 @@ class _DispatchPageState extends State<DispatchPage> {
                                           ),
                                         ],
                                       )),
-                                )),
+                                ),
+                                new SizedBox(
+                                  width: 60.0,
+                                  height: 40.0,
+                                  child: new RaisedButton(
+                                    color: Colors.lightBlueAccent,
+                                    child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
+                                    onPressed: (){
+                                      setState(() {
+                                        this.keyWord = this.controller.text;
+                                        this.getOrderList();
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ]),
+                            ),
                           ),
                         ],
                       ),
