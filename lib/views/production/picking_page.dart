@@ -36,6 +36,7 @@ class _PickingPageState extends State<PickingPage> {
   const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
+  var isScan = false;
 
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
@@ -59,13 +60,11 @@ class _PickingPageState extends State<PickingPage> {
   void dispose() {
     this.controller.dispose();
     super.dispose();
-
     /// 取消监听
     if (_subscription != null) {
       _subscription.cancel();
     }
   }
-
   // 集合
   List hobby = [];
   void getWorkShop() async {
@@ -78,24 +77,27 @@ class _PickingPageState extends State<PickingPage> {
       }
     });
   }
-
   getOrderList() async {
     setState(() {
       hobby = [];
       this._getHobby();
     });
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FNoStockInQty>0";
-    if (this._dateSelectText != "") {
-      this.startDate = this._dateSelectText.substring(0, 10);
-      this.endDate = this._dateSelectText.substring(26, 36);
-    }
     userMap['FilterString'] =
-    "FStatus in (3) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+    "FStatus in (3) and FNoStockInQty>0";
     var scanCode = keyWord.split(",");
-    if(this.keyWord != ''){
+    if(isScan){
       userMap['FilterString'] =
-          "FSaleOrderNo='"+scanCode[0]+"' and FStatus in (3) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+          "FBillNo='"+scanCode[0]+"' and FStatus in (3) and FNoStockInQty>0";
+    }else{
+      if (this._dateSelectText != "") {
+        this.startDate = this._dateSelectText.substring(0, 10);
+        this.endDate = this._dateSelectText.substring(26, 36);
+      }
+      if(this.keyWord != ''){
+        userMap['FilterString'] =
+            "FBillNo='"+scanCode[0]+"' and FStatus in (3) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
     }
     userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =
@@ -280,32 +282,32 @@ class _PickingPageState extends State<PickingPage> {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
     } else {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
       ToastUtil.showInfo('无数据');
     }
   }
-
   void _onEvent(Object event) async {
     /*  setState(() {*/
     _code = event;
     EasyLoading.show(status: 'loading...');
     keyWord = _code;
     this.controller.text = _code;
+    isScan = true;
     await getOrderList();
     /*});*/
   }
-
   void _onError(Object error) {
     setState(() {
       _code = "扫描异常";
     });
   }
-
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
@@ -384,6 +386,7 @@ class _PickingPageState extends State<PickingPage> {
 
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
   void getScan(String scan) async {
+    isScan = true;
     keyWord = scan;
     this.controller.text = scan;
     await getOrderList();

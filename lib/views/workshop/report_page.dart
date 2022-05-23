@@ -37,6 +37,7 @@ class _ReportPageState extends State<ReportPage> {
   const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
+  var isScan = false;
 
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
@@ -78,16 +79,22 @@ class _ReportPageState extends State<ReportPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FOrderQty>0";
-    if (this._dateSelectText != "") {
-      this.startDate = this._dateSelectText.substring(0, 10);
-      this.endDate = this._dateSelectText.substring(26, 36);
+    userMap['FilterString'] = "FUnSubmitQty>0";
+    var scanCode = keyWord.split(",");
+    if(isScan){
       userMap['FilterString'] =
-      "FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
-    }
-    if (this.keyWord != '') {
-      userMap['FilterString'] =
-      "FBillNo='$keyWord' and FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+          "FBillNo='"+scanCode[0]+"' and FUnSubmitQty>0";
+    }else{
+      if (this._dateSelectText != "") {
+        this.startDate = this._dateSelectText.substring(0, 10);
+        this.endDate = this._dateSelectText.substring(26, 36);
+        userMap['FilterString'] =
+        "FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
+      if (this.keyWord != '') {
+        userMap['FilterString'] =
+        "FBillNo='"+scanCode[0]+"' and FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
     }
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
     userMap['FieldKeys'] =
@@ -167,11 +174,13 @@ class _ReportPageState extends State<ReportPage> {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
     } else {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
       ToastUtil.showInfo('无数据');
     }
@@ -182,6 +191,7 @@ class _ReportPageState extends State<ReportPage> {
     _code = event;
     EasyLoading.show(status: 'loading...');
     keyWord = _code;
+    isScan = true;
     this.controller.text = _code;
     await getOrderList();
     /*});*/
@@ -265,6 +275,7 @@ class _ReportPageState extends State<ReportPage> {
   void getScan(String scan) async {
     keyWord = scan;
     this.controller.text = scan;
+    isScan = true;
     await getOrderList();
   }
 

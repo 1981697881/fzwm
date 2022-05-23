@@ -31,6 +31,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
   const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
+  var isScan = false;
 
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
@@ -68,15 +69,21 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FInStockQty >0";
-    if (this._dateSelectText != "") {
-      this.startDate = this._dateSelectText.substring(0, 10);
-      this.endDate = this._dateSelectText.substring(26, 36);
+    var scanCode = keyWord.split(",");
+    if(isScan){
       userMap['FilterString'] =
-      "FDate>= '$startDate' and FDate <= '$endDate'";
-    }
-    if (this.keyWord != '') {
-      userMap['FilterString'] =/*and FInStockQty>0*/
-      "FBillNo='$keyWord' and FDate>= '$startDate' and FDate <= '$endDate'";
+          "FBillNo='"+scanCode[0]+"'";
+    }else {
+      if (this._dateSelectText != "") {
+        this.startDate = this._dateSelectText.substring(0, 10);
+        this.endDate = this._dateSelectText.substring(26, 36);
+        userMap['FilterString'] =
+        "FDate>= '$startDate' and FDate <= '$endDate'";
+      }
+      if (this.keyWord != '') {
+        userMap['FilterString'] = /*and FInStockQty>0*/
+        "FBillNo='"+scanCode[0]+"' and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
     }
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['FieldKeys'] =
@@ -145,11 +152,13 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
     } else {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
       ToastUtil.showInfo('无数据');
     }
@@ -158,6 +167,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
   void _onEvent(Object event) async {
     /*  setState(() {*/
     _code = event;
+    isScan = true;
     EasyLoading.show(status: 'loading...');
     keyWord = _code;
     this.controller.text = _code;
@@ -240,7 +250,9 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
   }
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
   void getScan(String scan) async {
+
     keyWord = scan;
+    isScan = true;
     this.controller.text = scan;
     await getOrderList();
   }

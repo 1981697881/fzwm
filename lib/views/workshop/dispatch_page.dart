@@ -37,6 +37,7 @@ class _DispatchPageState extends State<DispatchPage> {
   const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
+  var isScan = false;
 
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
@@ -78,16 +79,22 @@ class _DispatchPageState extends State<DispatchPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FPlanQty >0";
-    if (this._dateSelectText != "") {
-      this.startDate = this._dateSelectText.substring(0, 10);
-      this.endDate = this._dateSelectText.substring(26, 36);
+    userMap['FilterString'] = "FUnOrderQty >0";
+    var scanCode = keyWord.split(",");
+    if(isScan){
       userMap['FilterString'] =
-      "FUnOrderQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
-    }
-    if (this.keyWord != '') {
-      userMap['FilterString'] =
-      "FBillNo='$keyWord' and FUnOrderQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
+          "FBillNo='"+scanCode[0]+"' and FUnOrderQty>0";
+    }else{
+      if (this._dateSelectText != "") {
+        this.startDate = this._dateSelectText.substring(0, 10);
+        this.endDate = this._dateSelectText.substring(26, 36);
+        userMap['FilterString'] =
+        "FUnOrderQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
+      if (this.keyWord != '') {
+        userMap['FilterString'] =
+        "FBillNo='"+scanCode[0]+"' and FUnOrderQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
     }
     userMap['FormId'] = 'k9917093a9fd147b7a68c76f6780b8593';
     userMap['FieldKeys'] =
@@ -161,11 +168,13 @@ class _DispatchPageState extends State<DispatchPage> {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
     } else {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
       ToastUtil.showInfo('无数据');
     }
@@ -174,6 +183,7 @@ class _DispatchPageState extends State<DispatchPage> {
   void _onEvent(Object event) async {
     /*  setState(() {*/
     _code = event;
+    isScan = true;
     EasyLoading.show(status: 'loading...');
     keyWord = _code;
     this.controller.text = _code;
@@ -258,6 +268,7 @@ class _DispatchPageState extends State<DispatchPage> {
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
   void getScan(String scan) async {
     keyWord = scan;
+    isScan = true;
     this.controller.text = scan;
     await getOrderList();
   }

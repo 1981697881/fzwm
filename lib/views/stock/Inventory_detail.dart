@@ -225,7 +225,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
     var deptData = jsonDecode(menuData)[0];
     var scanCode = _code.split(",");
     userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockOrgId.FNumber = "+deptData[1];
-    if(scanCode[1] != ""){
+    if(scanCode.length > 1){
       userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockOrgId.FNumber = "+deptData[1];
     }
     userMap['FormId'] = 'STK_Inventory';

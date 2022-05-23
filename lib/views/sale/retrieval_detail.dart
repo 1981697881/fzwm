@@ -484,7 +484,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
             "title": "批号",
             "name": "FLot",
             "isHide": value[6] != true,
-            "value": {"label": "", "value": ""}
+            "value": {"label": value[6]?(scanCode.length>1?scanCode[1]:''):'', "value": value[6]?(scanCode.length>1?scanCode[1]:''):''}
           });
           arr.add({
             "title": "线路名称",

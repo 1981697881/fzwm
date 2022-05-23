@@ -34,6 +34,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
       const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
+  var isScan = false;
 
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
@@ -76,17 +77,22 @@ class _RetrievalPageState extends State<RetrievalPage> {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FRemainOutQty>0";
-    if (this._dateSelectText != "") {
-      this.startDate = this._dateSelectText.substring(0, 10);
-      this.endDate = this._dateSelectText.substring(26, 36);
+    var scanCode = keyWord.split(",");
+    if(isScan){
       userMap['FilterString'] =
-          "FRemainOutQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+          "FBillNo='"+scanCode[0]+"' and FRemainOutQty>0";
+    }else{
+      if (this._dateSelectText != "") {
+        this.startDate = this._dateSelectText.substring(0, 10);
+        this.endDate = this._dateSelectText.substring(26, 36);
+        userMap['FilterString'] =
+        "FRemainOutQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
+      if (this.keyWord != '') {
+        userMap['FilterString'] =
+        "FBillNo='"+scanCode[0]+"' and FRemainOutQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
     }
-    if (this.keyWord != '') {
-      userMap['FilterString'] =
-          "FBillNo='$keyWord' and FRemainOutQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
-    }
-
     userMap['FormId'] = 'SAL_DELIVERYNOTICE';
     userMap['FieldKeys'] =
         'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeliveryOrgID.FNumber,FDeliveryOrgID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FRemainOutQty,FID,,FCustomerID.FNumber,FCustomerID.FName';
@@ -165,11 +171,13 @@ class _RetrievalPageState extends State<RetrievalPage> {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
     } else {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
       ToastUtil.showInfo('无数据');
     }
@@ -178,6 +186,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
   void _onEvent(Object event) async {
     /*  setState(() {*/
     _code = event;
+    isScan = true;
     EasyLoading.show(status: 'loading...');
     keyWord = _code;
     this.controller.text = _code;
@@ -262,6 +271,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
   void getScan(String scan) async {
     keyWord = scan;
+    isScan = true;
     this.controller.text = scan;
     await getOrderList();
   }

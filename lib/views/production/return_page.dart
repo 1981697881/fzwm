@@ -38,6 +38,7 @@ class _ReturnPageState extends State<ReturnPage> {
       const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription _subscription;
   var _code;
+  var isScan = false;
 
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
@@ -90,16 +91,19 @@ class _ReturnPageState extends State<ReturnPage> {
     });
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FNoStockInQty>0";
-    if (this._dateSelectText != "") {
-      this.startDate = this._dateSelectText.substring(0, 10);
-      this.endDate = this._dateSelectText.substring(26, 36);
-    }
-    userMap['FilterString'] =
-    "FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     var scanCode = keyWord.split(",");
-    if(this.keyWord != ''){
+    if(isScan){
       userMap['FilterString'] =
-          "FSaleOrderNo='"+scanCode[0]+"' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+          "FBillNo='"+scanCode[0]+"' and FStatus in (4) and FNoStockInQty>0";
+    }else{
+      if (this._dateSelectText != "") {
+        this.startDate = this._dateSelectText.substring(0, 10);
+        this.endDate = this._dateSelectText.substring(26, 36);
+      }
+      if(this.keyWord != ''){
+        userMap['FilterString'] =
+            "FSaleOrderNo='"+scanCode[0]+"' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
     }
     userMap['FormId'] = 'PRD_MO';
     userMap['FieldKeys'] =
@@ -282,11 +286,13 @@ class _ReturnPageState extends State<ReturnPage> {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
     } else {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
       ToastUtil.showInfo('无数据');
     }
@@ -295,6 +301,7 @@ class _ReturnPageState extends State<ReturnPage> {
   void _onEvent(Object event) async {
     /*  setState(() {*/
     _code = event;
+    isScan = true;
     EasyLoading.show(status: 'loading...');
     keyWord = _code;
     this.controller.text = _code;
@@ -379,6 +386,7 @@ class _ReturnPageState extends State<ReturnPage> {
   void getScan(String scan) async {
     keyWord = scan;
     this.controller.text = scan;
+    isScan = true;
     await getOrderList();
   }
 
