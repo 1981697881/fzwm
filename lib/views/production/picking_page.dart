@@ -84,11 +84,11 @@ class _PickingPageState extends State<PickingPage> {
     });
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] =
-    "FStatus in (3) and FNoStockInQty>0";
+    "FStatus in (4) and FNoStockInQty>0";
     var scanCode = keyWord.split(",");
     if(isScan){
       userMap['FilterString'] =
-          "FBillNo='"+scanCode[0]+"' and FStatus in (3) and FNoStockInQty>0";
+          "FBillNo='"+scanCode[0]+"' and FStatus in (4) and FNoStockInQty>0";
     }else{
       if (this._dateSelectText != "") {
         this.startDate = this._dateSelectText.substring(0, 10);
@@ -96,7 +96,7 @@ class _PickingPageState extends State<PickingPage> {
       }
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "FBillNo='"+scanCode[0]+"' and FStatus in (3) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+            "FBillNo='"+scanCode[0]+"' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     userMap['FormId'] = 'PRD_MO';
@@ -414,11 +414,13 @@ class _PickingPageState extends State<PickingPage> {
         //初始的时间范围选择
         initialDateRange: DateTimeRange(start: start, end: end));
     //结果
-    _dateSelectText = selectTimeRange.toString();
-    //选择结果中的开始时间
-    DateTime selectStart = selectTimeRange.start;
-    //选择结果中的结束时间
-    DateTime selectEnd = selectTimeRange.end;
+    if(selectTimeRange != null){
+      _dateSelectText = selectTimeRange.toString();
+      //选择结果中的开始时间
+      DateTime selectStart = selectTimeRange.start;
+      //选择结果中的结束时间
+      DateTime selectEnd = selectTimeRange.end;
+    }
     setState(() {});
   }
   double hc_ScreenWidth() {

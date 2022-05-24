@@ -12,7 +12,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fzwm/utils/toast_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-
+import 'package:qrscan/qrscan.dart' as scanner;
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -86,6 +86,11 @@ class _LoginPageState extends State<LoginPage> {
   void _onEvent(Object event) async {
     /*  setState(() {*/
     _code = event;
+    var content = _code.split(',');
+    urlContent.text = content[0];
+    acctidContent.text = content[1];
+    usernameContent.text = content[2];
+    passwordContent.text = content[3];
     /*});*/
   }
 
@@ -147,11 +152,32 @@ class _LoginPageState extends State<LoginPage> {
     }
     return null;
   }
+  //扫码函数,最简单的那种
+  Future scan() async {
+    String cameraScanResult = await scanner.scan(); //通过扫码获取二维码中的数据
+    getScan(cameraScanResult); //将获取到的参数通过HTTP请求发送到服务器
+    print(cameraScanResult); //在控制台打印
+  }
+
+//用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
+  void getScan(String scan) async {
+    _code = scan;
+    var content = _code.split(',');
+    urlContent.text = content[0];
+    acctidContent.text = content[1];
+    usernameContent.text = content[2];
+    passwordContent.text = content[3];
+  }
   void _pushSaved() async {
     Navigator.of(context).push(
       new MaterialPageRoute(
         builder: (context) {
           return new Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: scan,
+              tooltip: 'Increment',
+              child: Icon(Icons.filter_center_focus),
+            ),
             appBar: new AppBar(
               title: new Text('系统参数'),
               centerTitle: true,
@@ -315,6 +341,7 @@ class _LoginPageState extends State<LoginPage> {
                               },
                             )
                         ),
+                        obscureText: false,
                         controller: this.passwordContent,
                         //改变回调
                         onChanged: (value) {

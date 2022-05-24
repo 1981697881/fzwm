@@ -494,12 +494,12 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               divider,
             ]),
           );
-        } else if (j == 5 || j == 7) {
+        } else if (j == 5) {
           comList.add(
             _item('良品仓库:', stockList, this.hobby[i][j]['value']['label'],
                 this.hobby[i][j],stock:this.hobby[i]),
           );
-        } else if (j == 5 || j == 7) {
+        } else if (j == 7) {
           comList.add(
             _item('不良品仓库:', stockList, this.hobby[i][j]['value']['label'],
                 this.hobby[i][j],stock:this.hobby[i]),

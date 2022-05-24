@@ -155,7 +155,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
     userMap['FilterString'] = "fBillNo='$fBillNo'";
     userMap['FormId'] = 'k9917093a9fd147b7a68c76f6780b8593';
     userMap['FieldKeys'] =
-        'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessName,FPlanQty,FPlanStarDate,FPlanEndDate,FID,FQty,FOrderQty,FUnOrderQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo1.FNumber,FOrderEntryID,FProcessNote,FProcessMulti,FProcessTypeID,FKDNo';
+        'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessName,FPlanQty,FPlanStarDate,FPlanEndDate,FID,FQty,FOrderQty,FUnOrderQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo1.FNumber,FOrderEntryID,FProcessNote,FProcessMulti,FProcessTypeID.FNumber,FKDNo';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -639,6 +639,15 @@ class _DispatchDetailState extends State<DispatchDetail> {
           FEntityItem['FOrderEntryID'] = orderDate[hobbyIndex][21];
           FEntityItem['FPONumber'] = element[1]['value']['value']+'-'+formatter.format(int.parse(orderDate[hobbyIndex][21]));
           FEntityItem['FProcessNo'] = orderDate[hobbyIndex][19];
+          /*FEntityItem['FEntity_Link'] = [
+            {
+              "FEntity_Link_FRuleId": "8e1da6f6-33de-47af-a914-04711c3bd763",
+              "FEntity_Link_FSTableName": "cust_t_ProcessPlanEntry",
+              "FEntity_Link_FSBillId": orderDate[hobbyIndex][13],
+              "FEntity_Link_FSId": orderDate[hobbyIndex][4],
+              "FEntity_Link_FOrderQty": element[8]['value']['value']
+            }
+          ];*/
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;

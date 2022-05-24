@@ -179,7 +179,7 @@ class _ReportDetailState extends State<ReportDetail> {
     userMap['FilterString'] = "fBillNo='$fBillNo'";
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
     userMap['FieldKeys'] =
-    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo,FPONumber,FLineName,FProcessNote,FProcessMulti,F_ora_BaseProperty1,FOrderEntryID,FDeptID.FNumber,FKDNo1.FNumber,FPONumber';
+    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo,FPONumber,FLineName,FProcessNote,FProcessMulti,F_ora_BaseProperty1,FOrderEntryID,FDeptID.FNumber,FKDNo1.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -495,7 +495,7 @@ class _ReportDetailState extends State<ReportDetail> {
         "FNumber": fProcessID
       };
       Model['FKDNo'] = orderDate[0][25];
-      Model['FOrderNo'] = orderDate[0][29];
+      Model['FOrderNo'] = orderDate[0][26];
       Model['F_ora_Text1'] = fOrderNo;
       Model['FProcessName'] = fProcessName;
       Model['FPlanStarDate'] = orderDate[0][11];
@@ -526,13 +526,16 @@ class _ReportDetailState extends State<ReportDetail> {
           FEntityItem['FEmpID'] = {
             "FSTAFFNUMBER": element[2]['value']['value']
           };
-          /* FEntityItem['FKDNo'] = orderDate[0][25];
-          FEntityItem['FProcessName'] = fProcessName;
-          FEntityItem['FPONumber'] = orderDate[0][21];
-          FEntityItem['FLineName'] = orderDate[0][22];
-          FEntityItem['FProcessNo'] = fProcessNo;
-          FEntityItem['FProcessNote'] = orderDate[0][23];
-          FEntityItem['FProcessMulti'] = orderDate[0][24];*/
+          /*FEntityItem['FEntity_Link'] = [
+            {
+              "FEntity_Link_FRuleId": "PRD_PPBOM2FEEDMTRL",
+              "FEntity_Link_FSTableName": "cust_t_ProcessOrderEntry",
+              "FEntity_Link_FSBillId": orderDate[hobbyIndex][13],
+              "FEntity_Link_FSId": orderDate[hobbyIndex][4],
+              "FEntity_Link_FOKQTY": element[0]['value']['value'],
+              "FEntity_Link_FBadQty": element[1]['value']['value']
+            }
+          ];*/
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;

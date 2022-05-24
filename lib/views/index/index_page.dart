@@ -209,7 +209,9 @@ class _IndexPageState extends State<IndexPage> {
     });
     return path;
   }
-
+  double hc_ScreenWidth() {
+    return window.physicalSize.width / window.devicePixelRatio;
+  }
 /*一个渐变颜色的正方形集合*/
   List<Widget> Boxs(List<Map<String, dynamic>> menu) =>
       List.generate(menu.length, (index) {
@@ -221,7 +223,7 @@ class _IndexPageState extends State<IndexPage> {
               );
             },
             child: Container(
-                width: 80,
+                width: hc_ScreenWidth()/4,
                 height: 80,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(

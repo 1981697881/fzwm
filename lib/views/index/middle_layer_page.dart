@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
@@ -40,7 +42,9 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
   void dispose() {
     super.dispose();
   }
-
+  double hc_ScreenWidth() {
+    return window.physicalSize.width / window.devicePixelRatio;
+  }
   /*一个渐变颜色的正方形集合*/
   List<Widget> Boxs(List<Map<String, dynamic>> menu) =>
       List.generate(menu.length, (index) {
@@ -52,7 +56,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
               );
             },
             child: Container(
-                width: 130,
+                width: hc_ScreenWidth()/2.5,
                 height: 60,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(

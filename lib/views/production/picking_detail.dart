@@ -169,7 +169,7 @@ class _PickingDetailState extends State<PickingDetail> {
         "FNoPickedQty>0 and FMOBillNO='$fBillNo' and FMOEntrySeq = '$FSeq'";
     userMap['FormId'] = 'PRD_PPBOM';
     userMap['FieldKeys'] =
-        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialID2.FNumber,FMaterialID2.FName,FMaterialID2.FSpecification,FUnitID2.FNumber,FUnitID2.FName,FNoPickedQty,FID';
+        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialID2.FNumber,FMaterialID2.FName,FMaterialID2.FSpecification,FUnitID2.FNumber,FUnitID2.FName,FNoPickedQty,FID,FLot.FNumber,FMaterialId.FIsBatchManage';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -220,6 +220,18 @@ class _PickingDetailState extends State<PickingDetail> {
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
         });
+        /*arr.add({
+          "title": "仓库",
+          "name": "FStockId",
+          "isHide": false,
+          "value": {"label": value[18], "value": value[19]}
+        });
+        arr.add({
+          "title": "批号",
+          "name": "",
+          "isHide": value[15] != true,
+          "value": {"label": value[14] == null? "":value[14], "value": value[14] == null? "":value[14]}
+        });*/
         hobby.add(arr);
       });
       setState(() {
@@ -829,7 +841,6 @@ class _PickingDetailState extends State<PickingDetail> {
         collarOrderDate = resData;
         saveOrder();
       } else {
-
         setState(() {
           this.isSubmit = false;
           ToastUtil.errorDialog(context,
