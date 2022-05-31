@@ -203,12 +203,12 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
             "value": {"label": value[21], "value": value[20]}
           });
           arr.add({
-            "title": "不合格数量",
+            "title": "不良品数量",
             "name": "rejectsNumber",
             "value": {"label": "0", "value": "0"}
           });
           arr.add({
-            "title": "不合格仓库",
+            "title": "不良品仓库",
             "name": "rejectsStock",
             "value": {"label": "", "value": ""}
           });
@@ -300,7 +300,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           color: Colors.white,
           child: ListTile(
             title: Text(title),
-            onTap: () => _onClickItem(data, selectData, hobby, label: label,stock: stock),
+            onTap: () => data.length>0?_onClickItem(data, selectData, hobby, label: label,stock: stock):{ToastUtil.showInfo('无数据')},
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
               MyText(selectData.toString()=="" ? '暂无':selectData.toString(),
                   color: Colors.grey, rightpadding: 18),

@@ -83,7 +83,7 @@ class _ReportPageState extends State<ReportPage> {
     var scanCode = keyWord.split(",");
     if(isScan){
       userMap['FilterString'] =
-          "FBillNo='"+scanCode[0]+"' and FUnSubmitQty>0";
+          "FOrderNo='"+scanCode[0]+"' and FUnSubmitQty>0";
     }else{
       if (this._dateSelectText != "") {
         this.startDate = this._dateSelectText.substring(0, 10);
@@ -93,7 +93,7 @@ class _ReportPageState extends State<ReportPage> {
       }
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FBillNo='"+scanCode[0]+"' and FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        "FOrderNo='"+scanCode[0]+"' and FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
@@ -169,6 +169,12 @@ class _ReportPageState extends State<ReportPage> {
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
         });
+        arr.add({
+          "title": "FEntity_FEntryId",
+          "name": "FEntity_FEntryId",
+          "isHide": true,
+          "value": {"label": value[4], "value": value[4]}
+        });
         hobby.add(arr);
       });
       setState(() {
@@ -220,7 +226,8 @@ class _ReportPageState extends State<ReportPage> {
                       MaterialPageRoute(
                         builder: (context) {
                           return ReportDetail(
-                              FBillNo: this.hobby[i][0]['value']
+                              FBillNo: this.hobby[i][0]['value'],
+                            FEntity_FEntryId: this.hobby[i][10]['value'],
                             // 路由参数
                           );
                         },

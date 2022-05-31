@@ -272,6 +272,16 @@ class _MyHomePageState extends State {
               ),
             );
           }
+        }else{
+          ToastUtil.showInfo('该账号无登录权限');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return LoginPage();
+              },
+            ),
+          );
         }
       } else {
         ToastUtil.showInfo('登录失败，重新登录');

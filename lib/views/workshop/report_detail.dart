@@ -28,17 +28,16 @@ final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class ReportDetail extends StatefulWidget {
   var FBillNo;
+  var FEntity_FEntryId;
 
-  ReportDetail({Key key, @required this.FBillNo}) : super(key: key);
+  ReportDetail({Key key, @required this.FBillNo, this.FEntity_FEntryId}) : super(key: key);
 
   @override
-  _ReportDetailState createState() => _ReportDetailState(FBillNo);
+  _ReportDetailState createState() => _ReportDetailState(FBillNo,FEntity_FEntryId);
 }
 
 class _ReportDetailState extends State<ReportDetail> {
   var _remarkContent = new TextEditingController();
-  GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
-  GlobalKey<TextWidgetState> textKey = GlobalKey();
   final _textNumber = TextEditingController();
   var checkItem;
   String FBillNo = '';
@@ -72,10 +71,11 @@ class _ReportDetailState extends State<ReportDetail> {
   var selectData = {
     DateMode.YMD: '',
   };
+  var departmentList = [];
+  List<dynamic> departmentListObj = [];
   var stockList = [];
   List<dynamic> stockListObj = [];
-  var empList = [];
-  List<dynamic> empListObj = [];
+
   List<dynamic> orderDate = [];
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
@@ -86,10 +86,12 @@ class _ReportDetailState extends State<ReportDetail> {
   var _code;
   var _FNumber;
   var fBillNo;
+  var fEntryId;
 
-  _ReportDetailState(FBillNo) {
+  _ReportDetailState(FBillNo,FEntity_FEntryId) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
+      this.fEntryId = FEntity_FEntryId['value'];
       this.getOrderList();
     }else{
       this.fBillNo = '';
@@ -106,10 +108,27 @@ class _ReportDetailState extends State<ReportDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
-    getEmpList();
-    getStockList();
-  }
 
+    getStockList();
+    getDepartmentList();
+  }
+  //获取部门
+  getDepartmentList() async {
+    Map<String, dynamic> userMap = Map();
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
+    userMap['FormId'] = 'BD_Department';
+    userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
+    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    departmentListObj = jsonDecode(res);
+    departmentListObj.forEach((element) {
+      departmentList.add(element[1]);
+    });
+  }
   //获取仓库
   getStockList() async {
     Map<String, dynamic> userMap = Map();
@@ -128,24 +147,24 @@ class _ReportDetailState extends State<ReportDetail> {
     });
   }
   //获取职员
-  getEmpList() async {
+  getEmpList(department,emp) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     userMap['FormId'] = 'BD_Empinfo';
     userMap['FilterString'] =
-    "FForbidStatus='A' and FUseOrgId.FNumber ="+deptData[1];
+    "FForbidStatus='A' and FUseOrgId.FNumber ="+deptData[1]+" and F_ora_Base.FNUMBER ='"+department+"'";
     userMap['FieldKeys'] = 'FUseOrgId.FNumber,FName,FNumber,FForbidStatus';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
-    empListObj = jsonDecode(res);
-    empListObj.forEach((element) {
-      empList.add(element[1]);
+    emp[3]["empListObj"] = jsonDecode(res);
+    emp[3]["empList"] = [];
+    emp[3]["empListObj"].forEach((element) {
+      emp[3]["empList"].add(element[1]);
     });
   }
-
   void getWorkShop() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -176,7 +195,7 @@ class _ReportDetailState extends State<ReportDetail> {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
-    userMap['FilterString'] = "fBillNo='$fBillNo'";
+    userMap['FilterString'] = "fBillNo='$fBillNo' and FEntity_FEntryId ='$fEntryId'";
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
     userMap['FieldKeys'] =
     'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo,FPONumber,FLineName,FProcessNote,FProcessMulti,F_ora_BaseProperty1,FOrderEntryID,FDeptID.FNumber,FKDNo1.FNumber';
@@ -244,7 +263,7 @@ class _ReportDetailState extends State<ReportDetail> {
           color: Colors.white,
           child: ListTile(
             title: Text(title),
-            onTap: () => _onClickItem(data, selectData, hobby, label: label,stock: stock),
+            onTap: () => data.length>0?_onClickItem(data, selectData, hobby, label: label,stock: stock):{ToastUtil.showInfo('无数据')},
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
               MyText(selectData.toString()=="" ? '暂无':selectData.toString(),
                   color: Colors.grey, rightpadding: 18),
@@ -324,20 +343,36 @@ class _ReportDetailState extends State<ReportDetail> {
       onConfirm: (p) {
         print('longer >>> 返回数据：$p');
         print('longer >>> 返回数据类型：${p.runtimeType}');
-        setState(() {
-          hobby['value']['label'] = p;
-        });;
-        var elementIndex = 0;
-        data.forEach((element) {
-          if (element == p) {
-            hobby['value']['value'] = empListObj[elementIndex][2];
-          }
-          elementIndex++;
-        });
+        if(hobby  == 'emp'){
+          setState(() {
+            stock['value']['label'] = p;
+          });
+          var elementIndex = 0;
+          data.forEach((element) {
+            if (element == p) {
+              stock['value']['value'] = stock['empListObj'][elementIndex][2];
+            }
+            elementIndex++;
+          });
+        }else{
+          setState(() {
+            hobby['value']['label'] = p;
+          });
+          var elementIndex = 0;
+          data.forEach((element) {
+            if (element == p) {
+              hobby['value']['value'] = departmentListObj[elementIndex][2];
+            }
+            elementIndex++;
+          });
+          getEmpList(hobby['value']['value'],stock);
+          stock[3]['value']['hide'] = true;
+          stock[3]['value']['value'] = "";
+          stock[3]['value']['label'] = "";
+        }
       },
     );
   }
-
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
@@ -346,8 +381,20 @@ class _ReportDetailState extends State<ReportDetail> {
         if (!this.hobby[i][j]['isHide']) {
           if (j == 2) {
             comList.add(
-              _item('人员:', empList, this.hobby[i][j]['value']['label'],
+              _item('班组:', departmentList, this.hobby[i][j]['value']['label'],
                   this.hobby[i][j],stock:this.hobby[i]),
+            );
+          }else if(j == 3){
+            comList.add(
+              Visibility(
+                maintainSize: false,
+                maintainState: false,
+                maintainAnimation: false,
+                visible: this.hobby[i][j]["value"]["hide"],
+                child: _item('人员:', this.hobby[i][j]['empList'], this.hobby[i][j]['value']['label'],
+                    'emp',stock:this.hobby[i][j]),
+              ),
+
             );
           }else{
             comList.add(
@@ -702,7 +749,6 @@ class _ReportDetailState extends State<ReportDetail> {
                     ],
                   ),
                   _dateItem('日期：', DateMode.YMD),
-
                   Column(
                     children: this._getHobby(),
                   ),
@@ -731,11 +777,20 @@ class _ReportDetailState extends State<ReportDetail> {
                             "name": "FBadQty",
                             "isHide": false,
                             "value": {"label": "0", "value": "0"}
-                          });arr.add({
-                            "title": "人员",
+                          });
+                          arr.add({
+                            "title": "班组",
                             "name": "",
                             "isHide": false,
                             "value": {"label": "", "value": ""}
+                          });
+                          arr.add({
+                            "title": "人员",
+                            "name": "",
+                            "empList": [],
+                            "empListObj": [],
+                            "isHide": false,
+                            "value": {"label": "", "value": "","hide": false}
                           });
                           hobby.add(arr);
                           setState(() {
