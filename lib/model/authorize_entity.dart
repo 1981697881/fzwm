@@ -23,10 +23,10 @@ class AuthorizeEntity {
     }
   }
   AuthorizeEntity({
-    this.code,
+    required this.code,
     this.msg,
-    this.success,
-    this.data,
+    required this.success,
+    required this.data,
   });
 
   int code;
@@ -51,26 +51,27 @@ class AuthorizeEntity {
 
 class Data {
   Data({
-    this.fid,
-    this.fTargetKey,
-    this.fSrvEDate,
-    this.fCustName,
-    this.fAuthList,
-    this.fAuthSDate,
-    this.furl,
-    this.fCode,
-    this.fPrjName,
-    this.fPrjNo,
-    this.fSrvPhone,
-    this.fAuthEDate,
-    this.fMessage,
-    this.fPrjType,
-    this.fAppSecret,
-    this.fAppkey,
-    this.fSrvSDate,
-    this.fSupplier,
-    this.fAuthNums,
-    this.fStatus,
+    required this.fid,
+    required this.fTargetKey,
+    required this.fSrvEDate,
+    required this.fCustName,
+    required this.fAuthList,
+    required this.fAuthSDate,
+    required this.furl,
+    required this.fCode,
+    required this.fPrjName,
+    required this.fPrjNo,
+    required this.fSrvPhone,
+    required this.fAuthEDate,
+    required this.fMessage,
+    required this.fPrjType,
+    required this.fAppSecret,
+    required this.fAppkey,
+    required this.fSrvSDate,
+    required this.fSupplier,
+    required this.fAuthNums,
+    required this.fStatus,
+    required this.fBarCodeList,
   });
 
   int fid;
@@ -93,6 +94,7 @@ class Data {
   String fSrvSDate;
   String fSupplier;
   String fStatus;
+  int fBarCodeList;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
     fid: json["FID"],
@@ -115,6 +117,7 @@ class Data {
     fSupplier: json["FSupplier"],
     fStatus: json["FStatus"],
     fAuthNums: json["FAuthNums"],
+    fBarCodeList: json["FBarCodeList"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -138,5 +141,6 @@ class Data {
     "FSupplier": fSupplier,
     "FStatus": fStatus,
     "FAuthNums": fAuthNums,
+    "FBarCodeList": fBarCodeList,
   };
 }

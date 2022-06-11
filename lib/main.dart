@@ -79,7 +79,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -105,7 +105,7 @@ class _MyHomePageState extends State {
       if (count >= 3) {
 //取消定时器，避免无限回调
         timer.cancel();
-        timer = null;
+        /*timer = null;*/
         toLoing();
       }
     });
@@ -189,8 +189,8 @@ class _MyHomePageState extends State {
       map['lcid'] =  "2052";
       map['password'] = _getpsw;
       ApiResponse<LoginEntity> entity = await LoginEntity.login(map);
-      print(entity.data.loginResultType);
-      if (entity.data.loginResultType == 1) {
+      print(entity.data!.loginResultType);
+      if (entity.data!.loginResultType == 1) {
         Map<String, dynamic> userMap = Map();
         userMap['FormId'] = 'BD_Empinfo';
         userMap['FilterString'] =
@@ -210,7 +210,7 @@ class _MyHomePageState extends State {
             authorMap['auth'] = resUser[0][3];
             ApiResponse<AuthorizeEntity> author =
             await AuthorizeEntity.getAuthorize(authorMap);
-            if (author.data.data.fStatus == "0") {
+            if (author.data!.data.fStatus == "0") {
               Map<String, dynamic> empMap = Map();
               empMap['FormId'] = 'BD_Empinfo';
               empMap['FilterString'] =
@@ -221,10 +221,10 @@ class _MyHomePageState extends State {
               empDataMap['data'] = empMap;
               String EmpEntity = await CurrencyEntity.polling(empDataMap);
               var resEmp = jsonDecode(EmpEntity);
-              if(author.data.data.fAuthNums > resEmp.length && resEmp.length > 0){
-                sharedPreferences.setString('menuList', jsonEncode(author.data.data));
+              if(author.data!.data.fAuthNums > resEmp.length && resEmp.length > 0){
+                sharedPreferences.setString('menuList', jsonEncode(author.data!.data));
                 sharedPreferences.setString('MenuPermissions', UserEntity);
-                if(author.data.data.fMessage == null){
+                if(author.data!.data.fMessage == null){
                   ToastUtil.showInfo('登录成功');
                   Navigator.pushReplacement(
                     context,
@@ -235,7 +235,7 @@ class _MyHomePageState extends State {
                     ),
                   );
                 }else{
-                  this.message = author.data.data.fMessage;
+                  this.message = author.data!.data.fMessage;
                   showExitDialog();
                 }
               }else{
@@ -251,7 +251,7 @@ class _MyHomePageState extends State {
               }
             }else{
               ToastUtil.errorDialog(context,
-                  author.data.data.fMessage);
+                  author.data!.data.fMessage);
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(

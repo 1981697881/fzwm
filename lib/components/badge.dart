@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class BadgeWidget extends StatelessWidget {
   final Widget child;
 
-  const BadgeWidget({Key key, this.child}) : super(key: key);
+  const BadgeWidget({Key? key, required this.child}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Stack(

@@ -1,10 +1,9 @@
-
 import 'app_exceptions.dart';
 
 class ApiResponse<T> implements Exception {
-  Status status;
-  T data;
-  AppException exception;
+  Status? status;
+  T? data;
+  AppException? exception;
 
   ApiResponse.completed(this.data) : status = Status.COMPLETED;
   ApiResponse.error(this.exception) : status = Status.ERROR;

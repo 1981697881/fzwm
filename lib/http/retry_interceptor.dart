@@ -9,7 +9,7 @@ class RetryOnConnectionChangeInterceptor extends Interceptor {
   final DioConnectivityRequestRetrier requestRetrier;
 
   RetryOnConnectionChangeInterceptor({
-    @required this.requestRetrier,
+    required this.requestRetrier,
   });
 
   @override

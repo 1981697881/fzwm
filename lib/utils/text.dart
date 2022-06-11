@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TextWidget extends StatefulWidget {
-  TextWidget(Key key, this.text) : super(key: key);
+  TextWidget(Key? key, this.text) : super(key: key);
   String text;
   @override
   TextWidgetState createState() => TextWidgetState();

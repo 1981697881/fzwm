@@ -4,9 +4,8 @@ import 'package:fzwm/model/submit_entity.dart';
 import 'package:fzwm/utils/toast_util.dart';
 
 class HandlerOrder {
-  // ignore: missing_return
   static Future<bool> orderHandler(BuildContext context,Map<String, dynamic> map, type, formid, fun,
-      {String title}) async {
+      {String? title}) async {
     var subData = await fun;
     var res = jsonDecode(subData);
     if (res != null) {
@@ -23,11 +22,16 @@ class HandlerOrder {
             map, res['Result']['ResponseStatus']['Errors'][0]['Message']);
         return false;
       }
+    }else{
+      return false;
     }
   }
   // 订单删除
   // ignore: missing_return
   static void orderDelete(BuildContext context,Map<String, dynamic> map, title) async {
+    if(title==null){
+      title = "";
+    }
     var subData = await SubmitEntity.delete(map);
     var res = jsonDecode(subData);
     if (res != null) {
@@ -36,7 +40,7 @@ class HandlerOrder {
             title);
       } else {
         ToastUtil.errorDialog(context,
-            res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            "保存反馈："+title+"、删除反馈："+res['Result']['ResponseStatus']['Errors'][0]['Message']);
       }
     }
   }

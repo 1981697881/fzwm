@@ -13,7 +13,7 @@ import 'package:qrscan/qrscan.dart' as scanner;
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class StockPage extends StatefulWidget {
-  StockPage({Key key}) : super(key: key);
+  StockPage({Key? key}) : super(key: key);
 
   @override
   _StockPageState createState() => _StockPageState();
@@ -28,7 +28,7 @@ class _StockPageState extends State<StockPage> {
 
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+  StreamSubscription ?_subscription;
   var _code;
 
   List<dynamic> orderDate = [];
@@ -51,7 +51,7 @@ class _StockPageState extends State<StockPage> {
 
     /// 取消监听
     if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();;
     }
   }
 
@@ -117,7 +117,7 @@ class _StockPageState extends State<StockPage> {
       }
   }
 
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     EasyLoading.show(status: 'loading...');
@@ -288,8 +288,8 @@ class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final Container child;
   final double minHeight;
   final double maxHeight;
-  StickyTabBarDelegate({@required this.minHeight,
-  @required this.maxHeight,@required this.child});
+  StickyTabBarDelegate({required this.minHeight,
+  required this.maxHeight,required this.child});
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {

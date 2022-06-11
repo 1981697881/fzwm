@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 
 /// 自定义异常
 class AppException implements Exception {
-  final String _message;
-  final int _code;
+  final String? _message;
+  final int? _code;
 
   AppException([
     this._code,
@@ -109,11 +109,11 @@ class AppException implements Exception {
 
 /// 请求错误
 class BadRequestException extends AppException {
-  BadRequestException([int code, String message]) : super(code, message);
+  BadRequestException([int ?code, String ?message]) : super(code, message);
 }
 
 /// 未认证异常
 class UnauthorisedException extends AppException {
-  UnauthorisedException([int code, String message]) : super(code, message);
+  UnauthorisedException([int ?code, String ?message]) : super(code, message);
 }
 

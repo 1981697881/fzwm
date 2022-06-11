@@ -4,10 +4,10 @@ import 'cache.dart';
 
 class HttpUtils {
   static void init(
-      {String baseUrl,
-        int connectTimeout,
-        int receiveTimeout,
-        List<Interceptor> interceptors}) {
+      {String ?baseUrl,
+        int ?connectTimeout,
+        int ?receiveTimeout,
+        List<Interceptor> ?interceptors}) {
     Http().init(
         baseUrl: baseUrl,
         connectTimeout: connectTimeout,
@@ -19,18 +19,18 @@ class HttpUtils {
     Http().setHeaders(map);
   }
 
-  static void cancelRequests({CancelToken token}) {
+  static void cancelRequests({CancelToken ?token}) {
     Http().cancelRequests(token: token);
   }
 
   static Future get(
       String path, {
-        Map<String, dynamic> params,
-        Options options,
-        CancelToken cancelToken,
+        Map<String, dynamic> ?params,
+        Options ?options,
+        CancelToken ?cancelToken,
         bool refresh = false,
         bool noCache = !CACHE_ENABLE,
-        String cacheKey,
+        String ?cacheKey,
         bool cacheDisk = false,
       }) async {
     return await Http().get(
@@ -47,9 +47,9 @@ class HttpUtils {
   static Future post(
       String path, {
         data,
-        Map<String, dynamic> params,
-        Options options,
-        CancelToken cancelToken,
+        Map<String, dynamic> ?params,
+        Options ?options,
+        CancelToken ?cancelToken,
       }) async {
     return await Http().post(
       path,
@@ -63,9 +63,9 @@ class HttpUtils {
       String path1,String path2, {
         data1,
         data2,
-        Map<String, dynamic> params,
-        Options options,
-        CancelToken cancelToken,
+        Map<String, dynamic> ?params,
+        Options ?options,
+        CancelToken ?cancelToken,
       }) async {
     return await Http().dblPost(
       path1,
@@ -81,9 +81,9 @@ class HttpUtils {
   static Future put(
       String path, {
         data,
-        Map<String, dynamic> params,
-        Options options,
-        CancelToken cancelToken,
+        Map<String, dynamic> ?params,
+        Options ?options,
+        CancelToken ?cancelToken,
       }) async {
     return await Http().put(
       path,
@@ -97,9 +97,9 @@ class HttpUtils {
   static Future patch(
       String path, {
         data,
-        Map<String, dynamic> params,
-        Options options,
-        CancelToken cancelToken,
+        Map<String, dynamic> ?params,
+        Options ?options,
+        CancelToken ?cancelToken,
       }) async {
     return await Http().patch(
       path,
@@ -113,9 +113,9 @@ class HttpUtils {
   static Future delete(
       String path, {
         data,
-        Map<String, dynamic> params,
-        Options options,
-        CancelToken cancelToken,
+        Map<String, dynamic> ?params,
+        Options ?options,
+        CancelToken ?cancelToken,
       }) async {
     return await Http().delete(
       path,
@@ -128,9 +128,9 @@ class HttpUtils {
 
   static Future postForm(
       String path, {
-        Map<String, dynamic> params,
-        Options options,
-        CancelToken cancelToken,
+        Map<String, dynamic> ?params,
+        Options ?options,
+        CancelToken ?cancelToken,
       }) async {
     return await Http().postForm(
       path,

@@ -27,7 +27,7 @@ final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 class RetrievalDetail extends StatefulWidget {
   var FBillNo;
 
-  RetrievalDetail({Key key, @required this.FBillNo}) : super(key: key);
+  RetrievalDetail({Key? key, @required this.FBillNo}) : super(key: key);
 
   @override
   _RetrievalDetailState createState() => _RetrievalDetailState(FBillNo);
@@ -70,7 +70,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+  StreamSubscription ?_subscription;
   var _code;
   var _FNumber;
   var fBillNo;
@@ -165,7 +165,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
 
     /// 取消监听
     if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();;
     }
   }
 
@@ -312,7 +312,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     }
   }
 
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     this.getMaterialList();
@@ -520,7 +520,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     }
   }
 
-  Widget _item(title, var data, selectData, hobby, {String label,var stock}) {
+  Widget _item(title, var data, selectData, hobby, {String ?label,var stock}) {
     if (selectData == null) {
       selectData = "";
     }
@@ -557,9 +557,9 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
               PartRefreshWidget(globalKey, () {
                 //2、使用 创建一个widget
                 return MyText(
-                    PicketUtil.strEmpty(selectData[model])
+                    (PicketUtil.strEmpty(selectData[model])
                         ? '暂无'
-                        : selectData[model],
+                        : selectData[model])!,
                     color: Colors.grey,
                     rightpadding: 18);
               }),
@@ -618,7 +618,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
     );
   }
 
-  void _onClickItem(var data, var selectData, hobby, {String label,var stock}) {
+  void _onClickItem(var data, var selectData, hobby, {String ?label,var stock}) {
     Pickers.showSinglePicker(
       context,
       data: data,

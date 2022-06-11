@@ -23,9 +23,9 @@ class VersionEntity {
     }
   }
   VersionEntity({
-    this.code,
-    this.message,
-    this.data,
+    required this.code,
+    required this.message,
+    required this.data,
   });
 
   int code;
@@ -47,21 +47,21 @@ class VersionEntity {
 
 class Data {
   Data({
-    this.buildBuildVersion,
-    this.forceUpdateVersion,
-    this.forceUpdateVersionNo,
-    this.needForceUpdate,
-    this.downloadUrl,
-    this.buildHaveNewVersion,
-    this.buildVersionNo,
-    this.buildVersion,
-    this.buildUpdateDescription,
-    this.appKey,
-    this.buildKey,
-    this.buildName,
-    this.buildIcon,
-    this.buildFileKey,
-    this.buildFileSize,
+    required this.buildBuildVersion,
+    required this.forceUpdateVersion,
+    required this.forceUpdateVersionNo,
+    required this.needForceUpdate,
+    required this.downloadUrl,
+    required this.buildHaveNewVersion,
+    required this.buildVersionNo,
+    required this.buildVersion,
+    required this.buildUpdateDescription,
+    required this.appKey,
+    required this.buildKey,
+    required this.buildName,
+    required this.buildIcon,
+    required this.buildFileKey,
+    required this.buildFileSize,
   });
 
   String buildBuildVersion;

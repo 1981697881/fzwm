@@ -24,7 +24,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class DispatchDetail extends StatefulWidget {
   var FBillNo;
 
-  DispatchDetail({Key key, @required this.FBillNo}) : super(key: key);
+  DispatchDetail({Key? key, @required this.FBillNo}) : super(key: key);
 
   @override
   _DispatchDetailState createState() => _DispatchDetailState(FBillNo);
@@ -81,7 +81,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+  StreamSubscription ?_subscription;
   var _code;
   var _FNumber;
   var fBillNo;
@@ -142,7 +142,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
 
     /// 取消监听
     if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();;
     }
   }
 
@@ -271,7 +271,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
     }
   }
 
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     print("ChannelPage: $event");
@@ -284,7 +284,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
     });
   }
 
-  Widget _item(title, var data, selectData, hobby, {String label,var stock}) {
+  Widget _item(title, var data, selectData, hobby, {String ?label,var stock}) {
     if (selectData == null) {
       selectData = "";
     }
@@ -376,7 +376,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
     );
   }
 
-  void _onClickItem(var data, var selectData, hobby, {String label,var stock}) {
+  void _onClickItem(var data, var selectData, hobby, {String ?label,var stock}) {
     Pickers.showSinglePicker(
       context,
       data: data,

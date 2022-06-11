@@ -18,7 +18,7 @@ import 'dispatch_detail.dart';
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
 class DispatchPage extends StatefulWidget {
-  DispatchPage({Key key}) : super(key: key);
+  DispatchPage({Key? key}) : super(key: key);
 
   @override
   _DispatchPageState createState() => _DispatchPageState();
@@ -35,7 +35,7 @@ class _DispatchPageState extends State<DispatchPage> {
 
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+  StreamSubscription ?_subscription;
   var _code;
   var isScan = false;
 
@@ -69,7 +69,7 @@ class _DispatchPageState extends State<DispatchPage> {
 
     /// 取消监听
     if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();;
     }
   }
 
@@ -180,7 +180,7 @@ class _DispatchPageState extends State<DispatchPage> {
     }
   }
 
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     isScan = true;
@@ -282,7 +282,7 @@ class _DispatchPageState extends State<DispatchPage> {
     //在当前的时间上多添加4天
     DateTime end = DateTime(start.year, start.month, start.day);
     //显示时间选择器
-    DateTimeRange selectTimeRange = await showDateRangePicker(
+    DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境
         locale: Locale("zh", "CH"),
         context: context,
@@ -480,9 +480,9 @@ class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final double maxHeight;
 
   StickyTabBarDelegate(
-      {@required this.minHeight,
-        @required this.maxHeight,
-        @required this.child});
+      {required this.minHeight,
+      required this.maxHeight,
+      required this.child});
 
   @override
   Widget build(

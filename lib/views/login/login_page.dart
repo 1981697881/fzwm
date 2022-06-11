@@ -29,14 +29,14 @@ class _LoginPageState extends State<LoginPage> {
   var passwordContent = new TextEditingController();
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+  StreamSubscription ?_subscription;
   var _code;
   //用户名输入框控制器，此控制器可以监听用户名输入框操作
   TextEditingController _userNameController = new TextEditingController();
 
   //表单状态
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  SharedPreferences sharedPreferences;
+  late SharedPreferences sharedPreferences;
   var _password = ''; //用户名
   var _username = ''; //密码
   var message = ''; //密码
@@ -83,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
     passwordContent.text = sharedPreferences.getString('password');
     /*lcidContent.text = sharedPreferences.getString('lcid');*/
   }
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     var content = _code.split(',');
@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
 
     /// 取消监听
     if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();;
     }
   }
 
@@ -131,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
   /**
    * 验证用户名
    */
-  String validateUserName(value) {
+  String? validateUserName(value) {
     // 正则匹配手机号
     /*RegExp exp = RegExp(r'^((13[0-9])|(14[0-9])|(15[0-9])|(16[0-9])|(17[0-9])|(18[0-9])|(19[0-9]))\d{8}$');*/
     if (value.isEmpty) {
@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
   /**
    * 验证密码
    */
-  String validatePassWord(value) {
+  String? validatePassWord(value) {
     if (value.isEmpty) {
       return '密码不能为空';
     } else if (value.trim().length < 6 || value.trim().length > 18) {
@@ -479,8 +479,8 @@ class _LoginPageState extends State<LoginPage> {
               //验证用户名
               validator: validateUserName,
               //保存数据
-              onSaved: (String value) {
-                _username = value;
+              onSaved: (value) {
+                _username = value!;
               },
             ),
             new TextFormField(
@@ -504,8 +504,8 @@ class _LoginPageState extends State<LoginPage> {
               //密码验证
               validator: validatePassWord,
               //保存数据
-              onSaved: (String value) {
-                _password = value;
+              onSaved: (value) {
+                _password = value!;
               },
             )
           ],
@@ -529,9 +529,9 @@ class _LoginPageState extends State<LoginPage> {
           //点击登录按钮，解除焦点，回收键盘
           _focusNodePassWord.unfocus();
           _focusNodeUserName.unfocus();
-          if (_formKey.currentState.validate()) {
+          if (_formKey.currentState!.validate()) {
             //只有输入通过验证，才会执行这里
-            _formKey.currentState.save();
+            _formKey.currentState!.save();
             if(this.acctidContent.text != '' && this.urlContent.text != '' && this.passwordContent.text != '' && this.usernameContent.text != ''){
               Map<String, dynamic> map = Map();
               map['username'] = sharedPreferences.getString('username');
@@ -540,7 +540,7 @@ class _LoginPageState extends State<LoginPage> {
               map['password'] = sharedPreferences.getString('password');
               ApiResponse<LoginEntity> entity = await LoginEntity.login(map);
               print(entity);
-              if (entity.data.loginResultType == 1) {
+              if (entity.data!.loginResultType == 1) {
                 //  print("登录成功");
                 Map<String, dynamic> userMap = Map();
                 userMap['FormId'] = 'BD_Empinfo';
@@ -560,7 +560,7 @@ class _LoginPageState extends State<LoginPage> {
                     authorMap['auth'] = resUser[0][3];
                     ApiResponse<AuthorizeEntity> author =
                     await AuthorizeEntity.getAuthorize(authorMap);
-                    if (author.data.data.fStatus == "0") {
+                    if (author.data!.data.fStatus == "0") {
                       Map<String, dynamic> empMap = Map();
                       empMap['FormId'] = 'BD_Empinfo';
                       empMap['FilterString'] =
@@ -571,12 +571,12 @@ class _LoginPageState extends State<LoginPage> {
                       empDataMap['data'] = empMap;
                       String EmpEntity = await CurrencyEntity.polling(empDataMap);
                       var resEmp = jsonDecode(EmpEntity);
-                      if(author.data.data.fAuthNums > resEmp.length && resEmp.length > 0){
-                        sharedPreferences.setString('menuList', jsonEncode(author.data.data));
+                      if(author.data!.data.fAuthNums > resEmp.length && resEmp.length > 0){
+                        sharedPreferences.setString('menuList', jsonEncode(author.data!.data));
                         sharedPreferences.setString('FStaffNumber', _username);
                         sharedPreferences.setString('FPwd', _password);
                         sharedPreferences.setString('MenuPermissions', UserEntity);
-                        if(author.data.data.fMessage == null){
+                        if(author.data!.data.fMessage == null){
                           ToastUtil.showInfo('登录成功');
                           Navigator.pushReplacement(
                             context,
@@ -587,7 +587,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           );
                         }else{
-                          this.message = author.data.data.fMessage;
+                          this.message = author.data!.data.fMessage;
                           showExitDialog();
                         }
                       }else{
@@ -595,7 +595,7 @@ class _LoginPageState extends State<LoginPage> {
                       }
                     }else{
                       ToastUtil.errorDialog(context,
-                          author.data.data.fMessage);
+                          author.data!.data.fMessage);
                     }
                   } else {
                     if (!resUser[0][0]['Result']['ResponseStatus']['IsSuccess']) {

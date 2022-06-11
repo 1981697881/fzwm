@@ -24,19 +24,19 @@ class LoginEntity {
 		}
 	}
 	LoginEntity({
-		this.message,
-		this.messageCode,
-		this.loginResultType,
+		required this.message,
+		required this.messageCode,
+		required this.loginResultType,
 		this.context,
 		this.kdsvcSessionId,
 		this.formId,
 		this.redirectFormParam,
 		this.formInputObject,
 		this.errorStackTrace,
-		this.lcid,
+		required this.lcid,
 		this.accessToken,
 		this.kdAccessResult,
-		this.isSuccessByApi,
+		required this.isSuccessByApi,
 	});
 
 	String message;

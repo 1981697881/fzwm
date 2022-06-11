@@ -7,14 +7,14 @@ import 'package:flutter/material.dart';
 class DioConnectivityRequestRetrier {
   final Dio dio;
   final Connectivity connectivity;
-
+  late StreamSubscription streamSubscription;
   DioConnectivityRequestRetrier({
-    @required this.dio,
-    @required this.connectivity,
+    required this.dio,
+    required this.connectivity,
   });
 
   Future<Response> scheduleRequestRetry(RequestOptions requestOptions) async {
-    StreamSubscription streamSubscription;
+
     final responseCompleter = Completer<Response>();
 
     streamSubscription = connectivity.onConnectivityChanged.listen(

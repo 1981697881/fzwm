@@ -27,7 +27,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class InventoryDetail extends StatefulWidget {
   var FBillNo;
 
-  InventoryDetail({Key key, @required this.FBillNo}) : super(key: key);
+  InventoryDetail({Key? key, @required this.FBillNo}) : super(key: key);
 
   @override
   _InventoryDetailState createState() => _InventoryDetailState(FBillNo);
@@ -70,7 +70,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+  StreamSubscription ?_subscription;
   var _code;
   var _FNumber;
   var fBillNo;
@@ -122,7 +122,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
 
     /// 取消监听
     if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();
     }
   }
 
@@ -204,7 +204,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
     }
   }
 
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     EasyLoading.show(status: 'loading...');
@@ -311,7 +311,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
     }
   }
 
-  Widget _item(title, var data, selectData, hobby, {String label,var stock}) {
+  Widget _item(title, var data, selectData, hobby, {String ?label,var stock}) {
     if (selectData == null) {
       selectData = "";
     }
@@ -348,9 +348,9 @@ class _InventoryDetailState extends State<InventoryDetail> {
               PartRefreshWidget(globalKey, () {
                 //2、使用 创建一个widget
                 return MyText(
-                    PicketUtil.strEmpty(selectData[model])
+                    (PicketUtil.strEmpty(selectData[model])
                         ? '暂无'
-                        : selectData[model],
+                        : selectData[model])!,
                     color: Colors.grey,
                     rightpadding: 18);
               }),
@@ -391,7 +391,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
     );
   }
 
-  void _onClickItem(var data, var selectData, hobby, {String label,var stock}) {
+  void _onClickItem(var data, var selectData, hobby, {String ?label,var stock}) {
     Pickers.showSinglePicker(
       context,
       data: data,

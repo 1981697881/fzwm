@@ -13,7 +13,7 @@ import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PickingPage extends StatefulWidget {
-  PickingPage({Key key}) : super(key: key);
+  PickingPage({Key? key}) : super(key: key);
 
   @override
   _PickingPageState createState() => _PickingPageState();
@@ -34,7 +34,7 @@ class _PickingPageState extends State<PickingPage> {
 
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+  StreamSubscription ?_subscription;
   var _code;
   var isScan = false;
 
@@ -62,7 +62,7 @@ class _PickingPageState extends State<PickingPage> {
     super.dispose();
     /// 取消监听
     if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();;
     }
   }
   // 集合
@@ -293,7 +293,7 @@ class _PickingPageState extends State<PickingPage> {
       ToastUtil.showInfo('无数据');
     }
   }
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     EasyLoading.show(status: 'loading...');
@@ -401,7 +401,7 @@ class _PickingPageState extends State<PickingPage> {
     //在当前的时间上多添加4天
     DateTime end = DateTime(start.year, start.month, start.day);
     //显示时间选择器
-    DateTimeRange selectTimeRange = await showDateRangePicker(
+    DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境
         locale: Locale("zh", "CH"),
         context: context,
@@ -598,9 +598,9 @@ class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final double maxHeight;
 
   StickyTabBarDelegate(
-      {@required this.minHeight,
-        @required this.maxHeight,
-        @required this.child});
+      {required this.minHeight,
+      required this.maxHeight,
+      required this.child});
 
   @override
   Widget build(

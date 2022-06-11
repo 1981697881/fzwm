@@ -13,7 +13,7 @@ import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DrawingPage extends StatefulWidget {
-  DrawingPage( {Key key}) : super(key: key);
+  DrawingPage( {Key? key}) : super(key: key);
 
   @override
   _DrawingPageState createState() => _DrawingPageState();
@@ -23,7 +23,7 @@ class _DrawingPageState extends State<DrawingPage> {
   final controller = TextEditingController();
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription _subscription;
+  StreamSubscription ?_subscription;
   final divider = Divider(height: 1, indent: 20);
   String pdfUrl = "";
   String pathPDF = "";
@@ -43,7 +43,7 @@ class _DrawingPageState extends State<DrawingPage> {
     }
   }
 
-  void _onEvent(Object event) async {
+  void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
     keyWord = _code;
@@ -65,7 +65,7 @@ class _DrawingPageState extends State<DrawingPage> {
 
     /// 取消监听
      if (_subscription != null) {
-      _subscription.cancel();
+      _subscription!.cancel();;
     }
   }
 
@@ -240,7 +240,7 @@ class _DrawingPageState extends State<DrawingPage> {
 class PDFScreen extends StatelessWidget {
   final String pathPDF;
 
-  PDFScreen({@required this.pathPDF});
+  PDFScreen({required this.pathPDF});
 
   @override
   Widget build(BuildContext context) {
@@ -272,9 +272,9 @@ class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final double maxHeight;
 
   StickyTabBarDelegate(
-      {@required this.minHeight,
-      @required this.maxHeight,
-      @required this.child});
+      {required this.minHeight,
+      required this.maxHeight,
+      required this.child});
 
   @override
   Widget build(
