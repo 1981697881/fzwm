@@ -4,6 +4,7 @@ import 'dart:isolate';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fzwm/http/api_response.dart';
 import 'package:fzwm/model/authorize_entity.dart';
 import 'package:fzwm/model/version_entity.dart';
@@ -49,6 +50,7 @@ class _IndexPageState extends State<IndexPage> {
   @override
   void initState() {
     super.initState();
+    EasyLoading.dismiss();
     Future.delayed(
         Duration.zero,
         () => setState(() {

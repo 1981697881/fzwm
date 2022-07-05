@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fzwm/utils/menu_permissions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
@@ -31,6 +32,7 @@ class _MiddleLayerPageState extends State<MiddleLayerPage> {
   @override
   void initState() {
     super.initState();
+    EasyLoading.dismiss();
     Future.delayed(Duration.zero, () => setState(() {
       _load();
     }));

@@ -113,6 +113,7 @@ class _PickingDetailState extends State<PickingDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    EasyLoading.dismiss();
     getWorkShop();
     getStockList();
   }

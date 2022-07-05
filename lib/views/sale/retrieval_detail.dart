@@ -96,6 +96,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    EasyLoading.dismiss();
     /*getWorkShop();*/
     getStockList();
   }

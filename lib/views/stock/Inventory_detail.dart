@@ -96,6 +96,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    EasyLoading.dismiss();
     getDepartmentList();
   }
   //获取部门

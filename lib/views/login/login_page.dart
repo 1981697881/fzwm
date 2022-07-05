@@ -61,7 +61,9 @@ class _LoginPageState extends State<LoginPage> {
       }
       setState(() {});
     });
+
     super.initState();
+    EasyLoading.dismiss();
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin
@@ -547,7 +549,7 @@ class _LoginPageState extends State<LoginPage> {
                 userMap['FilterString'] =
                 "FStaffNumber='$_username' and FPwd='$_password'";
                 userMap['FieldKeys'] =
-                'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode,FPDASCRK,FPDASCRKS,FPDASCLL,FPDASCLLS,FPDAXSCK,FPDAXSCKS,FPDAXSTH,FPDAXSTHS,FPDACGRK,FPDACGRKS,FPDAPD,FPDAPDS,FPDAQTRK,FPDAQTRKS,FPDAQTCK,FPDAQTCKS,FPDAGXPG,FPDAGXPGS,FPDAGXHB,FPDAGXHBS,FPDASJ,FPDAXJ,FPDAKCCX'; /*FWorkShopID.FNumber,FWorkShopID.FName*/
+                'FStaffNumber,FUseOrgId.FNumber,FForbidStatus,FAuthCode,FPDASCRK,FPDASCRKS,FPDASCLL,FPDASCLLS,FPDAXSCK,FPDAXSCKS,FPDAXSTH,FPDAXSTHS,FPDACGRK,FPDACGRKS,FPDAPD,FPDAPDS,FPDAQTRK,FPDAQTRKS,FPDAQTCK,FPDAQTCKS,FPDAGXPG,FPDAGXPGS,FPDAGXHB,FPDAGXHBS,FPDASJ,FPDAXJ,FPDAKCCX,F_ora_Base.FNumber,F_ora_Base.FName'; /*FWorkShopID.FNumber,FWorkShopID.FName*/
                 Map<String, dynamic> dataMap = Map();
                 dataMap['data'] = userMap;
                 String UserEntity = await CurrencyEntity.polling(dataMap);

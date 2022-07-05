@@ -42,6 +42,7 @@ class _StockPageState extends State<StockPage> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    EasyLoading.dismiss();
   }
 
   @override

@@ -83,7 +83,7 @@ class _ReportWarehousingDetailState extends State<ReportWarehousingDetail> {
     DateTime dateTime = DateTime.now();
     var nowDate = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
     selectData[DateMode.YMD] = nowDate;
-
+    EasyLoading.dismiss();
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin

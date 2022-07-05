@@ -30,7 +30,7 @@ class ReportDetail extends StatefulWidget {
   var FBillNo;
   var FEntity_FEntryId;
 
-  ReportDetail({Key? key, @required this.FBillNo, this.FEntity_FEntryId}) : super(key: key);
+  ReportDetail({Key? key, required this.FBillNo,  this.FEntity_FEntryId}) : super(key: key);
 
   @override
   _ReportDetailState createState() => _ReportDetailState(FBillNo,FEntity_FEntryId);
@@ -74,6 +74,8 @@ class _ReportDetailState extends State<ReportDetail> {
   };
   var departmentList = [];
   List<dynamic> departmentListObj = [];
+  var processList = [];
+  List<dynamic> processListObj = [];
   var stockList = [];
   List<dynamic> stockListObj = [];
 
@@ -88,6 +90,7 @@ class _ReportDetailState extends State<ReportDetail> {
   var _FNumber;
   var fBillNo;
   var fEntryId;
+  var processNumber;
 
   _ReportDetailState(FBillNo,FEntity_FEntryId) {
     if (FBillNo != null) {
@@ -102,14 +105,13 @@ class _ReportDetailState extends State<ReportDetail> {
   @override
   void initState() {
     super.initState();
-
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
-
+    EasyLoading.dismiss();
     getStockList();
     getDepartmentList();
   }
@@ -160,10 +162,12 @@ class _ReportDetailState extends State<ReportDetail> {
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
-    emp[3]["empListObj"] = jsonDecode(res);
-    emp[3]["empList"] = [];
-    emp[3]["empListObj"].forEach((element) {
-      emp[3]["empList"].add(element[1]);
+    setState(() {
+      emp[3]["empListObj"] = jsonDecode(res);
+      emp[3]["empList"] = [];
+      emp[3]["empListObj"].forEach((element) {
+        emp[3]["empList"].add(element[1]);
+      });
     });
   }
   void getWorkShop() async {
@@ -196,7 +200,11 @@ class _ReportDetailState extends State<ReportDetail> {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
-    userMap['FilterString'] = "fBillNo='$fBillNo' and FEntity_FEntryId ='$fEntryId'";
+    if(processList.length==0){
+      userMap['FilterString'] = "fBillNo='$fBillNo'";
+    }else{
+      userMap['FilterString'] = "fBillNo='$fBillNo' and FProcessID.FNumber = '$processNumber'";
+    }
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
     userMap['FieldKeys'] =
     'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo,FPONumber,FLineName,FProcessNote,FProcessMulti,F_ora_BaseProperty1,FOrderEntryID,FDeptID.FNumber,FKDNo1.FNumber';
@@ -228,6 +236,15 @@ class _ReportDetailState extends State<ReportDetail> {
       fProcessIDFDataValue = orderDate[0][18];
       //工序号
       fProcessNo = orderDate[0][19];
+      if(processList.length==0){
+        orderDate.forEach((value) {
+          processList.add(value[18]);
+          processListObj.add({
+            "name":value[18],
+            "number":value[17],
+          });
+        });
+      }
       hobby = [];
       setState(() {
        /* this._getHobby();*/
@@ -355,7 +372,20 @@ class _ReportDetailState extends State<ReportDetail> {
             }
             elementIndex++;
           });
-        }else{
+        }else if(hobby  == 'process'){
+          setState(() {
+            this.fProcessIDFDataValue = p;
+          });
+          var elementIndex = 0;
+          data.forEach((element) {
+            if (element == p) {
+              this.fProcessID = processListObj[elementIndex]["number"];
+              this.processNumber = this.fProcessID;
+            }
+            elementIndex++;
+          });
+          getOrderList();
+        } else{
           setState(() {
             hobby['value']['label'] = p;
           });
@@ -705,7 +735,10 @@ class _ReportDetailState extends State<ReportDetail> {
                       ),
                       divider,
                     ],
-                  ), Column(
+                  ),
+                  _item('工序:', this.processList, this.fProcessIDFDataValue,
+                      'process'),
+                  /*Column(
                     children: [
                       Container(
                         color: Colors.white,
@@ -715,7 +748,7 @@ class _ReportDetailState extends State<ReportDetail> {
                       ),
                       divider,
                     ],
-                  ),
+                  ),*/
                   Column(
                     children: [
                       Container(
@@ -766,6 +799,10 @@ class _ReportDetailState extends State<ReportDetail> {
                         color: Colors.orange,
                         textColor: Colors.white,
                         onPressed: () async {
+                          SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+                          var menuData = sharedPreferences.getString('MenuPermissions');
+                          var deptData = jsonDecode(menuData)[0];
+                          print(deptData[28]==null?false:true);
                           List arr = [];
                           arr.add({
                             "title": "合格数量",
@@ -783,16 +820,50 @@ class _ReportDetailState extends State<ReportDetail> {
                             "title": "班组",
                             "name": "",
                             "isHide": false,
-                            "value": {"label": "", "value": ""}
+                            "value": {"label": deptData[28]==null?"":deptData[28], "value": deptData[27]==null?"":deptData[27]}
                           });
-                          arr.add({
-                            "title": "人员",
-                            "name": "",
-                            "empList": [],
-                            "empListObj": [],
-                            "isHide": false,
-                            "value": {"label": "", "value": "","hide": false}
-                          });
+                          if(deptData[28]==null){
+                            arr.add({
+                              "title": "人员",
+                              "name": "",
+                              "empList": [],
+                              "empListObj": [],
+                              "isHide": false,
+                              "value": {"label": "", "value": "","hide": deptData[28]==null?false:true}
+                            });
+                          }else{
+                            Map<String, dynamic> userMap = Map();
+                            userMap['FormId'] = 'BD_Empinfo';
+                            userMap['FilterString'] =
+                                "FForbidStatus='A' and FUseOrgId.FNumber ="+deptData[1]+" and F_ora_Base.FNUMBER ='"+deptData[27]+"'";
+                            userMap['FieldKeys'] = 'FUseOrgId.FNumber,FName,FNumber,FForbidStatus';
+                            Map<String, dynamic> dataMap = Map();
+                            dataMap['data'] = userMap;
+                            String res = await CurrencyEntity.polling(dataMap);
+                            if(jsonDecode(res).length>0){
+                              var empList = [];
+                              jsonDecode(res).forEach((element) {
+                                empList.add(element[1]);
+                              });
+                              arr.add({
+                                "title": "人员",
+                                "name": "",
+                                "empList": empList,
+                                "empListObj": jsonDecode(res),
+                                "isHide": false,
+                                "value": {"label": "", "value": "","hide": deptData[28]==null?false:true}
+                              });
+                            }else{
+                              arr.add({
+                                "title": "人员",
+                                "name": "",
+                                "empList": [],
+                                "empListObj": [],
+                                "isHide": false,
+                                "value": {"label": "", "value": "","hide": deptData[28]==null?false:true}
+                              });
+                            }
+                          }
                           hobby.add(arr);
                           setState(() {
                             this._getHobby();

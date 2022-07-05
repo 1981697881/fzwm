@@ -21,6 +21,7 @@ class _AboutPageState extends State<AboutPage> {
   @override
   void initState() {
     super.initState();
+    EasyLoading.dismiss();
     this.getAuthorInfo();
   }
 

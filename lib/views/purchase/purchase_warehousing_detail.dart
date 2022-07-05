@@ -106,6 +106,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    EasyLoading.dismiss();
     /*getWorkShop();*/
     getStockList();
   }

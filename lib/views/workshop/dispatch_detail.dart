@@ -102,6 +102,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
+    EasyLoading.dismiss();
    /* getWorkShop();*/
     getDepartmentList();
   }
