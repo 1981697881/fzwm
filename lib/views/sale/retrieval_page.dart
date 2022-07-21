@@ -230,7 +230,7 @@ class _RetrievalPageState extends State<RetrievalPage> {
                               () {
                             setState(() {
                               //延时更新状态
-                              this.getOrderList();
+                              this._initState();
                             });
                           });
                     });

@@ -227,7 +227,7 @@ class _DispatchPageState extends State<DispatchPage> {
                               () {
                             setState(() {
                               //延时更新状态
-                              this.getOrderList();
+                              this._initState();
                             });
                           });
                     });

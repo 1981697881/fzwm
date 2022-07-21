@@ -207,7 +207,7 @@ class _ReportDetailState extends State<ReportDetail> {
     }
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
     userMap['FieldKeys'] =
-    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo,FPONumber,FLineName,FProcessNote,FProcessMulti,F_ora_BaseProperty1,FOrderEntryID,FDeptID.FNumber,FKDNo1.FNumber';
+    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo,FPONumber,FLineName,FProcessNote,FProcessMulti,F_ora_BaseProperty1,FOrderEntryID,FDeptID.FNumber,FKDNo1.FNumber,FDeptID.FName,';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -820,22 +820,22 @@ class _ReportDetailState extends State<ReportDetail> {
                             "title": "班组",
                             "name": "",
                             "isHide": false,
-                            "value": {"label": deptData[28]==null?"":deptData[28], "value": deptData[27]==null?"":deptData[27]}
+                            "value": {"label": orderDate[0][29]==null?"":orderDate[0][29], "value": orderDate[0][27]==null?"":orderDate[0][27]}
                           });
-                          if(deptData[28]==null){
+                          if(orderDate[0][27]==null){
                             arr.add({
                               "title": "人员",
                               "name": "",
                               "empList": [],
                               "empListObj": [],
                               "isHide": false,
-                              "value": {"label": "", "value": "","hide": deptData[28]==null?false:true}
+                              "value": {"label": "", "value": "","hide": orderDate[0][27]==null?false:true}
                             });
                           }else{
                             Map<String, dynamic> userMap = Map();
                             userMap['FormId'] = 'BD_Empinfo';
                             userMap['FilterString'] =
-                                "FForbidStatus='A' and FUseOrgId.FNumber ="+deptData[1]+" and F_ora_Base.FNUMBER ='"+deptData[27]+"'";
+                                "FForbidStatus='A' and FUseOrgId.FNumber ="+deptData[1]+" and F_ora_Base.FNUMBER ='"+orderDate[0][27]+"'";
                             userMap['FieldKeys'] = 'FUseOrgId.FNumber,FName,FNumber,FForbidStatus';
                             Map<String, dynamic> dataMap = Map();
                             dataMap['data'] = userMap;
@@ -851,7 +851,7 @@ class _ReportDetailState extends State<ReportDetail> {
                                 "empList": empList,
                                 "empListObj": jsonDecode(res),
                                 "isHide": false,
-                                "value": {"label": "", "value": "","hide": deptData[28]==null?false:true}
+                                "value": {"label": "", "value": "","hide": orderDate[0][27]==null?false:true}
                               });
                             }else{
                               arr.add({
@@ -860,7 +860,7 @@ class _ReportDetailState extends State<ReportDetail> {
                                 "empList": [],
                                 "empListObj": [],
                                 "isHide": false,
-                                "value": {"label": "", "value": "","hide": deptData[28]==null?false:true}
+                                "value": {"label": "", "value": "","hide": orderDate[0][27]==null?false:true}
                               });
                             }
                           }

@@ -57,7 +57,13 @@ class _ReplenishmentPageState extends State<ReplenishmentPage> {
           .listen(_onEvent, onError: _onError);
     }
   }
-
+  _initState() {
+    this.getOrderList();
+    /// 开启监听
+    _subscription = scannerPlugin
+        .receiveBroadcastStream()
+        .listen(_onEvent, onError: _onError);
+  }
   @override
   void dispose() {
     this.controller.dispose();
@@ -336,7 +342,7 @@ class _ReplenishmentPageState extends State<ReplenishmentPage> {
                       Future.delayed(const Duration(milliseconds: 500), () {
                         setState(() {
                           //延时更新状态
-                          this.getOrderList();
+                          this._initState();
                         });
                       });
                     });
