@@ -29,11 +29,11 @@ final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 class ReportDetail extends StatefulWidget {
   var FBillNo;
   var FEntity_FEntryId;
-
-  ReportDetail({Key? key, required this.FBillNo,  this.FEntity_FEntryId}) : super(key: key);
+  var FOrderNo;
+  ReportDetail({Key? key, required this.FBillNo,  this.FEntity_FEntryId,  this.FOrderNo}) : super(key: key);
 
   @override
-  _ReportDetailState createState() => _ReportDetailState(FBillNo,FEntity_FEntryId);
+  _ReportDetailState createState() => _ReportDetailState(FBillNo,FEntity_FEntryId,FOrderNo);
 }
 
 class _ReportDetailState extends State<ReportDetail> {
@@ -91,11 +91,13 @@ class _ReportDetailState extends State<ReportDetail> {
   var fBillNo;
   var fEntryId;
   var processNumber;
+  var fOrderNum;
 
-  _ReportDetailState(FBillNo,FEntity_FEntryId) {
+  _ReportDetailState(FBillNo,FEntity_FEntryId,FOrderNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
       this.fEntryId = FEntity_FEntryId['value'];
+      this.fOrderNum = FOrderNo['value'];
       this.getOrderList();
     }else{
       this.fBillNo = '';
@@ -425,7 +427,6 @@ class _ReportDetailState extends State<ReportDetail> {
                 child: _item('人员:', this.hobby[i][j]['empList'], this.hobby[i][j]['value']['label'],
                     'emp',stock:this.hobby[i][j]),
               ),
-
             );
           }else{
             comList.add(
@@ -549,8 +550,6 @@ class _ReportDetailState extends State<ReportDetail> {
       print(val);
     });
   }
-
-
   //保存
   saveOrder() async {
     if (this.hobby.length > 0) {
@@ -602,7 +601,7 @@ class _ReportDetailState extends State<ReportDetail> {
           FEntityItem['FOKQTY'] = element[0]['value']['value'];
           FEntityItem['FBadQty'] = element[1]['value']['value'];
           FEntityItem['FEmpID'] = {
-            "FSTAFFNUMBER": element[2]['value']['value']
+            "FSTAFFNUMBER": element[3]['value']['value']
           };
           /*FEntityItem['FEntity_Link'] = [
             {
@@ -685,7 +684,7 @@ class _ReportDetailState extends State<ReportDetail> {
             title: Text("工序汇报"),
             centerTitle: true,
             leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
-              Navigator.of(context).pop("refresh");
+              Navigator.of(context).pop(this.fOrderNum);
             }),
           ),
           body: Column(

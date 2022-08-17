@@ -23,11 +23,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class DispatchDetail extends StatefulWidget {
   var FBillNo;
+  var FOrderNo;
 
-  DispatchDetail({Key? key, @required this.FBillNo}) : super(key: key);
+  DispatchDetail({Key? key, @required this.FBillNo, @required this.FOrderNo}) : super(key: key);
 
   @override
-  _DispatchDetailState createState() => _DispatchDetailState(FBillNo);
+  _DispatchDetailState createState() => _DispatchDetailState(FBillNo,FOrderNo);
 }
 
 class _DispatchDetailState extends State<DispatchDetail> {
@@ -85,9 +86,11 @@ class _DispatchDetailState extends State<DispatchDetail> {
   var _code;
   var _FNumber;
   var fBillNo;
-  _DispatchDetailState(FBillNo) {
+  var fOrderNum;
+  _DispatchDetailState(FBillNo,FOrderNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
+      this.fOrderNum = FOrderNo['value'];
       this.getOrderList();
     }else{
       this.fBillNo = '';
@@ -740,7 +743,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () {
-                  Navigator.of(context).pop("refresh");
+                  Navigator.of(context).pop(this.fOrderNum);
                 }),
           ),
           body: Column(

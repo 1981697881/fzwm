@@ -56,8 +56,9 @@ class _DispatchPageState extends State<DispatchPage> {
           .listen(_onEvent, onError: _onError);
     }
   }
-  _initState() {
-    this.getOrderList();
+  _initState(data) {
+    isScan = true;
+    this.getOrderList(data: data);
     /// 开启监听
     _subscription = scannerPlugin
         .receiveBroadcastStream()
@@ -77,14 +78,19 @@ class _DispatchPageState extends State<DispatchPage> {
   // 集合
   List hobby = [];
 
-  getOrderList() async {
+  getOrderList({String? data}) async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FUnOrderQty >0";
     var scanCode = keyWord.split(",");
     if(isScan){
-      userMap['FilterString'] =
-          "FOrderNo='"+scanCode[0]+"' and FUnOrderQty>0";
+      if(scanCode.length>0){
+        userMap['FilterString'] =
+            "FOrderNo='"+scanCode[0]+"' and FUnOrderQty>0";
+      }else{
+        userMap['FilterString'] =
+            "FOrderNo='"+data.toString()+"' and FUnOrderQty>0";
+      }
     }else{
       if (this._dateSelectText != "") {
         this.startDate = this._dateSelectText.substring(0, 10);
@@ -215,7 +221,8 @@ class _DispatchPageState extends State<DispatchPage> {
                       MaterialPageRoute(
                         builder: (context) {
                           return DispatchDetail(
-                              FBillNo: this.hobby[i][0]['value']
+                              FBillNo: this.hobby[i][0]['value'],
+                              FOrderNo: this.hobby[i][2]['value']
                             // 路由参数
                           );
                         },
@@ -227,7 +234,7 @@ class _DispatchPageState extends State<DispatchPage> {
                               () {
                             setState(() {
                               //延时更新状态
-                              this._initState();
+                              this._initState(data);
                             });
                           });
                     });
