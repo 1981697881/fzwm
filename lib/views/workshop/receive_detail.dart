@@ -21,17 +21,17 @@ import 'package:fzwm/components/my_text.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class DispatchDetail extends StatefulWidget {
+class ReceiveDetail extends StatefulWidget {
   var FBillNo;
   var FOrderNo;
 
-  DispatchDetail({Key? key, @required this.FBillNo, @required this.FOrderNo}) : super(key: key);
+  ReceiveDetail({Key? key, @required this.FBillNo, @required this.FOrderNo}) : super(key: key);
 
   @override
-  _DispatchDetailState createState() => _DispatchDetailState(FBillNo,FOrderNo);
+  _ReceiveDetailState createState() => _ReceiveDetailState(FBillNo,FOrderNo);
 }
 
-class _DispatchDetailState extends State<DispatchDetail> {
+class _ReceiveDetailState extends State<ReceiveDetail> {
   var _remarkContent = new TextEditingController();
   GlobalKey<PartRefreshWidgetState> globalDateKey = GlobalKey();
 
@@ -81,13 +81,13 @@ class _DispatchDetailState extends State<DispatchDetail> {
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
-      const EventChannel('com.shinow.pda_scanner/plugin');
+  const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription ?_subscription;
   var _code;
   var _FNumber;
   var fBillNo;
   var fOrderNum;
-  _DispatchDetailState(FBillNo,FOrderNo) {
+  _ReceiveDetailState(FBillNo,FOrderNo) {
     if (FBillNo != null) {
       this.fBillNo = FBillNo['value'];
       this.fOrderNum = FOrderNo['value'];
@@ -106,7 +106,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
           .listen(_onEvent, onError: _onError);
     }
     EasyLoading.dismiss();
-   /* getWorkShop();*/
+    /* getWorkShop();*/
     getDepartmentList();
   }
   //获取部门
@@ -157,9 +157,9 @@ class _DispatchDetailState extends State<DispatchDetail> {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "fBillNo='$fBillNo'";
-    userMap['FormId'] = 'k9917093a9fd147b7a68c76f6780b8593';
+    userMap['FormId'] = 'QDEP_Proc_HandOver';
     userMap['FieldKeys'] =
-        'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessName,FPlanQty,FPlanStarDate,FPlanEndDate,FID,FQty,FOrderQty,FUnOrderQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo1.FNumber,FOrderEntryID,FProcessNote,FProcessMulti,FProcessTypeID.FNumber,FKDNo';
+    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessName,FPlanQty,FPlanStarDate,FPlanEndDate,FID,FQty,FOrderQty,FUnOrderQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo1.FNumber,FOrderEntryID,FProcessNote,FProcessMulti,FProcessTypeID.FNumber,FKDNo';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -325,13 +325,13 @@ class _DispatchDetailState extends State<DispatchDetail> {
               _onDateClickItem(model,hobby);
             },
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                //2、使用 创建一个widget
-            MyText(
-                PicketUtil.strEmpty(selectData)
-                    ? '暂无'
-                    : selectData,
-                    color: Colors.grey,
-                    rightpadding: 18),
+              //2、使用 创建一个widget
+              MyText(
+                  PicketUtil.strEmpty(selectData)
+                      ? '暂无'
+                      : selectData,
+                  color: Colors.grey,
+                  rightpadding: 18),
               rightIcon
             ]),
           ),
@@ -395,8 +395,8 @@ class _DispatchDetailState extends State<DispatchDetail> {
         print('longer >>> 返回数据类型：${p.runtimeType}');
         setState(() {
           setState(() {
-          hobby['value']['label'] = p;
-        });
+            hobby['value']['label'] = p;
+          });
           var elementIndex = 0;
           departmentList.forEach((element) {
             if (element == p) {
@@ -433,17 +433,17 @@ class _DispatchDetailState extends State<DispatchDetail> {
                               tooltip: '点击扫描',
                               onPressed: () {
                                 this._textNumber.text =
-                                    this.hobby[i][j]["value"]["label"];
+                                this.hobby[i][j]["value"]["label"];
                                 this._FNumber =
-                                    this.hobby[i][j]["value"]["label"];
+                                this.hobby[i][j]["value"]["label"];
                                 checkData = i;
                                 checkDataChild = j;
                                 scanDialog();
                                 if (this.hobby[i][j]["value"]["label"] != 0) {
                                   this._textNumber.value =
                                       _textNumber.value.copyWith(
-                                    text: this.hobby[i][j]["value"]["label"],
-                                  );
+                                        text: this.hobby[i][j]["value"]["label"],
+                                      );
                                 }
                               },
                             ),
@@ -497,7 +497,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
                     trailing:
-                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                    Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                       /* MyText(orderDate[i][j],
                         color: Colors.grey, rightpadding: 18),*/
                     ]),
@@ -547,18 +547,18 @@ class _DispatchDetailState extends State<DispatchDetail> {
                       padding: EdgeInsets.only(top: 8),
                       child: Card(
                           child: Column(children: <Widget>[
-                        TextField(
-                          style: TextStyle(color: Colors.black87),
-                          keyboardType: TextInputType.number,
-                          controller: this._textNumber,
-                          decoration: InputDecoration(hintText: "输入"),
-                          onChanged: (value) {
-                            setState(() {
-                              this._FNumber = value;
-                            });
-                          },
-                        ),
-                      ]))),
+                            TextField(
+                              style: TextStyle(color: Colors.black87),
+                              keyboardType: TextInputType.number,
+                              controller: this._textNumber,
+                              decoration: InputDecoration(hintText: "输入"),
+                              onChanged: (value) {
+                                setState(() {
+                                  this._FNumber = value;
+                                });
+                              },
+                            ),
+                          ]))),
                   Padding(
                     padding: EdgeInsets.only(top: 15, bottom: 8),
                     child: FlatButton(
@@ -568,9 +568,9 @@ class _DispatchDetailState extends State<DispatchDetail> {
                           Navigator.pop(context);
                           setState(() {
                             this.hobby[checkData][checkDataChild]["value"]
-                                ["label"] = _FNumber;
+                            ["label"] = _FNumber;
                             this.hobby[checkData][checkDataChild]['value']
-                                ["value"] = _FNumber;
+                            ["value"] = _FNumber;
                           });
                         },
                         child: Text(
@@ -598,7 +598,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
       var menuData = sharedPreferences.getString('MenuPermissions');
       var deptData = jsonDecode(menuData)[0];
       Map<String, dynamic> dataMap = Map();
-      dataMap['formid'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
+      dataMap['formid'] = 'QDEP_Proc_HandOver';
       Map<String, dynamic> orderMap = Map();
       orderMap['NeedReturnFields'] = [];
       orderMap['IsDeleteEntry'] = false;
@@ -681,20 +681,20 @@ class _DispatchDetailState extends State<DispatchDetail> {
         };
         //提交
         HandlerOrder.orderHandler(
-                context,
-                submitMap,
-                1,
-                "kb7752aa5c53c4c9ea2f02a290942ac61",
-                SubmitEntity.submit(submitMap))
+            context,
+            submitMap,
+            1,
+            "kb7752aa5c53c4c9ea2f02a290942ac61",
+            SubmitEntity.submit(submitMap))
             .then((submitResult) {
           if (submitResult) {
             //审核
             HandlerOrder.orderHandler(
-                    context,
-                    submitMap,
-                    1,
-                    "kb7752aa5c53c4c9ea2f02a290942ac61",
-                    SubmitEntity.audit(submitMap))
+                context,
+                submitMap,
+                1,
+                "kb7752aa5c53c4c9ea2f02a290942ac61",
+                SubmitEntity.audit(submitMap))
                 .then((auditResult) {
               if (auditResult) {
                 //提交清空页面
@@ -708,11 +708,11 @@ class _DispatchDetailState extends State<DispatchDetail> {
               } else {
                 //失败后反审
                 HandlerOrder.orderHandler(
-                        context,
-                        submitMap,
-                        0,
-                        "kb7752aa5c53c4c9ea2f02a290942ac61",
-                        SubmitEntity.unAudit(submitMap))
+                    context,
+                    submitMap,
+                    0,
+                    "kb7752aa5c53c4c9ea2f02a290942ac61",
+                    SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
                     this.isSubmit = false;
@@ -741,7 +741,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
     return FlutterEasyLoading(
       child: Scaffold(
           appBar: AppBar(
-            title: Text("工序派工"),
+            title: Text("工序提交"),
             centerTitle: true,
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
@@ -753,114 +753,6 @@ class _DispatchDetailState extends State<DispatchDetail> {
             children: <Widget>[
               Expanded(
                 child: ListView(children: <Widget>[
-                 /* Column(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: ListTile(
-                          title: Text("工艺路线：$fProcessName"),
-                        ),
-                      ),
-                      divider,
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: ListTile(
-                          title: Text("流程卡号：$fOrderNo"),
-                        ),
-                      ),
-                      divider,
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: ListTile(
-                          title: Text("产品名称：$fMaterialName"),
-                        ),
-                      ),
-                      divider,
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: ListTile(
-                          title: Text("产品编码：$fMaterialNumber"),
-                        ),
-                      ),
-                      divider,
-                    ],
-                  ), Column(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: ListTile(
-                          title: Text("工序：$fProcessIDFDataValue"),
-                        ),
-                      ),
-                      divider,
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: ListTile(
-                          title: Text("已派工数量：$fBaseQty"),
-                        ),
-                      ),
-                      divider,
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: ListTile(
-                          *//* title: TextWidget(FBillNoKey, '生产订单：'),*//*
-                          title: Text("未派工数量：$fRemainOutQty"),
-                        ),
-                      ),
-                      divider,
-                    ],
-                  ),*/
-                  /*_dateItem('开工日期：', DateMode.YMD),*/
-                  /* Column(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        child: ListTile(
-                          title: TextField(
-                            //最多输入行数
-                            maxLines: 1,
-                            decoration: InputDecoration(
-                              hintText: "备注",
-                              //给文本框加边框
-                              border: OutlineInputBorder(),
-                            ),
-                            controller: this._remarkContent,
-                            //改变回调
-                            onChanged: (value) {
-                              setState(() {
-                                _remarkContent.value = TextEditingValue(
-                                  text: value,
-                                  selection: TextSelection.fromPosition(TextPosition(
-                                      affinity: TextAffinity.downstream,
-                                      offset: value.length)));
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      divider,
-                    ],
-                  ),*/
                   Column(
                     children: this._getHobby(),
                   ),
@@ -870,33 +762,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
                 padding: const EdgeInsets.only(top: 0),
                 child: Row(
                   children: <Widget>[
-                    /*Expanded(
-                      child: RaisedButton(
-                        padding: EdgeInsets.all(15.0),
-                        child: Text("增加行"),
-                        color: Colors.orange,
-                        textColor: Colors.white,
-                        onPressed: () async {
-                          List arr = [];
-                          arr.add({
-                            "title": "部门",
-                            "name": "FPlanStarDate",
-                            "isHide": false,
-                            "value": {"label": "", "value": ""}
-                          });
-                          arr.add({
-                            "title": "派工量",
-                            "name": "FPlanEndDate",
-                            "isHide": false,
-                            "value": {"label": "0", "value": "0"}
-                          });
-                          hobby.add(arr);
-                          setState(() {
-                            this._getHobby();
-                          });
-                        },
-                      ),
-                    ),*/
+
                     Expanded(
                       child: RaisedButton(
                         padding: EdgeInsets.all(15.0),
@@ -906,7 +772,7 @@ class _DispatchDetailState extends State<DispatchDetail> {
                             : Theme.of(context).primaryColor,
                         textColor: Colors.white,
                         onPressed: () async =>
-                            this.isSubmit ? null : saveOrder(),
+                        this.isSubmit ? null : saveOrder(),
                       ),
                     ),
                   ],

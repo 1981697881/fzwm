@@ -23,13 +23,18 @@ import 'package:fzwm/views/stock/stock_page.dart';
 import 'package:fzwm/views/stock/undercarriage_page.dart';
 import 'package:fzwm/views/workshop/dispatch_detail.dart';
 import 'package:fzwm/views/workshop/dispatch_page.dart';
+import 'package:fzwm/views/workshop/receive_detail.dart';
+import 'package:fzwm/views/workshop/receive_page.dart';
 import 'package:fzwm/views/workshop/report_detail.dart';
 import 'package:fzwm/views/workshop/report_page.dart';
+import 'package:fzwm/views/workshop/submit_page.dart';
 
 class MenuPermissions {
   static void getMenu() async {}
-  static  getMenuChild(item) {
-    var list =jsonDecode(item)[0];/*[
+
+  static getMenuChild(item) {
+    var list = jsonDecode(item)[0];
+    /*[
       "201801004",
       "手机事业部",
       "A",
@@ -73,7 +78,9 @@ class MenuPermissions {
               "text": "生产入库",
               "parentId": 1,
               "color": Colors.pink.withOpacity(0.7),
-              "router": list[i + 1].length>1?WarehousingPage():WarehousingDetail(FBillNo: null),
+              "router": list[i + 1].length > 1
+                  ? WarehousingPage()
+                  : WarehousingDetail(FBillNo: null),
               "source": list[i + 1],
             };
             menu.add(obj);
@@ -86,7 +93,9 @@ class MenuPermissions {
               "text": "生产领料",
               "parentId": 1,
               "color": Colors.pink.withOpacity(0.7),
-              "router": list[i + 1].length>1?PickingPage():PickingDetail(FBillNo: null),
+              "router": list[i + 1].length > 1
+                  ? PickingPage()
+                  : PickingDetail(FBillNo: null),
               "source": list[i + 1],
             };
             menu.add(obj);
@@ -99,7 +108,9 @@ class MenuPermissions {
               "text": "销售出库",
               "parentId": 2,
               "color": Colors.pink.withOpacity(0.7),
-              "router": list[i + 1].length>1?RetrievalPage():RetrievalDetail(FBillNo: null),
+              "router": list[i + 1].length > 1
+                  ? RetrievalPage()
+                  : RetrievalDetail(FBillNo: null),
               "source": list[i + 1],
             };
             menu.add(obj);
@@ -112,7 +123,9 @@ class MenuPermissions {
               "text": "销售退货",
               "parentId": 2,
               "color": Colors.pink.withOpacity(0.7),
-              "router": list[i + 1].length>1?ReturnGoodsPage():ReturnGoodsDetail(FBillNo: null),
+              "router": list[i + 1].length > 1
+                  ? ReturnGoodsPage()
+                  : ReturnGoodsDetail(FBillNo: null),
               "source": list[i + 1],
             };
             menu.add(obj);
@@ -125,7 +138,9 @@ class MenuPermissions {
               "text": "采购入库",
               "parentId": 5,
               "color": Colors.pink.withOpacity(0.7),
-              "router": list[i + 1].length>1?PurchaseWarehousingPage():PurchaseWarehousingDetail(FBillNo: null),
+              "router": list[i + 1].length > 1
+                  ? PurchaseWarehousingPage()
+                  : PurchaseWarehousingDetail(FBillNo: null),
               "source": list[i + 1],
             };
             menu.add(obj);
@@ -138,7 +153,9 @@ class MenuPermissions {
               "text": "盘点",
               "parentId": 3,
               "color": Colors.pink.withOpacity(0.7),
-              "router": list[i + 1].length>1?InventoryPage():InventoryDetail(FBillNo: null),
+              "router": list[i + 1].length > 1
+                  ? InventoryPage()
+                  : InventoryDetail(FBillNo: null),
               "source": list[i + 1],
             };
             menu.add(obj);
@@ -151,7 +168,9 @@ class MenuPermissions {
               "text": "其他入库",
               "parentId": 3,
               "color": Colors.pink.withOpacity(0.7),
-              "router": list[i + 1].length>1?OtherWarehousingPage():OtherWarehousingDetail(FBillNo: null),
+              "router": list[i + 1].length > 1
+                  ? OtherWarehousingPage()
+                  : OtherWarehousingDetail(FBillNo: null),
               "source": list[i + 1],
             };
             menu.add(obj);
@@ -164,7 +183,9 @@ class MenuPermissions {
               "text": "其他出库",
               "parentId": 3,
               "color": Colors.pink.withOpacity(0.7),
-              "router": list[i + 1].length>1?ExWarehousePage():ExWarehouseDetail(FBillNo: null),
+              "router": list[i + 1].length > 1
+                  ? ExWarehousePage()
+                  : ExWarehouseDetail(FBillNo: null),
               "source": list[i + 1],
             };
             menu.add(obj);
@@ -177,7 +198,9 @@ class MenuPermissions {
               "text": "工序派工",
               "parentId": 4,
               "color": Colors.pink.withOpacity(0.7),
-              "router": list[i + 1].length>1?DispatchPage():DispatchDetail(FBillNo: null),
+              "router": list[i + 1].length > 1
+                  ? DispatchPage()
+                  : DispatchDetail(FBillNo: null),
               "source": list[i + 1],
             };
             menu.add(obj);
@@ -190,7 +213,9 @@ class MenuPermissions {
               "text": "工序汇报",
               "parentId": 4,
               "color": Colors.pink.withOpacity(0.7),
-              "router": list[i + 1].length>1?ReportPage():ReportDetail(FBillNo: null),
+              "router": list[i + 1].length > 1
+                  ? ReportPage()
+                  : ReportDetail(FBillNo: null),
               "source": list[i + 1],
             };
             menu.add(obj);
@@ -237,15 +262,30 @@ class MenuPermissions {
           break;
       }
     }
-    var obj = {
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "工序提交",
+      "parentId": 4,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": SubmitPage(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "工序接收",
+      "parentId": 4,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ReceivePage(),
+      "source": '',
+    });
+    menu.add({
       "icon": Icons.loupe,
       "text": "图号查询",
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": DrawingPage(),
       "source": '',
-    };
-    menu.add(obj);
+    });
     return menu;
   }
 }
