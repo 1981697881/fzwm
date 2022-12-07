@@ -106,7 +106,7 @@ class _ReceivePageState extends State<ReceivePage> {
     }
     userMap['FormId'] = 'QDEP_Proc_HandOver';
     userMap['FieldKeys'] =
-    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessName,FPlanQty,FPlanStarDate,FPlanEndDate,FID,FQty,FOrderQty,FUnOrderQty,FProcessID,FProcessID.FDataValue';
+    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FHandQty,FPlanStarDate,FPlanEndDate,FID,FQty,FAcceptQty,FUnHandQty,FProcessID,FProcessID.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -148,16 +148,16 @@ class _ReceivePageState extends State<ReceivePage> {
           "value": {"label": value[18], "value": value[17]}
         });
         arr.add({
-          "title": "已派工数量",
+          "title": "移交数量",
           "name": "FBaseQty",
           "isHide": false,
-          "value": {"label": value[15], "value": value[15]}
+          "value": {"label": value[10], "value": value[10]}
         });
         arr.add({
-          "title": "未派工数量",
+          "title": "接收数量",
           "name": "FRemainOutQty",
           "isHide": false,
-          "value": {"label": value[16], "value": value[16]}
+          "value": {"label": value[15], "value": value[15]}
         });
         arr.add({
           "title": "计划开工时间",

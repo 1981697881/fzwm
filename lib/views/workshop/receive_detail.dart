@@ -48,7 +48,8 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
 
   //产品编码
   var fMaterialNumber;
-
+  //移交数量
+  var fOrderQty;
   //工艺路线
   var fProcessName;
 
@@ -126,6 +127,32 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
       departmentList.add(element[1]);
     });
   }
+  //获取职员
+  getEmpList(department,emp) async {
+    Map<String, dynamic> userMap = Map();
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
+    userMap['FormId'] = 'BD_Empinfo';
+    userMap['FilterString'] =
+        "FForbidStatus='A' and FUseOrgId.FNumber ="+deptData[1]+" and F_ora_Base.FNUMBER ='"+department+"'";
+    userMap['FieldKeys'] = 'FUseOrgId.FNumber,FName,FNumber,FForbidStatus';
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    if(jsonDecode(res).length>0){
+      setState(() {
+        emp[8]["empListObj"] = jsonDecode(res);
+        emp[8]["empList"] = [];
+        emp[8]["empListObj"].forEach((element) {
+          emp[8]["empList"].add(element[1]);
+        });
+      });
+    }else{
+      ToastUtil.showInfo('无员工数据');
+    }
+
+  }
   void getWorkShop() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -159,7 +186,7 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
     userMap['FilterString'] = "fBillNo='$fBillNo'";
     userMap['FormId'] = 'QDEP_Proc_HandOver';
     userMap['FieldKeys'] =
-    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessName,FPlanQty,FPlanStarDate,FPlanEndDate,FID,FQty,FOrderQty,FUnOrderQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo1.FNumber,FOrderEntryID,FProcessNote,FProcessMulti,FProcessTypeID.FNumber,FKDNo';
+    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FHandQty,FPlanStarDate,FPlanEndDate,FID,FQty,FAcceptQty,FUnHandQty,FProcessID.FNumber,FProcessID.FNumber,FProcessNo,FKDNo1.FNumber,FOrderEntryID,FProcessNote,FProcessMulti,FProcessTypeID.FNumber,FKDNo';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -172,10 +199,12 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
     FDate = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd,]);
     if (orderDate.length > 0) {
       this.FBillNo = orderDate[0][0];
+      this.fOrderQty = orderDate[0][10];
       //产品名称
       fMaterialName = orderDate[0][6];
       //产品编码
       fMaterialNumber = orderDate[0][5];
+
       /*//工艺路线
       fProcessName = orderDate[0][9];
       //流程卡号
@@ -216,19 +245,19 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
           "value": {"label": value[18], "value": value[17]}
         });
         arr.add({
-          "title": "已派工数量",
+          "title": "移交数量",
           "name": "",
           "isHide": false,
+          "value": {"label": value[10], "value": value[10]}
+        });
+        arr.add({
+          "title": "已接收数量",
+          "isHide": false,
+          "name": "",
           "value": {"label": value[15], "value": value[15]}
         });
         arr.add({
-          "title": "未派工数量",
-          "isHide": false,
-          "name": "",
-          "value": {"label": value[16], "value": value[16]}
-        });
-        arr.add({
-          "title": "开工日期",
+          "title": "接收日期",
           "name": "",
           "isHide": false,
           "value": {"label": formatDate(DateTime.now(), [
@@ -246,16 +275,24 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
           ])}
         });
         arr.add({
-          "title": "部门",
+          "title": "班组",
           "name": "",
           "isHide": false,
-          "value":  {"label": deptData[28]==null?"":deptData[28], "value": deptData[27]==null?"":deptData[27]}
+          "value": {"label": deptData[28]==null?"":deptData[28], "value": deptData[27]==null?"":deptData[27]}
         });
         arr.add({
-          "title": "派工量",
+          "title": "人员",
+          "name": "",
+          "empList": [],
+          "empListObj": [],
+          "isHide": false,
+          "value": {"label": "", "value": "", "hide": true}
+        });
+        arr.add({
+          "title": "接收数量",
           "name": "",
           "isHide": false,
-          "value": {"label": "0", "value": "0"}
+          "value": {"label": (value[10] - value[15]).toString(), "value": (value[10] - value[15]).toString()}
         });
         arr.add({
           "title": "操作",
@@ -393,19 +430,35 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
       onConfirm: (p) {
         print('longer >>> 返回数据：$p');
         print('longer >>> 返回数据类型：${p.runtimeType}');
-        setState(() {
+        if(hobby  == 'emp'){
+          setState(() {
+            stock['value']['label'] = p;
+          });
+          var elementIndex = 0;
+          data.forEach((element) {
+            if (element == p) {
+              stock['value']['value'] = stock['empListObj'][elementIndex][2];
+            }
+            elementIndex++;
+          });
+        }else{
           setState(() {
             hobby['value']['label'] = p;
           });
           var elementIndex = 0;
-          departmentList.forEach((element) {
+          data.forEach((element) {
             if (element == p) {
               hobby['value']['value'] = departmentListObj[elementIndex][2];
             }
             elementIndex++;
           });
-          print(hobby);
-        });
+          print(1111111111);
+          print(stock);
+          getEmpList(hobby['value']['value'],stock);
+          stock[8]['value']['hide'] = true;
+          stock[8]['value']['value'] = "";
+          stock[8]['value']['label'] = "";
+        }
       },
     );
   }
@@ -416,7 +469,7 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          if (j == 8) {
+          if (j == 9) {
             comList.add(
               Column(children: [
                 Container(
@@ -454,14 +507,19 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
             );
           } else if (j == 6) {
             comList.add(
-              _dateItem('开工日期：', DateMode.YMD,this.hobby[i][j]['value']['label'], this.hobby[i][j]),
+              _dateItem('接收日期：', DateMode.YMD,this.hobby[i][j]['value']['label'], this.hobby[i][j]),
             );
           }else if (j == 7) {
             comList.add(
               _item(
-                  '部门:', departmentList, this.hobby[i][j]['value']['label'], this.hobby[i][j]),
+                  '班组:', departmentList, this.hobby[i][j]['value']['label'], this.hobby[i][j],stock:this.hobby[i]),
             );
-          }else if (j == 9) {
+          }else if (j == 8) {
+            comList.add(
+              _item('人员:', this.hobby[i][j]['empList'], this.hobby[i][j]['value']['label'],
+                  'emp',stock:this.hobby[i][j]),
+            );
+          }else if (j == 10) {
             comList.add(
               Column(children: [
                 Container(
@@ -567,10 +625,17 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
                           // 关闭 Dialog
                           Navigator.pop(context);
                           setState(() {
-                            this.hobby[checkData][checkDataChild]["value"]
-                            ["label"] = _FNumber;
-                            this.hobby[checkData][checkDataChild]['value']
-                            ["value"] = _FNumber;
+                            print((double.parse(_FNumber)));
+                            print(this.fOrderQty);
+                            print((double.parse(_FNumber)) <= this.fOrderQty);
+                            if((double.parse(_FNumber)) <= this.fOrderQty){
+                              this.hobby[checkData][checkDataChild]["value"]
+                              ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                              ["value"] = _FNumber;
+                            }else{
+                              ToastUtil.showInfo('接收数量不能大于移交数量');
+                            }
                           });
                         },
                         child: Text(
@@ -603,65 +668,29 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
       orderMap['NeedReturnFields'] = [];
       orderMap['IsDeleteEntry'] = false;
       Map<String, dynamic> Model = Map();
-      Model['FID'] = 0;
-      Model['FDate'] = FDate;
-      Model['FCreateOrgId'] = {"FNumber": deptData[1]};
-      Model['F_ora_Assistant'] = {
-        "FNumber": orderDate[0][20]
-      };
+      Model['FID'] = orderDate[0][13];
       var FEntity = [];
       var hobbyIndex = 0;
       NumberFormat formatter = NumberFormat("00");
       this.hobby.forEach((element) {
-        if (element[8]['value']['value'] != '0' &&
-            element[7]['value']['value'] != '') {
+        if (element[9]['value']['value'] != '0' && element[7]['value']['value'] != '' && element[8]['value']['value'] != '') {
           Map<String, dynamic> FEntityItem = Map();
-          FEntityItem['FMaterialId'] = {
-            "FNUMBER": fMaterialNumber
-          };
-          FEntityItem['FDeptID'] = {
+          FEntityItem['FEntryID'] = orderDate[hobbyIndex][4];
+          FEntityItem['FAcceptTeam'] = {
             "FNUMBER": element[7]['value']['value']
           };
-          FEntityItem['FProcessID'] = {
-            "FNumber": element[3]['value']['value']
+          FEntityItem['FAcceptEmp'] = {
+            "FSTAFFNUMBER": element[8]['value']['value']
           };
-          /*FEntityItem['FReturnType'] = 1;*/
-          FEntityItem['FOrderQty'] = element[8]['value']['value'];
-          FEntityItem['FUnOrderQty'] = element[5]['value']['value'];
-          FEntityItem['FPlanStarDate'] = element[6]['value']['value'];
-          FEntityItem['FPlanEndDate'] = element[6]['value']['value'];
-          FEntityItem['FPlanSDate'] = element[6]['value']['value'];
-          FEntityItem['FPlanEDate'] = element[6]['value']['value'];
-          FEntityItem['FProcessLine'] = element[0]['value']['value'];
-          FEntityItem['FOrderNo'] = element[1]['value']['value'];
-          FEntityItem['FProcessNote'] = orderDate[hobbyIndex][22];
-          FEntityItem['FProcessMulti'] = orderDate[hobbyIndex][23];
-          FEntityItem['FProcessTypeID'] = {
-            "FNumber": orderDate[hobbyIndex][24]
-          };
-          FEntityItem['FKDNo'] = orderDate[hobbyIndex][25];
-          FEntityItem['FKDNo1'] = {
-            "FNumber": orderDate[hobbyIndex][20]
-          };
-          FEntityItem['FOrderEntryID'] = orderDate[hobbyIndex][21];
-          FEntityItem['FPONumber'] = element[1]['value']['value']+'-'+formatter.format(int.parse(orderDate[hobbyIndex][21]));
-          FEntityItem['FProcessNo'] = orderDate[hobbyIndex][19];
-          /*FEntityItem['FEntity_Link'] = [
-            {
-              "FEntity_Link_FRuleId": "8e1da6f6-33de-47af-a914-04711c3bd763",
-              "FEntity_Link_FSTableName": "cust_t_ProcessPlanEntry",
-              "FEntity_Link_FSBillId": orderDate[hobbyIndex][13],
-              "FEntity_Link_FSId": orderDate[hobbyIndex][4],
-              "FEntity_Link_FOrderQty": element[8]['value']['value']
-            }
-          ];*/
+          FEntityItem['FAcceptQty'] = element[9]['value']['value'];
+          FEntityItem['FAcceptDate'] = element[6]['value']['value'];
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;
       });
       if (FEntity.length == 0) {
         this.isSubmit = false;
-        ToastUtil.showInfo('请输入数量和部门');
+        ToastUtil.showInfo('请输入数量,班组,人员');
         return;
       }
       Model['FEntity'] = FEntity;
@@ -674,7 +703,7 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
       if (res['Result']['ResponseStatus']['IsSuccess']) {
         Map<String, dynamic> submitMap = Map();
         submitMap = {
-          "formid": "kb7752aa5c53c4c9ea2f02a290942ac61",
+          "formid": "QDEP_Proc_HandOver",
           "data": {
             'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
           }
@@ -684,7 +713,7 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
             context,
             submitMap,
             1,
-            "kb7752aa5c53c4c9ea2f02a290942ac61",
+            "QDEP_Proc_HandOver",
             SubmitEntity.submit(submitMap))
             .then((submitResult) {
           if (submitResult) {
@@ -693,7 +722,7 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
                 context,
                 submitMap,
                 1,
-                "kb7752aa5c53c4c9ea2f02a290942ac61",
+                "QDEP_Proc_HandOver",
                 SubmitEntity.audit(submitMap))
                 .then((auditResult) {
               if (auditResult) {
@@ -711,7 +740,7 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
                     context,
                     submitMap,
                     0,
-                    "kb7752aa5c53c4c9ea2f02a290942ac61",
+                    "QDEP_Proc_HandOver",
                     SubmitEntity.unAudit(submitMap))
                     .then((unAuditResult) {
                   if (unAuditResult) {
@@ -741,7 +770,7 @@ class _ReceiveDetailState extends State<ReceiveDetail> {
     return FlutterEasyLoading(
       child: Scaffold(
           appBar: AppBar(
-            title: Text("工序提交"),
+            title: Text("工序接收"),
             centerTitle: true,
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),

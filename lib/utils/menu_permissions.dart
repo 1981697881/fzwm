@@ -264,7 +264,7 @@ class MenuPermissions {
     }
     menu.add({
       "icon": Icons.loupe,
-      "text": "工序提交",
+      "text": "工序移交",
       "parentId": 4,
       "color": Colors.pink.withOpacity(0.7),
       "router": SubmitPage(),

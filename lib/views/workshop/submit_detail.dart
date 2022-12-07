@@ -164,14 +164,14 @@ class _SubmitDetailState extends State<SubmitDetail> {
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
-    print(jsonDecode(res));
-    print(emp);
     if(jsonDecode(res).length>0){
+      setState(() {
         emp[2]["empListObj"] = jsonDecode(res);
         emp[2]["empList"] = [];
         emp[2]["empListObj"].forEach((element) {
           emp[2]["empList"].add(element[1]);
         });
+      });
     }else{
       ToastUtil.showInfo('无员工数据');
     }
@@ -218,7 +218,7 @@ class _SubmitDetailState extends State<SubmitDetail> {
     }
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
     userMap['FieldKeys'] =
-    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo,FPONumber,FLineName,FProcessNote,FProcessMulti,F_ora_BaseProperty1,FOrderEntryID,FDeptID.FNumber,FKDNo1.FNumber,FDeptID.FName,';
+    'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID.FNumber,FProcessID.FDataValue,FProcessNo,FKDNo,FPONumber,FLineName,FProcessNote,FProcessMulti,F_ora_BaseProperty1,FOrderEntryID,FDeptID.FNumber,FKDNo1.FNumber,FDeptID.FName';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -262,7 +262,7 @@ class _SubmitDetailState extends State<SubmitDetail> {
         "title": "移交数量",
         "name": "FOKQTY",
         "isHide": false,
-        "value": {"label": "0", "value": "0"}
+        "value": {"label": fOrderQty.toString(), "value": fOrderQty.toString()}
       });
       arr.add({
         "title": "班组",
@@ -556,14 +556,13 @@ class _SubmitDetailState extends State<SubmitDetail> {
                           // 关闭 Dialog
                           Navigator.pop(context);
                           setState(() {
-                            print((double.parse(_FNumber)+double.parse(this.hobby[checkData][checkDataChild==0?1:0]["value"]["label"])));
-                            if((double.parse(_FNumber)+double.parse(this.hobby[checkData][checkDataChild==0?1:0]["value"]["label"])) <= this.fOrderQty){
+                            if((double.parse(_FNumber)) <= this.fOrderQty){
                               this.hobby[checkData][checkDataChild]["value"]
                               ["label"] = _FNumber;
                               this.hobby[checkData][checkDataChild]['value']
                               ["value"] = _FNumber;
                             }else{
-                              ToastUtil.showInfo('汇报数量不能大于派工数量');
+                              ToastUtil.showInfo('移交数量不能大于派工数量');
                             }
                           });
                         },
@@ -596,7 +595,7 @@ class _SubmitDetailState extends State<SubmitDetail> {
       Model['FID'] = 0;
       Model['FDate'] = FDate;
       Model['FCreateOrgId'] = {"FNumber": orderDate[0][1].toString()};
-      Model['FMaterialId'] = {
+      /*Model['FMaterialId'] = {
         "FNumber": fMaterialNumber
       };
       Model['FProcessID'] = {
@@ -616,17 +615,35 @@ class _SubmitDetailState extends State<SubmitDetail> {
         "FNUMBER": orderDate[0][27]
       };Model['FKDNo1'] = {
         "FNumber": orderDate[0][28]
-      };
+      };*/
       var FEntity = [];
       var hobbyIndex = 0;
       this.hobby.forEach((element) {
-        if (element[0]['value']['value'] != '0' ||
-            element[1]['value']['value'] != '0') {
+        if (element[0]['value']['value'] != '0' && element[1]['value']['value'] != '' && element[2]['value']['value'] != '') {
           Map<String, dynamic> FEntityItem = Map();
-          FEntityItem['FOKQTY'] = element[0]['value']['value'];
-          FEntityItem['FBadQty'] = element[1]['value']['value'];
-          FEntityItem['FEmpID'] = {
-            "FSTAFFNUMBER": element[3]['value']['value']
+          FEntityItem['FProcessLine'] = fProcessName;
+          FEntityItem['FOrderNo'] = fOrderNo;
+          FEntityItem['FOrderEntryID'] = orderDate[0][26];
+          FEntityItem['FMaterialID'] = {
+            "FNumber": fMaterialNumber
+          };
+          FEntityItem['FLineName'] = orderDate[0][22];
+          FEntityItem['FPlanStarDate'] = orderDate[0][11];
+          FEntityItem['FHandDate'] = FDate;
+          FEntityItem['FPlanEndDate'] = orderDate[0][12];
+          FEntityItem['FProcessID'] = {
+            "FNumber": fProcessID
+          };
+          FEntityItem['FKDNo1'] = {
+            "FNumber": orderDate[0][25]
+          };
+          FEntityItem['FKDNo'] = orderDate[0][20];
+          FEntityItem['FHandQty'] = element[0]['value']['value'];
+          FEntityItem['FHandTeam'] = {
+            "FNUMBER": element[1]['value']['value']
+          };
+          FEntityItem['FHandEmp'] = {
+            "FSTAFFNUMBER": element[2]['value']['value']
           };
           FEntity.add(FEntityItem);
         }
@@ -634,7 +651,7 @@ class _SubmitDetailState extends State<SubmitDetail> {
       });
       if(FEntity.length==0){
         this.isSubmit = false;
-        ToastUtil.showInfo('请输入数量');
+        ToastUtil.showInfo('请输入数量,班组,人员');
         return;
       }
       Model['FEntity'] = FEntity;
