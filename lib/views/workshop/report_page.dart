@@ -45,7 +45,7 @@ class _ReportPageState extends State<ReportPage> {
   @override
   void initState() {
     super.initState();
-    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime dateTime = DateTime.now().add(Duration(days: -90));
     DateTime newDate = DateTime.now();
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     /// 开启监听
@@ -86,9 +86,9 @@ class _ReportPageState extends State<ReportPage> {
     if(isScan){
       if(scanCode.length>0){
         userMap['FilterString'] =
-            "FOrderNo='"+scanCode[0]+"' and FUnSubmitQty>0";
+            "FOrderNo like '"+scanCode[0]+"%' and FUnSubmitQty>0";
       }else{
-        userMap['FilterString'] = "FOrderNo='"+data.toString()+"' and FUnSubmitQty>0";
+        userMap['FilterString'] = "FOrderNo like '"+data.toString()+"%' and FUnSubmitQty>0";
       }
     }else{
       if (this._dateSelectText != "") {
@@ -99,7 +99,7 @@ class _ReportPageState extends State<ReportPage> {
       }
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FOrderNo='"+scanCode[0]+"' and FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        "FOrderNo like '"+scanCode[0]+"%' and FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
@@ -296,7 +296,7 @@ class _ReportPageState extends State<ReportPage> {
   String _dateSelectText = "";
   void showDateSelect() async {
     //获取当前的时间
-    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime dateTime = DateTime.now().add(Duration(days: -90));
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);

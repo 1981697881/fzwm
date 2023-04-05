@@ -46,7 +46,7 @@ class _SubmitPageState extends State<SubmitPage> {
   @override
   void initState() {
     super.initState();
-    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime dateTime = DateTime.now().add(Duration(days: -90));
     DateTime newDate = DateTime.now();
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     /// 开启监听
@@ -87,9 +87,9 @@ class _SubmitPageState extends State<SubmitPage> {
     if(isScan){
       if(scanCode.length>0){
         userMap['FilterString'] =
-            "FOrderNo='"+scanCode[0]+"' and FDocumentStatus='C'";
+            "(FOrderNo='"+scanCode[0]+"' or FPONumber='"+scanCode[0]+"') and FDocumentStatus='C'";
       }else{
-        userMap['FilterString'] = "FOrderNo='"+data.toString()+"' and FDocumentStatus='C'";
+        userMap['FilterString'] = "(FOrderNo='"+data.toString()+"' or FPONumber='"+data.toString()+"') and FDocumentStatus='C'";
       }
     }else{
       if (this._dateSelectText != "") {
@@ -100,7 +100,7 @@ class _SubmitPageState extends State<SubmitPage> {
       }
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "FOrderNo='"+scanCode[0]+"' and FDocumentStatus='C' and FDate>= '$startDate' and FDate <= '$endDate'";
+            "(FOrderNo='"+scanCode[0]+"' or FPONumber='"+scanCode[0]+"') and FDocumentStatus='C' and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
@@ -297,7 +297,7 @@ class _SubmitPageState extends State<SubmitPage> {
   String _dateSelectText = "";
   void showDateSelect() async {
     //获取当前的时间
-    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime dateTime = DateTime.now().add(Duration(days: -90));
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);

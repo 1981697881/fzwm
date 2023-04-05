@@ -45,7 +45,7 @@ class _DispatchPageState extends State<DispatchPage> {
   @override
   void initState() {
     super.initState();
-    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime dateTime = DateTime.now().add(Duration(days: -90));
     DateTime newDate = DateTime.now();
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     EasyLoading.dismiss();
@@ -285,7 +285,7 @@ class _DispatchPageState extends State<DispatchPage> {
 
   void showDateSelect() async {
     //获取当前的时间
-    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime dateTime = DateTime.now().add(Duration(days: -90));
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
