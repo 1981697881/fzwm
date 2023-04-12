@@ -87,10 +87,10 @@ class _ReceivePageState extends State<ReceivePage> {
     if(isScan){
       if(scanCode.length>0){
         userMap['FilterString'] =
-            "FOrderNo='"+scanCode[0]+"' and FDocumentStatus in ('A','D')";
+            "FOrderNo like '"+scanCode[0]+"%' and FDocumentStatus in ('A','D')";
       }else{
         userMap['FilterString'] =
-            "FOrderNo='"+data.toString()+"' and FDocumentStatus in ('A','D')";
+            "FOrderNo like '"+data.toString()+"%' and FDocumentStatus in ('A','D')";
       }
     }else{
       if (this._dateSelectText != "") {
@@ -101,7 +101,7 @@ class _ReceivePageState extends State<ReceivePage> {
       }
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "FOrderNo='"+scanCode[0]+"' and FDocumentStatus in ('A','D') and FDate>= '$startDate' and FDate <= '$endDate'";
+            "FOrderNo like '"+scanCode[0]+"%' and FDocumentStatus in ('A','D') and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     userMap['FormId'] = 'QDEP_Proc_HandOver';

@@ -87,9 +87,9 @@ class _SubmitPageState extends State<SubmitPage> {
     if(isScan){
       if(scanCode.length>0){
         userMap['FilterString'] =
-            "(FOrderNo='"+scanCode[0]+"' or FPONumber='"+scanCode[0]+"') and FDocumentStatus='C'";
+            "(FOrderNo=like '"+scanCode[0]+"%' or FPONumber= like'"+scanCode[0]+"%') and FDocumentStatus='C'";
       }else{
-        userMap['FilterString'] = "(FOrderNo='"+data.toString()+"' or FPONumber='"+data.toString()+"') and FDocumentStatus='C'";
+        userMap['FilterString'] = "(FOrderNo=like '"+data.toString()+"%' or FPONumber=like '"+data.toString()+"%') and FDocumentStatus='C'";
       }
     }else{
       if (this._dateSelectText != "") {
@@ -100,7 +100,7 @@ class _SubmitPageState extends State<SubmitPage> {
       }
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "(FOrderNo='"+scanCode[0]+"' or FPONumber='"+scanCode[0]+"') and FDocumentStatus='C' and FDate>= '$startDate' and FDate <= '$endDate'";
+            "(FOrderNo=like '"+scanCode[0]+"%' or FPONumber=like '"+scanCode[0]+"%') and FDocumentStatus='C' and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';

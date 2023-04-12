@@ -86,10 +86,10 @@ class _DispatchPageState extends State<DispatchPage> {
     if(isScan){
       if(scanCode.length>0){
         userMap['FilterString'] =
-            "FOrderNo='"+scanCode[0]+"' and FUnOrderQty>0";
+            "FOrderNo like '"+scanCode[0]+"%' and FUnOrderQty>0";
       }else{
         userMap['FilterString'] =
-            "FOrderNo='"+data.toString()+"' and FUnOrderQty>0";
+            "FOrderNo like '"+data.toString()+"%' and FUnOrderQty>0";
       }
     }else{
       if (this._dateSelectText != "") {
@@ -100,7 +100,7 @@ class _DispatchPageState extends State<DispatchPage> {
       }
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FOrderNo='"+scanCode[0]+"' and FUnOrderQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        "FOrderNo like '"+scanCode[0]+"%' and FUnOrderQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     userMap['FormId'] = 'k9917093a9fd147b7a68c76f6780b8593';
