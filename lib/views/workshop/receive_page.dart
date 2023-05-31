@@ -58,7 +58,7 @@ class _ReceivePageState extends State<ReceivePage> {
     }
   }
   _initState(data) {
-    isScan = true;
+    isScan = false;
     this.getOrderList(data: data);
     /// 开启监听
     _subscription = scannerPlugin
@@ -290,6 +290,7 @@ class _ReceivePageState extends State<ReceivePage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
+    var seDate = _dateSelectText.split(" - ");
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境
@@ -302,7 +303,7 @@ class _ReceivePageState extends State<ReceivePage> {
         cancelText: "取消",
         confirmText: "确定",
         //初始的时间范围选择
-        initialDateRange: DateTimeRange(start: start, end: end));
+        initialDateRange: DateTimeRange(start: DateTime.parse(seDate[0]), end: DateTime.parse(seDate[1])));
     //结果
     if(selectTimeRange != null){
       _dateSelectText = selectTimeRange.toString();

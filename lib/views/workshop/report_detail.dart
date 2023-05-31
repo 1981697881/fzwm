@@ -159,7 +159,7 @@ class _ReportDetailState extends State<ReportDetail> {
     var deptData = jsonDecode(menuData)[0];
     userMap['FormId'] = 'BD_Empinfo';
     userMap['FilterString'] =
-    "FForbidStatus='A' and FUseOrgId.FNumber ="+deptData[1]+" and F_ora_Base.FNUMBER ='"+department+"'";
+    "FForbidStatus='A' and FDocumentStatus='C' and FUseOrgId.FNumber ="+deptData[1]+" and F_ora_Base.FNUMBER ='"+department+"'";
     userMap['FieldKeys'] = 'FUseOrgId.FNumber,FName,FNumber,FForbidStatus';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
@@ -572,11 +572,10 @@ class _ReportDetailState extends State<ReportDetail> {
         "FNumber": fProcessID
       };
       Model['FKDNo'] = orderDate[0][25];
-      Model['FOrderNo'] = orderDate[0][26];
+      Model['FOrderNo'] = orderDate[0][21];
       Model['F_ora_Text1'] = fOrderNo;
       Model['FProcessName'] = fProcessName;
       Model['FPlanStarDate'] = orderDate[0][11];
-      Model['FPONumber'] = orderDate[0][21];
       Model['FLineName'] = orderDate[0][22];
       Model['FProcessNo'] = fProcessNo;
       Model['FProcessNote'] = orderDate[0][23];
@@ -588,6 +587,7 @@ class _ReportDetailState extends State<ReportDetail> {
       };
       var FEntity = [];
       var hobbyIndex = 0;
+      var qtySummary = 0.0;
       this.hobby.forEach((element) {
         if (element[0]['value']['value'] != '0' ||
             element[1]['value']['value'] != '0') {
@@ -598,6 +598,7 @@ class _ReportDetailState extends State<ReportDetail> {
           FEntityItem['FProcessID'] = {
             "FNumber": fProcessID
           };*/
+          qtySummary = qtySummary + double.parse(element[0]['value']['value']) + double.parse(element[1]['value']['value']);
           FEntityItem['FOKQTY'] = element[0]['value']['value'];
           FEntityItem['FBadQty'] = element[1]['value']['value'];
           FEntityItem['FEmpID'] = {
@@ -620,6 +621,11 @@ class _ReportDetailState extends State<ReportDetail> {
       if(FEntity.length==0){
         this.isSubmit = false;
         ToastUtil.showInfo('请输入数量');
+        return;
+      }
+      if(qtySummary>fUnSubmitQty){
+        this.isSubmit = false;
+        ToastUtil.showInfo('汇报数量不能大于剩余汇报数量');
         return;
       }
       Model['FEntity'] = FEntity;
@@ -835,7 +841,7 @@ class _ReportDetailState extends State<ReportDetail> {
                             Map<String, dynamic> userMap = Map();
                             userMap['FormId'] = 'BD_Empinfo';
                             userMap['FilterString'] =
-                                "FForbidStatus='A' and FUseOrgId.FNumber ="+deptData[1]+" and F_ora_Base.FNUMBER ='"+orderDate[0][27]+"'";
+                                "FForbidStatus='A' and FDocumentStatus='C' and FUseOrgId.FNumber ="+deptData[1]+" and F_ora_Base.FNUMBER ='"+deptData[27]+"'";
                             userMap['FieldKeys'] = 'FUseOrgId.FNumber,FName,FNumber,FForbidStatus';
                             Map<String, dynamic> dataMap = Map();
                             dataMap['data'] = userMap;
