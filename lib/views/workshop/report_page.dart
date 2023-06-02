@@ -91,15 +91,19 @@ class _ReportPageState extends State<ReportPage> {
         userMap['FilterString'] = "FOrderNo like '"+data.toString()+"%' and FUnSubmitQty>0";
       }
     }else{
-      if (this._dateSelectText != "") {
+     /* if (this._dateSelectText != "") {
         this.startDate = this._dateSelectText.substring(0, 10);
         this.endDate = this._dateSelectText.substring(26, 36);
         userMap['FilterString'] =
         "FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
-      }
+      }*/
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FOrderNo like '"+scanCode[0]+"%' and FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        "FOrderNo like '"+scanCode[0]+"%' and FUnSubmitQty>0"; /*and FDate>= '$startDate' and FDate <= '$endDate'*/
+      }else{
+        ToastUtil.showInfo('请输入相对精确的查询条件');
+        EasyLoading.dismiss();
+        return;
       }
     }
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
@@ -132,6 +136,12 @@ class _ReportPageState extends State<ReportPage> {
           "name": "FOrderNo",
           "isHide": false,
           "value": {"label": value[8], "value": value[8]}
+        });
+        arr.add({
+          "title": "规格型号",
+          "name": "FSpecification",
+          "isHide": false,
+          "value": {"label": value[7], "value": value[7]}
         });
         arr.add({
           "title": "物料名称",
@@ -355,14 +365,14 @@ class _ReportPageState extends State<ReportPage> {
                 pinned: true,
                 delegate: StickyTabBarDelegate(
                   minHeight: 50, //收起的高度
-                  maxHeight: 100, //展开的最大高度
+                  maxHeight: 55, //展开的最大高度
                   child: Container(
                     color: Theme.of(context).primaryColor,
                     child: Padding(
                       padding: EdgeInsets.only(top: 2.0),
                       child: Column(
                         children: [
-                          InkWell(
+                          /*InkWell(
                             onTap: () {
                               this.showDateSelect();
                             },
@@ -407,7 +417,7 @@ class _ReportPageState extends State<ReportPage> {
                                 ),
                               ],
                             ),
-                          ),
+                          ),*/
                           Container(
                             height: 52.0,
                             child: new Padding(

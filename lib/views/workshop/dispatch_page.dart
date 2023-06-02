@@ -92,15 +92,19 @@ class _DispatchPageState extends State<DispatchPage> {
             "FOrderNo like '"+data.toString()+"%' and FUnOrderQty>0";
       }
     }else{
-      if (this._dateSelectText != "") {
+     /* if (this._dateSelectText != "") {
         this.startDate = this._dateSelectText.substring(0, 10);
         this.endDate = this._dateSelectText.substring(26, 36);
         userMap['FilterString'] =
         "FUnOrderQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
-      }
+      }*/
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FOrderNo like '"+scanCode[0]+"%' and FUnOrderQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        "FOrderNo like '"+scanCode[0]+"%' and FUnOrderQty >0";/* and FDate>= '$startDate' and FDate <= '$endDate'*/
+      }else{
+        ToastUtil.showInfo('请输入相对精确的查询条件');
+        EasyLoading.dismiss();
+        return;
       }
     }
     userMap['FormId'] = 'k9917093a9fd147b7a68c76f6780b8593';
@@ -133,6 +137,12 @@ class _DispatchPageState extends State<DispatchPage> {
           "name": "FOrderNo",
           "isHide": false,
           "value": {"label": value[8], "value": value[8]}
+        });
+        arr.add({
+          "title": "规格型号",
+          "name": "FSpecification",
+          "isHide": false,
+          "value": {"label": value[7], "value": value[7]}
         });
         arr.add({
           "title": "物料名称",
@@ -341,14 +351,14 @@ class _DispatchPageState extends State<DispatchPage> {
                 pinned: true,
                 delegate: StickyTabBarDelegate(
                   minHeight: 50, //收起的高度
-                  maxHeight: 100, //展开的最大高度
+                  maxHeight: 55, //展开的最大高度
                   child: Container(
                     color: Theme.of(context).primaryColor,
                     child: Padding(
                       padding: EdgeInsets.only(top: 2.0),
                       child: Column(
                         children: [
-                          InkWell(
+                          /*InkWell(
                             onTap: () {
                               this.showDateSelect();
                             },
@@ -393,7 +403,7 @@ class _DispatchPageState extends State<DispatchPage> {
                                 ),
                               ],
                             ),
-                          ),
+                          ),*/
                           Container(
                             height: 52.0,
                             child: new Padding(
