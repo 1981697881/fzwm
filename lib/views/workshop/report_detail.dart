@@ -49,6 +49,8 @@ class _ReportDetailState extends State<ReportDetail> {
   var fMaterialName;
   //产品编码
   var fMaterialNumber;
+  //规格型号
+  var fSpecification;
   //工艺路线
   var fProcessName;
   //流程卡号
@@ -224,6 +226,8 @@ class _ReportDetailState extends State<ReportDetail> {
       fMaterialName = orderDate[0][6];
       //产品编码
       fMaterialNumber = orderDate[0][5];
+      //规格型号
+      fSpecification = orderDate[0][7];
       //工艺路线
       fProcessName = orderDate[0][9];
       //流程卡号
@@ -434,32 +438,33 @@ class _ReportDetailState extends State<ReportDetail> {
                 Container(
                   color: Colors.white,
                   child: ListTile(
-                      title: Text(this.hobby[i][j]["title"] +
-                          '：' +
-                          this.hobby[i][j]["value"]["label"].toString()),
-                      trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            IconButton(
-                              icon: new Icon(Icons.filter_center_focus),
-                              tooltip: '点击扫描',
-                              onPressed: () {
-                                this._textNumber.text =
-                                this.hobby[i][j]["value"]["label"];
-                                this._FNumber =
-                                this.hobby[i][j]["value"]["label"];
-                                checkData = i;
-                                checkDataChild = j;
-                                scanDialog();
-                                if (this.hobby[i][j]["value"]["label"] != 0) {
-                                  this._textNumber.value =
-                                      _textNumber.value.copyWith(
-                                        text: this.hobby[i][j]["value"]["label"],
-                                      );
-                                }
-                              },
-                            ),
-                          ])),
+                      title: TextField(
+                        //最多输入行数
+                        maxLines: 1,
+                        decoration: InputDecoration(
+                          hintText: this.hobby[i][j]["title"],
+                          //给文本框加边框
+                          border: OutlineInputBorder(),
+                        ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            FilteringTextInputFormatter.deny(RegExp('^0+'))
+                          ],
+                          controller: TextEditingController.fromValue(TextEditingValue(
+                              text: '${this.hobby[i][j]["value"]["label"] == null ? "" : this.hobby[i][j]["value"]["label"]}',  //判断keyword是否为空
+                              // 保持光标在最后
+                              selection: TextSelection.fromPosition(TextPosition(
+                                  affinity: TextAffinity.downstream,
+                                  offset: '${this.hobby[i][j]["value"]["label"]}'.length)))),
+                        //改变回调
+                        onChanged: (value) {
+                          setState(() {
+                            this.hobby[i][j]["value"]["label"] = value;
+                            this.hobby[i][j]["value"]["value"] = value;
+                          });
+                        },
+                      ),
+                  ),
                 ),
                 divider,
               ]),
@@ -740,6 +745,16 @@ class _ReportDetailState extends State<ReportDetail> {
                       ),
                       divider,
                     ],
+                  ),Column(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: Text("规格型号：$fSpecification"),
+                        ),
+                      ),
+                      divider,
+                    ],
                   ),
                   _item('工序:', this.processList, this.fProcessIDFDataValue,
                       'process'),
@@ -814,19 +829,19 @@ class _ReportDetailState extends State<ReportDetail> {
                             "title": "合格数量",
                             "name": "FOKQTY",
                             "isHide": false,
-                            "value": {"label": "0", "value": "0"}
+                            "value": {"label": hobby.length>0?hobby[hobby.length-1][0]["value"]["label"]: '', "value": hobby.length>0?hobby[hobby.length-1][0]["value"]["value"]: ''}
                           });
                           arr.add({
                             "title": "不合格数量",
                             "name": "FBadQty",
                             "isHide": false,
-                            "value": {"label": "0", "value": "0"}
+                            "value": {"label": "", "value": ""}
                           });
                           arr.add({
                             "title": "班组",
                             "name": "",
                             "isHide": false,
-                            "value": {"label": deptData[28]==null?"":deptData[28], "value": deptData[27]==null?"":deptData[27]}
+                            "value": {"label": hobby.length>0?hobby[hobby.length-1][2]["value"]["label"]:(deptData[28]==null?"":deptData[28]), "value": hobby.length>0?hobby[hobby.length-1][2]["value"]["value"]:(deptData[27]==null?"":deptData[27])}
                           });
                           if(orderDate[0][27]==null){
                             arr.add({

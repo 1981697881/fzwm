@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fzwm/model/currency_entity.dart';
 import 'package:fzwm/utils/toast_util.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,7 +14,7 @@ import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DrawingPage extends StatefulWidget {
-  DrawingPage( {Key? key}) : super(key: key);
+  DrawingPage({Key? key}) : super(key: key);
 
   @override
   _DrawingPageState createState() => _DrawingPageState();
@@ -23,7 +24,7 @@ class _DrawingPageState extends State<DrawingPage> {
   final controller = TextEditingController();
   static const scannerPlugin =
       const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription ?_subscription;
+  StreamSubscription? _subscription;
   final divider = Divider(height: 1, indent: 20);
   String pdfUrl = "";
   String pathPDF = "";
@@ -64,34 +65,48 @@ class _DrawingPageState extends State<DrawingPage> {
     super.dispose();
 
     /// 取消监听
-     if (_subscription != null) {
-      _subscription!.cancel();;
+    if (_subscription != null) {
+      _subscription!.cancel();
+      ;
     }
   }
+
+  // 集合
+  List hobby = [];
 
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FNumber='$_code' and FForbidStatus = 'A' and FUseOrgId.FNumber = "+deptData[1];
+    userMap['FilterString'] = "FNumber like '"+keyWord+"%' and FForbidStatus = 'A' and FUseOrgId.FNumber = " + deptData[1];
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] = 'F_ora_Text';
+    userMap['Limit'] = "10";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
     if (orderDate.length > 0) {
+      hobby = [];
+      orderDate.forEach((value) {
+        List arr = [];
+        arr.add({
+          "title": "编号",
+          "name": "FBillNo",
+          "isHide": false,
+          "value": {"label": value[0], "value": value[0]}
+        });
+        hobby.add(arr);
+      });
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+      });
+
       print(orderDate);
-      pdfUrl = orderDate[0][0];
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => PDFScreen(
-                pathPDF:
-                    "https://tz.xinyuanhengye.cn:8088/tz.html?file=$pdfUrl.pdf")),
-      );
+
       /*createFileOfPdfUrl().then((f) {
         setState(() {
           pathPDF = f.path;
@@ -104,10 +119,60 @@ class _DrawingPageState extends State<DrawingPage> {
         });
       });*/
     } else {
+      setState(() {
+        EasyLoading.dismiss();
+        this._getHobby();
+      });
       ToastUtil.showInfo('无数据');
     }
   }
-
+  List<Widget> _getHobby() {
+    List<Widget> tempList = [];
+    for (int i = 0; i < this.hobby.length; i++) {
+      List<Widget> comList = [];
+      for (int j = 0; j < this.hobby[i].length; j++) {
+        if (!this.hobby[i][j]['isHide']) {
+          comList.add(
+            Column(children: [
+              Container(
+                color: Colors.white,
+                child: ListTile(
+                  onTap: () {
+                    //pdfUrl = orderDate[0][0];
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PDFScreen(
+                              pathPDF:
+                              "https://tz.xinyuanhengye.cn:8088/tz.html?file="+this.hobby[i][j]['value']['label']+".pdf")),
+                    );
+                  },
+                  title: Text(this.hobby[i][j]["title"] +
+                      '：' +
+                      this.hobby[i][j]["value"]["label"].toString()),
+                  trailing:
+                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                    /* MyText(orderDate[i][j],
+                        color: Colors.grey, rightpadding: 18),*/
+                  ]),
+                ),
+              ),
+              divider,
+            ]),
+          );
+        }
+      }
+      tempList.add(
+        SizedBox(height: 10),
+      );
+      tempList.add(
+        Column(
+          children: comList,
+        ),
+      );
+    }
+    return tempList;
+  }
   Future<File> createFileOfPdfUrl() async {
     var url = "https://tz.xinyuanhengye.cn:8088/tz.html?file=$pdfUrl.pdf";
     /* var url = "http://africau.edu/images/default/sample.pdf";*/
@@ -144,6 +209,7 @@ class _DrawingPageState extends State<DrawingPage> {
     await file.writeAsBytes(bytes);
     return file;
   }
+
 //扫码函数,最简单的那种
   Future scan() async {
     String cameraScanResult = await scanner.scan(); //通过扫码获取二维码中的数据
@@ -157,6 +223,7 @@ class _DrawingPageState extends State<DrawingPage> {
     this.controller.text = scan;
     await getOrderList();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,7 +272,7 @@ class _DrawingPageState extends State<DrawingPage> {
                                             border: InputBorder.none),
                                         onSubmitted: (value) {
                                           setState(() {
-                                            this.keyWord  = value;
+                                            this.keyWord = value;
                                             this.getOrderList();
                                           });
                                         },
@@ -230,6 +297,13 @@ class _DrawingPageState extends State<DrawingPage> {
                   ),
                 ),
               ),
+            ),
+            SliverFillRemaining(
+              child: ListView(children: <Widget>[
+                Column(
+                  children: this._getHobby(),
+                ),
+              ]),
             ),
           ],
         ));
@@ -272,9 +346,7 @@ class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final double maxHeight;
 
   StickyTabBarDelegate(
-      {required this.minHeight,
-      required this.maxHeight,
-      required this.child});
+      {required this.minHeight, required this.maxHeight, required this.child});
 
   @override
   Widget build(

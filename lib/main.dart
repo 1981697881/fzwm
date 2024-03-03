@@ -200,7 +200,6 @@ class _MyHomePageState extends State {
         dataMap['data'] = userMap;
         String UserEntity = await CurrencyEntity.polling(dataMap);
         var resUser = jsonDecode(UserEntity);
-        print(resUser);
         if (resUser.length > 0) {
           if (resUser[0][2] == 'A') {
             /* sharedPreferences.setString('FWorkShopNumber', resUser[0][2]);

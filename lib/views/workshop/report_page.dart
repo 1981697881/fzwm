@@ -82,6 +82,8 @@ class _ReportPageState extends State<ReportPage> {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FUnSubmitQty>0";
+    userMap['StartRow'] = "0";
+    userMap['Limit'] = "10";
     var scanCode = keyWord.split(",");
     if(isScan){
       if(scanCode.length>0){
@@ -506,7 +508,28 @@ class _ReportPageState extends State<ReportPage> {
     /*);*/
   }
 }
+// 设置等待图标
+Widget _getMoreWidget() {
+  return Center(
+    child: Padding(
+      padding: EdgeInsets.all(10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            "加载中...",
+            style: TextStyle(fontSize: 16.0),
+          ),
 
+          CircularProgressIndicator(
+            strokeWidth: 1.0,
+          )
+        ],
+      ),
+    ),
+  );
+}
 class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final Container child;
   final double minHeight;
