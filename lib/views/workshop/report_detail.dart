@@ -448,7 +448,7 @@ class _ReportDetailState extends State<ReportDetail> {
                         ),
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
-                            FilteringTextInputFormatter.deny(RegExp('^0+'))
+                           // FilteringTextInputFormatter.deny(RegExp('^0+'))
                           ],
                           controller: TextEditingController.fromValue(TextEditingValue(
                               text: '${this.hobby[i][j]["value"]["label"] == null ? "" : this.hobby[i][j]["value"]["label"]}',  //判断keyword是否为空
@@ -459,6 +459,7 @@ class _ReportDetailState extends State<ReportDetail> {
                         //改变回调
                         onChanged: (value) {
                           setState(() {
+                            print(value);
                             this.hobby[i][j]["value"]["label"] = value;
                             this.hobby[i][j]["value"]["value"] = value;
                           });
