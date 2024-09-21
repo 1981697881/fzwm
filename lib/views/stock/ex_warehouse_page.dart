@@ -13,7 +13,7 @@ import 'ex_warehouse_detail.dart';
 import 'other_warehousing_detail.dart';
 
 class ExWarehousePage extends StatefulWidget {
-  ExWarehousePage({Key? key}) : super(key: key);
+  ExWarehousePage({Key ?key}) : super(key: key);
 
   @override
   _ExWarehousePageState createState() => _ExWarehousePageState();
@@ -24,13 +24,14 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
   String keyWord = '';
   String startDate = '';
   String endDate = '';
+  var isScan = false;
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
 
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
-  StreamSubscription ?_subscription;
+   StreamSubscription ?_subscription;
   var _code;
 
   List<dynamic> orderDate = [];
@@ -42,7 +43,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
     _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
-
+    EasyLoading.dismiss();
     /// 开启监听
      if (_subscription == null) {
       _subscription = scannerPlugin
@@ -51,6 +52,8 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
     }
   }
   _initState() {
+    isScan = false;
+    EasyLoading.show(status: 'loading...');
     this.getOrderList();
     /// 开启监听
     _subscription = scannerPlugin
@@ -64,7 +67,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
 
     /// 取消监听
     if (_subscription != null) {
-      _subscription!.cancel();;
+      _subscription!.cancel();
     }
   }
 
@@ -74,45 +77,56 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FInStockQty >0";
+    userMap['FilterString'] = "FCloseStatus = 'A'";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FInStockQty >0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
-    if (this.keyWord != '') {
-      userMap['FilterString'] =
-      "FMaterialId.FNumber='$keyWord' and FInStockQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+    if(this.isScan){
+      if (this.keyWord != '') {
+        userMap['FilterString'] =
+        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A'";
+      }
+    }else{
+      if (this.keyWord != '') {
+        userMap['FilterString'] =
+        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A'";
+      }else{
+        userMap['FilterString'] =
+        "FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      }
     }
-    userMap['FormId'] = 'PUR_ReceiveBill';
+    userMap['FormId'] = 'STK_OutStockApply';
+    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FInStockQty,FSrcBillNo,FID';
+    'FBillNo,FStockOrgId.FNumber,FStockOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FDeptId.FNumber,FDeptId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FNote,FID';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     print(order);
     orderDate = [];
     orderDate = jsonDecode(order);
+    hobby = [];
     if (orderDate.length > 0) {
-      hobby = [];
       orderDate.forEach((value) {
         List arr = [];
         arr.add({
-          "title": "单据编号",
+          "title": "出库单号",
           "name": "FBillNo",
           "isHide": false,
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "采购组织",
+          "title": "申请组织",
           "name": "FPurchaseOrgId",
           "isHide": false,
-          "value": {"label": value[9], "value": value[8]}
+          "value": {"label": value[2], "value": value[1]}
 
         });
         arr.add({
-          "title": "单据日期",
+          "title": "出库日期",
           "name": "FDate",
           "isHide": false,
           "value": {"label": value[3], "value": value[3]}
@@ -126,7 +140,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": value[7], "value": value[7]}
         });
         arr.add({
@@ -136,16 +150,10 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "入库数量",
+          "title": "申请数量",
           "name": "FQty",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
-        });
-        arr.add({
-          "title": "供应商",
-          "name": "FSupplierID",
-          "isHide": false,
-          "value": {"label": value[2], "value": value[1]}
         });
         hobby.add(arr);
       });
@@ -168,6 +176,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
     EasyLoading.show(status: 'loading...');
     keyWord = _code;
     this.controller.text = _code;
+    this.isScan = true;
     await getOrderList();
     /*});*/
   }
@@ -248,9 +257,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
 
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
   void getScan(String scan) async {
-    keyWord = scan;
-    this.controller.text = scan;
-    await getOrderList();
+    _onEvent(scan);
   }
 
   String _dateSelectText = "";
@@ -261,7 +268,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
     DateTime start = DateTime(now.year, now.month, now.day-1);
     //在当前的时间上多添加4天
     DateTime end = DateTime(start.year, start.month, start.day);
-    var seDate = _dateSelectText.split(" - ");
+     var seDate = _dateSelectText.split(" - ");
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境
@@ -426,6 +433,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
                                       child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
                                       onPressed: (){
                                         setState(() {
+                                          EasyLoading.show(status: 'loading...');
                                           this.keyWord = this.controller.text;
                                           this.getOrderList();
                                         });

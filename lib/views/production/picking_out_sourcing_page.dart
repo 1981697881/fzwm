@@ -9,34 +9,34 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fzwm/views/production/picking_detail.dart';
-import 'package:fzwm/views/production/return_detail.dart';
+import 'package:fzwm/views/production/picking_out_sourcing_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ReturnPage extends StatefulWidget {
-  ReturnPage({Key ?key}) : super(key: key);
+class PickingOutSourcingPage extends StatefulWidget {
+  PickingOutSourcingPage({Key ?key}) : super(key: key);
 
   @override
-  _ReturnPageState createState() => _ReturnPageState();
+  _PickingOutSourcingPageState createState() => _PickingOutSourcingPageState();
 }
 
-class _ReturnPageState extends State<ReturnPage> {
+class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
   String endDate = '';
-  var isScan = false;
   //生产车间
   String FName = '';
   String FNumber = '';
   String username = '';
+  var isScan = false;
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
 
   static const scannerPlugin =
-      const EventChannel('com.shinow.pda_scanner/plugin');
-   StreamSubscription ?_subscription;
+  const EventChannel('com.shinow.pda_scanner/plugin');
+  StreamSubscription ?_subscription;
   var _code;
 
   List<dynamic> orderDate = [];
@@ -45,20 +45,18 @@ class _ReturnPageState extends State<ReturnPage> {
   @override
   void initState() {
     super.initState();
-    DateTime dateTime = DateTime.now();
-    DateTime newDate = dateTime.add(Duration(days: 4));
-    _dateSelectText =
-        "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')} 00:00:00.000";
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime newDate = DateTime.now();
+    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
-     if (_subscription == null) {
+    if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
     }
   }
   _initState() {
-    isScan = false;
     EasyLoading.show(status: 'loading...');
     this.getOrderList();
     /// 开启监听
@@ -79,7 +77,6 @@ class _ReturnPageState extends State<ReturnPage> {
 
   // 集合
   List hobby = [];
-
   void getWorkShop() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
@@ -104,25 +101,26 @@ class _ReturnPageState extends State<ReturnPage> {
     }
     if(this.isScan){
       userMap['FilterString'] =
-      "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+      "FStatus in(3,4) and FNoStockInQty>0";
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+        "FBillNo like '%"+keyWord+"%' and FStatus in(3,4) and FNoStockInQty>0";
       }
     }else{
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+        "FBillNo like '%"+keyWord+"%' and FStatus in(3,4) and FNoStockInQty>0";
       }else{
         userMap['FilterString'] =
-        "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        "FStatus in(3,4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     this.isScan = false;
-    userMap['FormId'] = 'PRD_MO';
+    userMap['FormId'] = 'SUB_SUBREQORDER';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
+    'FBillNo,FSubOrgId.FNumber,FSubOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOwnerId.FNumber,FOwnerId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
+
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -132,7 +130,9 @@ class _ReturnPageState extends State<ReturnPage> {
     //获取当前的时间
     DateTime now = DateTime.now();
     DateTime start = DateTime(2022, 05, 30);
-    final difference = start.difference(now).inDays;
+    final difference = start
+        .difference(now)
+        .inDays;
     hobby = [];
     if (orderDate.length > 0) {
       for (var value = 0; value < orderDate.length; value++) {
@@ -157,14 +157,14 @@ class _ReturnPageState extends State<ReturnPage> {
         print(order2);*/
         List arr = [];
         arr.add({
-          "title": "流程卡号",
+          "title": "单据编号",
           "name": "FBillNo",
           "isHide": false,
           "value": {"label": orderDate[value][0], "value": orderDate[value][0]}
         });
         arr.add({
-          "title": "生产组织",
-          "name": "FPrdOrgId",
+          "title": "委外组织",
+          "name": "FSubOrgId",
           "isHide": true,
           "value": {"label": orderDate[value][2], "value": orderDate[value][1]}
         });
@@ -178,13 +178,13 @@ class _ReturnPageState extends State<ReturnPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": orderDate[value][6] + "- (" + orderDate[value][5] + ")", "value": orderDate[value][5]}
+          "value": {"label": orderDate[value][5], "value": orderDate[value][4]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": true,
-          "value": {"label": orderDate[value][7], "value": orderDate[value][7]}
+          "isHide": false,
+          "value": {"label": orderDate[value][6], "value": orderDate[value][6]}
         });
         arr.add({
           "title": "单位名称",
@@ -207,10 +207,10 @@ class _ReturnPageState extends State<ReturnPage> {
         arr.add({
           "title": "生产序号",
           "name": "FProdOrder",
-          "isHide": true,
+          "isHide": false,
           "value": {
-           /* "label": orderDate[value][18],
-            "value": orderDate[value][18]*/
+            "label": orderDate[value][1],/*orderDate[value][18]*/
+            "value": orderDate[value][1]
           }
         });
         arr.add({
@@ -255,7 +255,7 @@ class _ReturnPageState extends State<ReturnPage> {
             "value": orderDate[value][17]
           }
         });
-        /*arr.add({
+        /* arr.add({
           "title": "状态",
           "name": "FStatus",
           "isHide": false,
@@ -270,7 +270,7 @@ class _ReturnPageState extends State<ReturnPage> {
           "isHide": true,
           "value": false
         });
-         var order1Date = jsonDecode(order1);
+        var order1Date = jsonDecode(order1);
         var order2Date = jsonDecode(order2);
         if (order1Date.length > 0) {
           arr.add({
@@ -312,13 +312,40 @@ class _ReturnPageState extends State<ReturnPage> {
   }
 
   void _onEvent(event) async {
-    /*  setState(() {*/
-    _code = event;
     EasyLoading.show(status: 'loading...');
-    keyWord = _code;
-    this.controller.text = _code;
-    await getOrderList();
-    /*});*/
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var deptData = sharedPreferences.getString('menuList');
+    var menuList = new Map<dynamic, dynamic>.from(jsonDecode(deptData));
+    var fBarCodeList = menuList['FBarCodeList'];
+    if(event == ""){
+      return;
+    }
+    if (fBarCodeList == 1) {
+      Map<String, dynamic> barcodeMap = Map();
+      barcodeMap['FilterString'] = "FBarCodeEn='" + event + "'";
+      barcodeMap['FormId'] = 'QDEP_Cust_BarCodeList';
+      barcodeMap['FieldKeys'] =
+      'FSrcBillNo';
+      Map<String, dynamic> dataMap = Map();
+      dataMap['data'] = barcodeMap;
+      String order = await CurrencyEntity.polling(dataMap);
+      var barcodeData = jsonDecode(order);
+      if (barcodeData.length > 0) {
+        keyWord = barcodeData[0][0];
+        this.controller.text = barcodeData[0][0];
+        this.isScan = true;
+        await this.getOrderList();
+      } else {
+        ToastUtil.showInfo('条码不在条码清单中');
+      }
+    } else {
+      keyWord = _code;
+      this.controller.text = _code;
+      _code = event;
+      await this.getOrderList();
+      print("ChannelPage: $event");
+    }
+    EasyLoading.dismiss();
   }
 
   void _onError(Object error) {
@@ -343,28 +370,37 @@ class _ReturnPageState extends State<ReturnPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return ReturnDetail(
-                            FBillNo: this.hobby[i][0]['value'],
+                          return PickingOutSourcingDetail(
+                            FBillNo: this
+                                .hobby[i][0]['value'],
+                            FBarcode: _code,
                             FSeq: this.hobby[i][10]['value'],
+                            FEntryId: this.hobby[i][11]
+                            ['value'],
+                            FID: this.hobby[i][12]['value'],
+                            FProdOrder: this
+                                .hobby[i][7]['value'],
                             // 路由参数
                           );
                         },
                       ),
                     ).then((data) {
                       //延时500毫秒执行
-                      Future.delayed(const Duration(milliseconds: 500), () {
-                        setState(() {
-                          //延时更新状态
-                          this._initState();
-                        });
-                      });
+                      Future.delayed(
+                          const Duration(milliseconds: 500),
+                              () {
+                            setState(() {
+                              //延时更新状态
+                              this._initState();
+                            });
+                          });
                     });
                   },
                   title: Text(this.hobby[i][j]["title"] +
                       '：' +
                       this.hobby[i][j]["value"]["label"].toString()),
                   trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                     /* MyText(orderDate[i][j],
                         color: Colors.grey, rightpadding: 18),*/
                   ]),
@@ -450,7 +486,7 @@ class _ReturnPageState extends State<ReturnPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("生产订单"),
+            title: Text("委外领料"),
             centerTitle: true,
           ),
           body: CustomScrollView(
@@ -484,12 +520,12 @@ class _ReturnPageState extends State<ReturnPage> {
                                                 (this._dateSelectText == ""
                                                     ? ""
                                                     : this
-                                                        ._dateSelectText
-                                                        .substring(0, 10)),
+                                                    ._dateSelectText
+                                                    .substring(0, 10)),
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 decoration:
-                                                    TextDecoration.none))),
+                                                TextDecoration.none))),
                                   ),
                                   Expanded(
                                     flex: 1,
@@ -502,12 +538,12 @@ class _ReturnPageState extends State<ReturnPage> {
                                                 (this._dateSelectText == ""
                                                     ? ""
                                                     : this
-                                                        ._dateSelectText
-                                                        .substring(26, 36)),
+                                                    ._dateSelectText
+                                                    .substring(26, 36)),
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 decoration:
-                                                    TextDecoration.none))),
+                                                TextDecoration.none))),
                                   ),
                                 ],
                               ),

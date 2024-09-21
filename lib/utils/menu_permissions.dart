@@ -3,17 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:fzwm/views/drawing/drawing_page.dart';
 import 'package:fzwm/views/index/index_page.dart';
 import 'package:fzwm/views/production/picking_detail.dart';
+import 'package:fzwm/views/production/picking_out_sourcing_page.dart';
 import 'package:fzwm/views/production/picking_page.dart';
+import 'package:fzwm/views/production/picking_return_sourcing_page.dart';
+import 'package:fzwm/views/production/return_page.dart';
 import 'package:fzwm/views/production/warehousing_detail.dart';
 import 'package:fzwm/views/production/warehousing_page.dart';
+import 'package:fzwm/views/purchase/purchase_return_page.dart';
 import 'package:fzwm/views/purchase/purchase_warehousing_detail.dart';
 import 'package:fzwm/views/purchase/purchase_warehousing_page.dart';
+import 'package:fzwm/views/quality/production_report_page.dart';
+import 'package:fzwm/views/quality/receiving_materials_page.dart';
 import 'package:fzwm/views/sale/retrieval_detail.dart';
 import 'package:fzwm/views/sale/retrieval_page.dart';
 import 'package:fzwm/views/sale/return_goods_detail.dart';
 import 'package:fzwm/views/sale/return_goods_page.dart';
 import 'package:fzwm/views/stock/Inventory_detail.dart';
 import 'package:fzwm/views/stock/Inventory_page.dart';
+import 'package:fzwm/views/stock/allocation_detail.dart';
 import 'package:fzwm/views/stock/ex_warehouse_detail.dart';
 import 'package:fzwm/views/stock/ex_warehouse_page.dart';
 import 'package:fzwm/views/stock/grounding_page.dart';
@@ -268,7 +275,7 @@ class MenuPermissions {
       "parentId": 4,
       "color": Colors.pink.withOpacity(0.7),
       "router": SubmitPage(),
-      "source": '',
+      "source": '',  
     });
     menu.add({
       "icon": Icons.loupe,
@@ -284,6 +291,59 @@ class MenuPermissions {
       "parentId": 3,
       "color": Colors.pink.withOpacity(0.7),
       "router": DrawingPage(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "调拨",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": AllocationDetail(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "委外领料",
+      "parentId": 6,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": PickingOutSourcingPage(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "委外退料",
+      "parentId": 6,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": PickingReturnSourcingPage(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "生产退料",
+      "parentId": 1,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ReturnPage(),
+      "source": '',
+    });menu.add({ 
+      "icon": Icons.loupe,
+      "text": "采购退货",
+      "parentId": 5,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": PurchaseReturnPage(),
+      "source": '',
+    });menu.add({
+      "icon": Icons.loupe,
+      "text": "收料检验",
+      "parentId": 7,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ReceivingMaterialsPage(),
+      "source": '',
+    });menu.add({
+      "icon": Icons.loupe,
+      "text": "生产检验",
+      "parentId": 7,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ProductionReportPage(),
       "source": '',
     });
     return menu;

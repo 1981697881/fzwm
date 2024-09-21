@@ -332,8 +332,23 @@ class _IndexPageState extends State<IndexPage> {
           };
           menu.add(obj);
           break;
+
       }
-    };
+    }
+    menu.add({
+      "icon": Icons.ballot,
+      "text": "委外管理",
+      "id": 6,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": MiddleLayerPage(menuId: 6, menuTitle: "委外管理")
+    });
+    menu.add({
+      "icon": Icons.ballot,
+      "text": "质检管理",
+      "id": 7,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": MiddleLayerPage(menuId: 7, menuTitle: "质检管理")
+    });
     print(menu);
     return Wrap(
         /*mainAxisSize: MainAxisSize.min,

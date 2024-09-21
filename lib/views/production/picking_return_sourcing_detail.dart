@@ -25,19 +25,19 @@ import 'package:qrscan/qrscan.dart' as scanner;
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
-class ReturnDetail extends StatefulWidget {
+class PickingReturnSourcingDetail extends StatefulWidget {
   var FBillNo;
   var FSeq;
 
-  ReturnDetail({Key ?key, @required this.FBillNo, @required this.FSeq})
+  PickingReturnSourcingDetail({Key ?key, @required this.FBillNo, @required this.FSeq})
       : super(key: key);
 
   @override
-  _ReturnDetailState createState() =>
-      _ReturnDetailState(FBillNo, FSeq);
+  _PickingReturnSourcingDetailState createState() =>
+      _PickingReturnSourcingDetailState(FBillNo, FSeq);
 }
 
-class _ReturnDetailState extends State<ReturnDetail> {
+class _PickingReturnSourcingDetailState extends State<PickingReturnSourcingDetail> {
   var _remarkContent = new TextEditingController();
   GlobalKey<TextWidgetState> textKey = GlobalKey();
   GlobalKey<PartRefreshWidgetState> globalKey = GlobalKey();
@@ -83,14 +83,14 @@ class _ReturnDetailState extends State<ReturnDetail> {
   final scanIcon = Icon(Icons.filter_center_focus);
   static const scannerPlugin =
   const EventChannel('com.shinow.pda_scanner/plugin');
-   StreamSubscription ?_subscription;
+  StreamSubscription ?_subscription;
   var _code;
   var _FNumber;
   var FSeq;
   var fBillNo;
   var fBarCodeList;
   final controller = TextEditingController();
-  _ReturnDetailState(fBillNo, FSeq) {
+  _PickingReturnSourcingDetailState(fBillNo, FSeq) {
     if (fBillNo != null) {
       this.fBillNo = fBillNo['value'];
       this.FSeq = FSeq['value'];
@@ -1159,10 +1159,10 @@ class _ReturnDetailState extends State<ReturnDetail> {
             organizationsName = p;
             var elementIndex = 0;
             data.forEach((element) {
-            if (element == p) {
-            organizationsNumber = organizationsListObj[elementIndex][2];
-            }
-            elementIndex++;
+              if (element == p) {
+                organizationsNumber = organizationsListObj[elementIndex][2];
+              }
+              elementIndex++;
             });
             getStockList();
           }else if(hobby  == 'department'){
@@ -1180,11 +1180,11 @@ class _ReturnDetailState extends State<ReturnDetail> {
             });
             var elementIndex = 0;
             data.forEach((element) {
-            print( element);
-            if (element == p) {
-              hobby['value']['value'] = stockListObj[elementIndex][2];
-            }
-            elementIndex++;
+              print( element);
+              if (element == p) {
+                hobby['value']['value'] = stockListObj[elementIndex][2];
+              }
+              elementIndex++;
             });
           }
 
@@ -1617,7 +1617,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
       var res = jsonDecode(subData);
       if (res != null) {
         if (res['Result']['ResponseStatus']['IsSuccess']) {
-           var errorMsg = "";
+          var errorMsg = "";
           if (fBarCodeList == 1) {
             for (int i = 0; i < this.hobby.length; i++) {
               if (this.hobby[i][3]['value']['value'] != '0' &&
@@ -2047,7 +2047,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
                         color: this.isSubmit?Colors.grey:Theme.of(context).primaryColor,
                         textColor: Colors.white,
                         onPressed: () async=> this.isSubmit ? null : _showSumbitDialog(),
-                       /* onPressed: () async {
+                        /* onPressed: () async {
                           if (this.hobby.length > 0) {
                             setState(() {
                               this.isSubmit = true;

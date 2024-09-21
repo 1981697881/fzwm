@@ -68,6 +68,7 @@ dependencies:
   flutter_downloader: 1.5.0
   progress_dialog: 1.2.0
   url_launcher: any
+  decimal: ^0.3.0
   # 本地数据库
   sqflite: ^2.0.2
 dev_dependencies:

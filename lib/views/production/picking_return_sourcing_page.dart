@@ -13,14 +13,14 @@ import 'package:fzwm/views/production/return_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ReturnPage extends StatefulWidget {
-  ReturnPage({Key ?key}) : super(key: key);
+class PickingReturnSourcingPage extends StatefulWidget {
+  PickingReturnSourcingPage({Key ?key}) : super(key: key);
 
   @override
-  _ReturnPageState createState() => _ReturnPageState();
+  _PickingReturnSourcingPageState createState() => _PickingReturnSourcingPageState();
 }
 
-class _ReturnPageState extends State<ReturnPage> {
+class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
   //搜索字段
   String keyWord = '';
   String startDate = '';
@@ -35,8 +35,8 @@ class _ReturnPageState extends State<ReturnPage> {
   final scanIcon = Icon(Icons.filter_center_focus);
 
   static const scannerPlugin =
-      const EventChannel('com.shinow.pda_scanner/plugin');
-   StreamSubscription ?_subscription;
+  const EventChannel('com.shinow.pda_scanner/plugin');
+  StreamSubscription ?_subscription;
   var _code;
 
   List<dynamic> orderDate = [];
@@ -48,10 +48,10 @@ class _ReturnPageState extends State<ReturnPage> {
     DateTime dateTime = DateTime.now();
     DateTime newDate = dateTime.add(Duration(days: 4));
     _dateSelectText =
-        "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')} 00:00:00.000";
+    "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
-     if (_subscription == null) {
+    if (_subscription == null) {
       _subscription = scannerPlugin
           .receiveBroadcastStream()
           .listen(_onEvent, onError: _onError);
@@ -122,7 +122,7 @@ class _ReturnPageState extends State<ReturnPage> {
     userMap['FormId'] = 'PRD_MO';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-        'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -157,7 +157,7 @@ class _ReturnPageState extends State<ReturnPage> {
         print(order2);*/
         List arr = [];
         arr.add({
-          "title": "流程卡号",
+          "title": "单据编号",
           "name": "FBillNo",
           "isHide": false,
           "value": {"label": orderDate[value][0], "value": orderDate[value][0]}
@@ -209,7 +209,7 @@ class _ReturnPageState extends State<ReturnPage> {
           "name": "FProdOrder",
           "isHide": true,
           "value": {
-           /* "label": orderDate[value][18],
+            /* "label": orderDate[value][18],
             "value": orderDate[value][18]*/
           }
         });
@@ -364,7 +364,7 @@ class _ReturnPageState extends State<ReturnPage> {
                       '：' +
                       this.hobby[i][j]["value"]["label"].toString()),
                   trailing:
-                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                     /* MyText(orderDate[i][j],
                         color: Colors.grey, rightpadding: 18),*/
                   ]),
@@ -484,12 +484,12 @@ class _ReturnPageState extends State<ReturnPage> {
                                                 (this._dateSelectText == ""
                                                     ? ""
                                                     : this
-                                                        ._dateSelectText
-                                                        .substring(0, 10)),
+                                                    ._dateSelectText
+                                                    .substring(0, 10)),
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 decoration:
-                                                    TextDecoration.none))),
+                                                TextDecoration.none))),
                                   ),
                                   Expanded(
                                     flex: 1,
@@ -502,12 +502,12 @@ class _ReturnPageState extends State<ReturnPage> {
                                                 (this._dateSelectText == ""
                                                     ? ""
                                                     : this
-                                                        ._dateSelectText
-                                                        .substring(26, 36)),
+                                                    ._dateSelectText
+                                                    .substring(26, 36)),
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 decoration:
-                                                    TextDecoration.none))),
+                                                TextDecoration.none))),
                                   ),
                                 ],
                               ),
