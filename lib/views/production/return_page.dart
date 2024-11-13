@@ -47,7 +47,7 @@ class _ReturnPageState extends State<ReturnPage> {
     super.initState();
     DateTime dateTime = DateTime.now();
     DateTime newDate = dateTime.add(Duration(days: 4));
-    _dateSelectText =
+    //_dateSelectText =
         "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
@@ -97,29 +97,39 @@ class _ReturnPageState extends State<ReturnPage> {
       this._getHobby();
     });
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FNoStockInQty>0";
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FNoStockInQty>0 and FPrdOrgId.FNumber = '"+tissue+"'";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
+      userMap['FilterString'] =
+          "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FPrdOrgId.FNumber = '"+tissue+"'";
     }
     if(this.isScan){
       userMap['FilterString'] =
-      "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+      "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FPrdOrgId.FNumber = '"+tissue+"'";
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FPrdOrgId.FNumber = '"+tissue+"'";
       }
     }else{
       if(this.keyWord != ''){
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FPrdOrgId.FNumber = '"+tissue+"'";
       }else{
-        userMap['FilterString'] =
-        "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        if (this._dateSelectText != "") {
+          userMap['FilterString'] =
+              "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FPrdOrgId.FNumber = '"+tissue+"'";
+        }else{
+          userMap['FilterString'] =
+              "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FPrdOrgId.FNumber = '"+tissue+"'";
+        }
       }
     }
     this.isScan = false;
     userMap['FormId'] = 'PRD_MO';
+    userMap['Limit'] = '20';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
         'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
@@ -407,7 +417,14 @@ class _ReturnPageState extends State<ReturnPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
-    var seDate = _dateSelectText.split(" - ");
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

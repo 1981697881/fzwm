@@ -7,6 +7,7 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fzwm/http/api_response.dart';
 import 'package:fzwm/model/authorize_entity.dart';
+import 'package:fzwm/model/currency_entity.dart';
 import 'package:fzwm/model/version_entity.dart';
 import 'package:fzwm/utils/menu_permissions.dart';
 import 'package:fzwm/views/login/login_page.dart';
@@ -30,6 +31,7 @@ class IndexPage extends StatefulWidget {
 }
 
 class _IndexPageState extends State<IndexPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   final _saved = new Set<WordPair>();
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
@@ -42,6 +44,11 @@ class _IndexPageState extends State<IndexPage> {
   String buildVersion = '';
   String buildUpdateDescription = '';
   late ProgressDialog pr;
+  var organizationsName;
+  var organizationsNumber;
+  var organizationsList = [];
+  List<dynamic> organizationsListObj = [];
+  final divider = Divider(height: 1, indent: 20);
   String apkName = 'fzwm.apk';
   String appPath = '';
   ReceivePort _port = ReceivePort();
@@ -50,6 +57,7 @@ class _IndexPageState extends State<IndexPage> {
   @override
   void initState() {
     super.initState();
+    this.getOrganizationsList();
     EasyLoading.dismiss();
     Future.delayed(
         Duration.zero,
@@ -79,7 +87,40 @@ class _IndexPageState extends State<IndexPage> {
       _getNewVersionAPP(context);
     }
   }
-
+  getOrganizationsList() async {
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'ORG_Organizations';
+    userMap['FieldKeys'] = 'FForbidStatus,FName,FNumber';
+    userMap['FilterString'] = "FForbidStatus = 'A'";
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    organizationsListObj = jsonDecode(res);
+    organizationsListObj.forEach((element) {
+      organizationsList.add(element[1]);
+    });
+    var tissue = sharedPreferences.getString('tissue');
+    var tissueName = sharedPreferences.getString('tissueName');
+    var menuData = sharedPreferences.getString('MenuPermissions');
+    var deptData = jsonDecode(menuData)[0];
+    if(tissue != null){
+      setState(() {
+        this.organizationsNumber = tissue;
+        this.organizationsName = tissueName;
+      });
+    }else if(deptData[1] != null){
+      for (var data in organizationsListObj) {
+        if(data[2] == deptData[1]){
+          setState(() {
+            this.organizationsName = data[1];
+          });
+        }
+      }
+      this.organizationsNumber = deptData[1];
+      sharedPreferences.setString('tissue', organizationsNumber);
+      sharedPreferences.setString('tissueName', organizationsName);
+    }
+  }
   /// 执行版本更新的网络请求
   _getNewVersionAPP(context) async {
     ApiResponse<VersionEntity> entity = await VersionEntity.getVersion();
@@ -336,14 +377,14 @@ class _IndexPageState extends State<IndexPage> {
       }
     }
     menu.add({
-      "icon": Icons.ballot,
+      "icon": Icons.business,
       "text": "委外管理",
       "id": 6,
       "color": Colors.pink.withOpacity(0.7),
       "router": MiddleLayerPage(menuId: 6, menuTitle: "委外管理")
     });
     menu.add({
-      "icon": Icons.ballot,
+      "icon": Icons.done_all,
       "text": "质检管理",
       "id": 7,
       "color": Colors.pink.withOpacity(0.7),
@@ -447,107 +488,107 @@ class _IndexPageState extends State<IndexPage> {
       ),
     );
   }
-
+  List<Widget> _getDrawer() {
+    List<Widget> tempList = [];
+    for (var data in organizationsListObj) {
+      List<Widget> comList = [];
+      comList.add(
+        Column(children: [
+          Container(
+            color: Colors.white,
+            child: ListTile(
+              title: Text(data[1] +
+                  '：' +
+                  data[2]),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                setState(() {
+                  organizationsName = data[1];
+                  organizationsNumber = data[2];
+                });
+                sharedPreferences.setString('tissue', data[2]);
+                sharedPreferences.setString('tissueName', data[1]);
+                Navigator.pop(context);
+              },
+            ),
+          ),
+          divider,
+        ]),
+      );
+      tempList.add(
+        Column(
+          children: comList,
+        ),
+      );
+    }
+    return tempList;
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: new Text('主页'),
-        centerTitle: true,
-        actions: <Widget>[
-          new IconButton(icon: new Icon(Icons.settings), onPressed: _pushSaved),
-        ],
-      ),
-      body: Container(
-        width: double.infinity,
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              color: Colors.white,
-              margin: EdgeInsets.only(bottom: 10.0),
-              padding: EdgeInsets.symmetric(
-                // 同appBar的titleSpacing一致
-                horizontal: NavigationToolbar.kMiddleSpacing,
-                vertical: 20.0,
-              ),
-              child: buildAppBarTabs(),
-            ),
-            /*Expanded(
-              child: ListView.builder(
-                itemCount: 4,
-                padding: EdgeInsets.symmetric(
-                    // vertical: 5.0,
-                    // horizontal: NavigationToolbar.kMiddleSpacing,
-                    ),
-                itemBuilder: (BuildContext listViewContext, int index) {
-                  MessageModel mm = MessageModel();
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border(
-                        bottom: BorderSide(width: 1, color: Colors.grey[100]),
-                      ),
-                    ),
-                    child: ListTile(
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(50.0),
-                          child: Image.network(
-                            mm.tileAvatar,
-                            fit: BoxFit.cover,
-                            width: 40.0,
-                            height: 40.0,
-                          ),
-                        ),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(mm.tileTime),
-                            index % 2 == 0
-                                ? BadgeWidget(
-                                    child: Container(
-                                      height: 7.0,
-                                      width: 7.0,
-                                    ),
-                                  )
-                                : Container(
-                                    height: 7.0,
-                                    width: 7.0,
-                                  )
-                          ],
-                        ),
-                        title: Text(mm.tileName),
-                        subtitle: Text(mm.tileContent),
-                        //item 点击事件
-                        onTap: () {
-                          print("点击到第" + index.toString());
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return ReportPage(
-                                    // 路由参数
-                                    );
-                              },
-                            ),
-                          );
-                        },
-                        //item 长按事件
-                        onLongPress: () {
-                          print("长按" + index.toString());
-                        }),
-                  );
-                },
-              ),
-            ),
-          */
+    return FlutterEasyLoading(
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: new Text('主页'),
+          centerTitle: true,
+          actions: <Widget>[
+            new IconButton(icon: new Icon(Icons.settings), onPressed: _pushSaved),
           ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            // 打开抽屉
+            _scaffoldKey.currentState!.openEndDrawer();
+          },
+          child: Icon(Icons.menu),
+        ),
+        endDrawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Text(
+                  organizationsName.toString(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+              Column(
+                children: this._getDrawer(),
+              ),
+            ],
+          ),
+        ),
+        body: Container(
+          width: double.infinity,
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                color: Colors.white,
+                margin: EdgeInsets.only(bottom: 10.0),
+                padding: EdgeInsets.symmetric(
+                  // 同appBar的titleSpacing一致
+                  horizontal: NavigationToolbar.kMiddleSpacing,
+                  vertical: 20.0,
+                ),
+                child: buildAppBarTabs(),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
 
 class AppBarTabsItem extends StatelessWidget {
   final IconData icon;

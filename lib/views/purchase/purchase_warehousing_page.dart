@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'purchase_warehousing_detail.dart';
 
 class PurchaseWarehousingPage extends StatefulWidget {
@@ -41,7 +42,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     super.initState();
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
-    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+    //_dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
      if (_subscription == null) {
@@ -74,26 +75,39 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FInStockQty >0";
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FActReceiveQty-FInStockQty>0 and FStockOrgId.FNumber = '"+tissue+"'";
     var scanCode = keyWord.split(",");
+    if (this._dateSelectText != "") {
+      this.startDate = this._dateSelectText.substring(0, 10);
+      this.endDate = this._dateSelectText.substring(26, 36);
+      userMap['FilterString'] =
+          "FActReceiveQty-FInStockQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FStockOrgId.FNumber = '"+tissue+"'";
+    }
     if(isScan){
       userMap['FilterString'] =
-          "FBillNo='"+scanCode[0]+"'";
+          "FActReceiveQty-FInStockQty>0 and FBillNo like '%"+scanCode[0]+"%' and FStockOrgId.FNumber = '"+tissue+"'";
     }else {
-      if (this._dateSelectText != "") {
-        this.startDate = this._dateSelectText.substring(0, 10);
-        this.endDate = this._dateSelectText.substring(26, 36);
-        userMap['FilterString'] =
-        "FDate>= '$startDate' and FDate <= '$endDate'";
-      }
       if (this.keyWord != '') {
         userMap['FilterString'] = /*and FInStockQty>0*/
-        "FBillNo='"+scanCode[0]+"' and FDate>= '$startDate' and FDate <= '$endDate'";
+        "FActReceiveQty-FInStockQty>0 and FBillNo like '%"+scanCode[0]+"%' and FStockOrgId.FNumber = '"+tissue+"'";
+      }else{
+        if (this._dateSelectText != "") {
+          this.startDate = this._dateSelectText.substring(0, 10);
+          this.endDate = this._dateSelectText.substring(26, 36);
+          userMap['FilterString'] = /*and FInStockQty>0*/
+          "FActReceiveQty-FInStockQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FStockOrgId.FNumber = '"+tissue+"'";
+        }else{
+          userMap['FilterString'] =
+              "FActReceiveQty-FInStockQty>0 and FStockOrgId.FNumber = '"+tissue+"'";
+        }
       }
     }
     userMap['FormId'] = 'PUR_ReceiveBill';
+    userMap['Limit'] = '20';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActlandQty,FSrcBillNo,FID';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID,FInStockQty';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -145,7 +159,7 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
           "title": "数量",
           "name": "FQty",
           "isHide": false,
-          "value": {"label": value[12], "value": value[12]}
+          "value": {"label": value[12]-value[15], "value": value[12]-value[15]}
         });
         arr.add({
           "title": "供应商",
@@ -269,7 +283,14 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
-    var seDate = _dateSelectText.split(" - ");
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

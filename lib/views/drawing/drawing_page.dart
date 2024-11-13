@@ -77,9 +77,8 @@ class _DrawingPageState extends State<DrawingPage> {
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FNumber like '"+keyWord+"%' and FForbidStatus = 'A' and FUseOrgId.FNumber = " + deptData[1];
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FNumber like '"+keyWord+"%' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] = 'F_ora_Text';
     userMap['Limit'] = "10";

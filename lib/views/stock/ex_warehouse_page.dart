@@ -77,25 +77,25 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FCloseStatus = 'A'";
+    userMap['FilterString'] = "FCloseStatus = 'A' and FDocumentStatus ='C'";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FCloseStatus = 'A' and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if(this.isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A'";
+        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A' and FDocumentStatus ='C'";
       }
     }else{
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A'";
+        "FBillNo like '%"+keyWord+"%' and FCloseStatus = 'A' and FDocumentStatus ='C'";
       }else{
         userMap['FilterString'] =
-        "FCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate'";
+        "FCloseStatus = 'A' and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
       }
     }
     userMap['FormId'] = 'STK_OutStockApply';
@@ -122,7 +122,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
           "title": "申请组织",
           "name": "FPurchaseOrgId",
           "isHide": false,
-          "value": {"label": value[2], "value": value[1]}
+          "value": {"label": value[9], "value": value[8]}
 
         });
         arr.add({
@@ -264,11 +264,18 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
 
   void showDateSelect() async {
     //获取当前的时间
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day-1);
-    //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day);
-     var seDate = _dateSelectText.split(" - ");
+    DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    DateTime end = DateTime(now.year, now.month, now.day);
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

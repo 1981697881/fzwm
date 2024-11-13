@@ -47,7 +47,7 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
     super.initState();
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
-    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+    //_dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
     if (_subscription == null) {
@@ -98,6 +98,8 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
+      userMap['FilterString'] =
+      "FStatus in(3,4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if(this.isScan){
       userMap['FilterString'] =
@@ -111,8 +113,15 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
         userMap['FilterString'] =
         "FBillNo like '%"+keyWord+"%' and FStatus in(3,4) and FNoStockInQty>0";
       }else{
-        userMap['FilterString'] =
-        "FStatus in(3,4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        if (this._dateSelectText != "") {
+          this.startDate = this._dateSelectText.substring(0, 10);
+          this.endDate = this._dateSelectText.substring(26, 36);
+          userMap['FilterString'] =
+          "FStatus in(3,4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        }else{
+          userMap['FilterString'] =
+          "FStatus in(3,4) and FNoStockInQty>0";
+        }
       }
     }
     this.isScan = false;
@@ -443,7 +452,14 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
-    var seDate = _dateSelectText.split(" - ");
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

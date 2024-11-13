@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:fzwm/views/sale/return_goods_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
+import 'package:shared_preferences/shared_preferences.dart';
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
@@ -43,7 +44,7 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
     super.initState();
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
-    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+    //_dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
 
     /// 开启监听
      if (_subscription == null) {
@@ -75,22 +76,35 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FJoinRetQty>0";
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FJoinRetQty>0 and FSaleOrgId.FNumber = '"+tissue+"'";
     var scanCode = keyWord.split(",");
+    if(this._dateSelectText != ""){
+      this.startDate = this._dateSelectText.substring(0,10);
+      this.endDate = this._dateSelectText.substring(26,36);
+      userMap['FilterString'] = "FJoinRetQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FSaleOrgId.FNumber = '"+tissue+"'";
+    }
     if(isScan){
-      userMap['FilterString'] =
-          "FBillNo='"+scanCode[0]+"' and FJoinRetQty>0";
-    }else{
-      if(this._dateSelectText != ""){
-        this.startDate = this._dateSelectText.substring(0,10);
-        this.endDate = this._dateSelectText.substring(26,36);
-        userMap['FilterString'] = "FJoinRetQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
-      }
       if (this.keyWord != '') {
-        userMap['FilterString'] = "FBillNo='$keyWord' and FJoinRetQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        userMap['FilterString'] =
+            "FBillNo like '%"+scanCode[0]+"%' and FJoinRetQty>0 and FSaleOrgId.FNumber = '"+tissue+"'";
+      }
+    }else{
+      if (this.keyWord != '') {
+        userMap['FilterString'] = "FBillNo='$keyWord' and FJoinRetQty>0 and FSaleOrgId.FNumber = '"+tissue+"'";
+      }else{
+        if(this._dateSelectText != ""){
+          this.startDate = this._dateSelectText.substring(0,10);
+          this.endDate = this._dateSelectText.substring(26,36);
+          userMap['FilterString'] = "FJoinRetQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FSaleOrgId.FNumber = '"+tissue+"'";
+        }else{
+          userMap['FilterString'] = "FJoinRetQty>0 and FSaleOrgId.FNumber = '"+tissue+"'";
+        }
       }
     }
     userMap['FormId'] = 'SAL_RETURNNOTICE';
+    userMap['Limit'] = '20';
     userMap['FieldKeys'] =
     'FBillNo,FSaleOrgId.FNumber,FSaleOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FRetorgId.FNumber,FRetorgId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FDeliveryDate,FJoinRetQty,FID,FRetcustId.FNumber,FRetcustId.FName';
     Map<String, dynamic> dataMap = Map();
@@ -273,11 +287,18 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
   String _dateSelectText = "";
   void showDateSelect() async {
     //获取当前的时间
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day-1);
-    //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day);
-    var seDate = _dateSelectText.split(" - ");
+    DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    DateTime end = DateTime(now.year, now.month, now.day);
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

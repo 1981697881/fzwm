@@ -44,7 +44,7 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
     super.initState();
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
-    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+    //_dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
     if (_subscription == null) {
@@ -78,27 +78,36 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FMRQTY>0";
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FMRQTY>0 and FPrdOrgId.FNumber = '"+tissue+"'";
     var scanCode = keyWord.split(",");
     if(this._dateSelectText != ""){
       this.startDate = this._dateSelectText.substring(0,10);
       this.endDate = this._dateSelectText.substring(26,36);
-      userMap['FilterString'] = "FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
+      userMap['FilterString'] = "FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate' and FPrdOrgId.FNumber = '"+tissue+"'";
     }
     if(this.isScan){
       if (this.keyWord != '') {
-        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C'";
+        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FPrdOrgId.FNumber = '"+tissue+"'";
       }
     }else{
       if (this.keyWord != '') {
-        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C'";
+        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FPrdOrgId.FNumber = '"+tissue+"'";
       }else{
-        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
+        if (this._dateSelectText != "") {
+          this.startDate = this._dateSelectText.substring(0, 10);
+          this.endDate = this._dateSelectText.substring(26, 36);
+          userMap['FilterString'] = "FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate' and FPrdOrgId.FNumber = '"+tissue+"'";
+        }else{
+          userMap['FilterString'] = "FDocumentStatus ='C' and FPrdOrgId.FNumber = '"+tissue+"'";
+        }
       }
     }
     this.isScan = false;
     userMap['FormId'] = 'PUR_MRAPP';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['Limit'] = '20';
     userMap['FieldKeys'] =
     'FBillNo,FPURCHASEORGID.FNumber,FPURCHASEORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FAPPORGID.FNumber,FAPPORGID.FName,FUNITID.FNumber,FUNITID.FName,FMRAPPQTY,FAPPROVEDATE,FMRQTY,FID,FSUPPLIERID.FNumber,FSUPPLIERID.FName';
     Map<String, dynamic> dataMap = Map();
@@ -306,7 +315,14 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
-    var seDate = _dateSelectText.split(" - ");
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

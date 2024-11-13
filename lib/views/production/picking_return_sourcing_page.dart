@@ -47,8 +47,7 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
     super.initState();
     DateTime dateTime = DateTime.now();
     DateTime newDate = dateTime.add(Duration(days: 4));
-    _dateSelectText =
-    "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')} 00:00:00.000";
+    //_dateSelectText ="${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
     if (_subscription == null) {
@@ -101,6 +100,8 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
+      userMap['FilterString'] =
+      "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if(this.isScan){
       userMap['FilterString'] =
@@ -114,8 +115,15 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
         userMap['FilterString'] =
             "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
       }else{
-        userMap['FilterString'] =
-        "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+        if (this._dateSelectText != "") {
+          this.startDate = this._dateSelectText.substring(0, 10);
+          this.endDate = this._dateSelectText.substring(26, 36);
+          userMap['FilterString'] =
+          "FPreDeliveryDate >= '$startDate' and FDocumentStatus = 'C' and FENTRYSTATUS = 'A' and FPreDeliveryDate  <= '$endDate'";
+        }else{
+          userMap['FilterString'] =
+          "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+        }
       }
     }
     this.isScan = false;
@@ -407,7 +415,14 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
-    var seDate = _dateSelectText.split(" - ");
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

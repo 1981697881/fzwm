@@ -123,10 +123,9 @@ class _ReturnDetailState extends State<ReturnDetail> {
   getDepartmentList() async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     userMap['FormId'] = 'BD_Department';
-    userMap['FilterString'] = "FUseOrgId.FNumber ='"+deptData[1]+"' and FIsStock = 1";
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"' and FIsStock = 1";
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
@@ -180,9 +179,8 @@ class _ReturnDetailState extends State<ReturnDetail> {
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -199,11 +197,11 @@ class _ReturnDetailState extends State<ReturnDetail> {
   //获取订单信息
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FMOBillNO='$fBillNo' and FMOEntrySeq = '$FSeq'";
+    userMap['FilterString'] = "FMOBillNO='$fBillNo' and FMOEntrySeq = '$FSeq' and (FPickedQty-FRePickedQty-FSelPrcdReturnQty)>0";
     userMap['FormId'] = 'PRD_PPBOM';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialID2.FNumber,FMaterialID2.FName,FMaterialID2.FSpecification,FUnitID2.FNumber,FUnitID2.FName,FPickedQty,FID,FAuxPropIDHead,FMaterialId.FIsBatchManage,FBaseUnitID.FNumber,FBaseUnitID.FName,FWorkshopID.FNUMBER,FMaterialId.FIsKFPeriod,FWorkshopID.FNAME,FMoEntryId,FMaterialID.FNumber';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FMOBillNO,FMOEntrySeq,FEntity_FEntryId,FEntity_FSeq,FMaterialID2.FNumber,FMaterialID2.FName,FMaterialID2.FSpecification,FUnitID2.FNumber,FUnitID2.FName,FPickedQty,FID,FAuxPropIDHead,FMaterialId.FIsBatchManage,FBaseUnitID.FNumber,FBaseUnitID.FName,FWorkshopID.FNUMBER,FMaterialId.FIsKFPeriod,FWorkshopID.FNAME,FMoEntryId,FMaterialID.FNumber,FRePickedQty,FSelPrcdReturnQty';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -292,15 +290,15 @@ class _ReturnDetailState extends State<ReturnDetail> {
           "value": {"label": value[17], "value": value[16]}
         });
         arr.add({
-          "title": "用量",
+          "title": "可退数量",
           "name": "FPrdOrgId",
           "isHide": false,
-          "value": {"label": value[12], "value": value[12]}
+          "value": {"label": value[12] - value[23] - value[24], "value": value[12] - value[23] - value[24]}
         });
         arr.add({
           "title": "最后扫描数量",
           "name": "FLastQty",
-          "isHide": false,
+          "isHide": true,
           "value": {
             "label": "0",
             "value": "0"
@@ -393,10 +391,9 @@ class _ReturnDetailState extends State<ReturnDetail> {
   getMaterialList(barcodeData, code, fsn, fProduceDate, fExpiryDate) async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     var scanCode = code.split(";");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+deptData[1]+"'";
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,F_UUAC_Text,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage,FIsKFPeriod';
@@ -1016,7 +1013,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
           arr.add({
             "title": "最后扫描数量",
             "name": "FLastQty",
-            "isHide": false,
+            "isHide": true,
             "value": {
               "label": inserNum.toString(),
               "value": inserNum.toString()
@@ -1385,7 +1382,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
                 ]),
               ),
             );
-          }else if((j == 3 || j == 5) && this.fBillNo == ""){
+          }else if((j == 3 || j == 5)){
             comList.add(
               Column(children: [
                 Container(

@@ -235,8 +235,8 @@ class MenuPermissions {
               "text": "上架",
               "parentId": 3,
               "color": Colors.pink.withOpacity(0.7),
-              "router": "",
-              "source": GroundingPage(),
+              "router": GroundingPage(),
+              "source": "",
             };
             menu.add(obj);
           }

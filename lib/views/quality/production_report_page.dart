@@ -9,9 +9,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:fzwm/views/purchase/purchase_return_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'production_report_detail.dart';
 
 final String _fontFamily = Platform.isWindows ? "Roboto" : "";
 
@@ -44,7 +45,7 @@ class _ReturnGoodsPageState extends State<ProductionReportPage> {
     super.initState();
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime newDate = DateTime.now();
-    _dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+    //_dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
     EasyLoading.dismiss();
     /// 开启监听
     if (_subscription == null) {
@@ -78,29 +79,36 @@ class _ReturnGoodsPageState extends State<ProductionReportPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FMRQTY>0";
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FActlandQty>0 and FPrdOrgId.FNumber = '"+tissue+"'";
     var scanCode = keyWord.split(",");
     if(this._dateSelectText != ""){
       this.startDate = this._dateSelectText.substring(0,10);
       this.endDate = this._dateSelectText.substring(26,36);
-      userMap['FilterString'] = "FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
+      userMap['FilterString'] = "FDocumentStatus = 'C' and FDate>= '$startDate' and FDate <= '$endDate' and FPrdOrgId.FNumber = '"+tissue+"'";
     }
     if(this.isScan){
       if (this.keyWord != '') {
-        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C'";
+        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus = 'C' and FPrdOrgId.FNumber = '"+tissue+"'";
       }
     }else{
       if (this.keyWord != '') {
-        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C'";
+        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus = 'C' and FPrdOrgId.FNumber = '"+tissue+"'";
       }else{
-        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate'";
+        if (this._dateSelectText != "") {
+          userMap['FilterString'] = "FDocumentStatus = 'C' and FDate>= '$startDate' and FDate <= '$endDate' and FPrdOrgId.FNumber = '"+tissue+"'";
+        }else{
+          userMap['FilterString'] = "FDocumentStatus = 'C' and FPrdOrgId.FNumber = '"+tissue+"'";
+        }
       }
     }
     this.isScan = false;
-    userMap['FormId'] = 'PUR_MRAPP';
+    userMap['FormId'] = 'PRD_MORPT';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['Limit'] = '20';
     userMap['FieldKeys'] =
-    'FBillNo,FPURCHASEORGID.FNumber,FPURCHASEORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FAPPORGID.FNumber,FAPPORGID.FName,FUNITID.FNumber,FUNITID.FName,FMRAPPQTY,FAPPROVEDATE,FMRQTY,FID,FSUPPLIERID.FNumber,FSUPPLIERID.FName';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockInOrgId.FNumber,FStockInOrgId.FName,FUnitId.FNumber,FUnitId.FName,FFinishQty,FSrcBillNo,FID,FApproveDate,F_xlmc.FDataValue,F_jdh';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -118,16 +126,28 @@ class _ReturnGoodsPageState extends State<ProductionReportPage> {
           "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "采购组织",
+          "title": "金蝶号",
+          "name": "FBillNo",
+          "isHide": false,
+          "value": {"label": value[17], "value": value[17]}
+        });
+        arr.add({
+          "title": "线路名称",
+          "name": "FBillNo",
+          "isHide": false,
+          "value": {"label": value[16], "value": value[16]}
+        });
+        arr.add({
+          "title": "生产组织",
           "name": "FSaleOrgId",
           "isHide": false,
           "value": {"label": value[2], "value": value[1]}
         });
         arr.add({
-          "title": "供应商",
+          "title": "入库组织",
           "name": "FSupplierId",
           "isHide": false,
-          "value": {"label": value[17], "value": value[16]}
+          "value": {"label": value[9], "value": value[8]}
         });
         arr.add({
           "title": "单据日期",
@@ -154,7 +174,7 @@ class _ReturnGoodsPageState extends State<ProductionReportPage> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "应收数量",
+          "title": "完成数量",
           "name": "FBaseQty",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
@@ -163,13 +183,7 @@ class _ReturnGoodsPageState extends State<ProductionReportPage> {
           "title": "审核日期",
           "name": "FDeliverydate",
           "isHide": false,
-          "value": {"label": value[13], "value": value[13]}
-        });
-        arr.add({
-          "title": "实收数量",
-          "name": "FJoinRetQty",
-          "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
+          "value": {"label": value[15], "value": value[15]}
         });
         hobby.add(arr);
       });
@@ -244,7 +258,7 @@ class _ReturnGoodsPageState extends State<ProductionReportPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return PurchaseReturnDetail(FBillNo:this.hobby[i][0]['value']
+                          return ProductionReportDetail(FBillNo:this.hobby[i][0]['value']
                             // 路由参数
                           );
                         },
@@ -306,7 +320,14 @@ class _ReturnGoodsPageState extends State<ProductionReportPage> {
     DateTime now = DateTime.now();
     DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
     DateTime end = DateTime(now.year, now.month, now.day);
-    var seDate = _dateSelectText.split(" - ");
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

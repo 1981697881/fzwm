@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'ex_warehouse_detail.dart';
 
 class InventoryPage extends StatefulWidget {
@@ -72,16 +73,18 @@ class _InventoryPageState extends State<InventoryPage> {
   getOrderList() async {
     EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FDocumentStatus ='A'";
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FDocumentStatus ='A' and FStockOrgId.FNumber = '"+tissue+"'";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FDocumentStatus ='A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FDocumentStatus ='A' and FDate>= '$startDate' and FDate <= '$endDate' and FStockOrgId.FNumber = '"+tissue+"'";
     }
     if (this.keyWord != '') {
       userMap['FilterString'] =
-      "FMaterialId.FNumber='$keyWord' and FDocumentStatus ='A' and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FMaterialId.FNumber='$keyWord' and FDocumentStatus ='A' and FDate>= '$startDate' and FDate <= '$endDate' and FStockOrgId.FNumber = '"+tissue+"'";
     }
     userMap['FormId'] = 'STK_StockCountScheme';
     userMap['FieldKeys'] =
@@ -255,11 +258,18 @@ class _InventoryPageState extends State<InventoryPage> {
 
   void showDateSelect() async {
     //获取当前的时间
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
     DateTime now = DateTime.now();
-    DateTime start = DateTime(now.year, now.month, now.day-1);
-    //在当前的时间上多添加4天
-    DateTime end = DateTime(start.year, start.month, start.day);
-    var seDate = _dateSelectText.split(" - ");
+    DateTime start = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    DateTime end = DateTime(now.year, now.month, now.day);
+    var seDate;
+    if (this._dateSelectText != "") {
+      seDate = _dateSelectText.split(" - ");
+    }else{
+      seDate = [];
+      seDate.add(start.toString());
+      seDate.add(end.toString());
+    }
     //显示时间选择器
     DateTimeRange? selectTimeRange = await showDateRangePicker(
       //语言环境

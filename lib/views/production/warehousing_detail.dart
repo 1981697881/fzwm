@@ -106,13 +106,14 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
   }
 //获取仓库
   getStockList() async {
+    stockListObj = [];
+    stockList = [];
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'BD_STOCK';
     userMap['FieldKeys'] = 'FStockID,FName,FNumber,FIsOpenLocation';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
-    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
@@ -175,42 +176,56 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           arr.add({
             "title": "物料子码",
             "name": "FMaterialId",
+            "isHide": false,
             "value": {"label": value[6], "value": value[6]}
           });
           arr.add({
             "title": "生产车间",
             "name": "FWorkShopID",
+            "isHide": false,
             "value": {"label": value[10], "value": value[9]}
           });
           arr.add({
-            "title": "预测批号",
+            "title": "批号",
             "name": "",
+            "isHide": false,
             "value": {"label": "", "value": ""}
           });
           arr.add({
-            "title": "需生产数量",
+            "title": "生产数量",
             "name": "FQty",
-            "value": {"label": value[13], "value": value[13]}
+            "isHide": false,
+            "value": {"label": value[17], "value": value[17]}
           });
           arr.add({
             "title": "良品数量",
             "name": "goodProductNumber",
-            "value": {"label": value[13], "value": value[13]}
+            "isHide": false,
+            "value": {"label": value[17], "value": value[17]}
           });
           arr.add({
             "title": "良品仓库",
             "name": "goodProductStock",
+            "isHide": false,
             "value": {"label": value[21], "value": value[20]}
           });
           arr.add({
             "title": "不良品数量",
             "name": "rejectsNumber",
+            "isHide": true,
             "value": {"label": "0", "value": "0"}
           });
           arr.add({
             "title": "不良品仓库",
             "name": "rejectsStock",
+            "isHide": true,
             "value": {"label": "", "value": ""}
+          });
+          arr.add({
+            "title": "仓位",
+            "name": "position",
+            "isHide": false,
+            "value": {"label": "", "value": "","hide": false}
           });
           hobby.add(arr);
         });
@@ -278,7 +293,14 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           break;
       }
     } else {
-      ToastUtil.showInfo('请点击扫描行扫描图标');
+      if(checkItem == "position"){
+        setState(() {
+        this._FNumber = event;
+        this._textNumber.text = event;
+        });
+      }else{
+        ToastUtil.showInfo('请点击扫描行扫描图标');
+      }
     }
     print("ChannelPage: $event");
     /*});*/
@@ -390,7 +412,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           data.forEach((element) {
             if (element == p) {
               hobby['value']['value'] = stockListObj[elementIndex][2];
-              /*stock[6]['value']['hide'] = stockListObj[elementIndex][3];*/
+              stock[8]['value']['hide'] = stockListObj[elementIndex][3];
             }
             elementIndex++;
           });
@@ -452,77 +474,128 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
-        if (j == 4 || j == 6) {
-          /*comList.add(
+        if (!this.hobby[i][j]['isHide']) {
+          if (j == 2 || j == 4 || j == 6) {
+            /*comList.add(
             _item(this.hobby[j]["title"], ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'],
                 this.hobby[j]["value"]),
           );*/
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing:
+                      Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                        IconButton(
+                          icon: new Icon(Icons.filter_center_focus),
+                          tooltip: '点击扫描',
+                          onPressed: () {
+                            this._textNumber.text =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            this._FNumber =
+                                this.hobby[i][j]["value"]["label"].toString();
+                            checkItem = 'FNumber';
+                            this.show = false;
+                            checkData = i;
+                            checkDataChild = j;
+                            scanDialog();
+                            print(this.hobby[i][j]["value"]["label"]);
+                            if (this.hobby[i][j]["value"]["label"] != 0) {
+                              this._textNumber.value = _textNumber.value.copyWith(
+                                text:
+                                this.hobby[i][j]["value"]["label"].toString(),
+                              );
+                            }
+                          },
+                        ),
+                      ])),
+                ),
+                divider,
+              ]),
+            );
+          } else if (j == 5) {
+            comList.add(
+              _item('良品仓库:', stockList, this.hobby[i][j]['value']['label'],
+                  this.hobby[i][j],stock:this.hobby[i]),
+            );
+          } else if (j == 8) {
+            comList.add(
+              Visibility(
+                maintainSize: false,
+                maintainState: false,
+                maintainAnimation: false,
+                visible: this.hobby[i][j]["value"]["hide"],
+                child: Column(children: [
+                  Container(
+                    color: Colors.white,
+                    child: ListTile(
+                        title: Text(this.hobby[i][j]["title"] +
+                            '：' +
+                            this.hobby[i][j]["value"]["label"].toString()),
+                        trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              IconButton(
+                                icon: new Icon(Icons.filter_center_focus),
+                                tooltip: '点击扫描',
+                                onPressed: () {
+                                  this._textNumber.text = this
+                                      .hobby[i][j]["value"]["label"]
+                                      .toString();
+                                  this._FNumber = this
+                                      .hobby[i][j]["value"]["label"]
+                                      .toString();
+                                  checkItem = 'position';
+                                  this.show = false;
+                                  checkData = i;
+                                  checkDataChild = j;
+                                  scanDialog();
+                                  print(this.hobby[i][j]["value"]["label"]);
+                                  if (this.hobby[i][j]["value"]["label"] != 0) {
+                                    this._textNumber.value =
+                                        _textNumber.value.copyWith(
+                                          text: this
+                                              .hobby[i][j]["value"]["label"]
+                                              .toString(),
+                                        );
+                                  }
+                                },
+                              ),
+                            ])),
+                  ),
+                  divider,
+                ]),
+              ),
+            );
+          } else if (j == 7) {
+            comList.add(
+              _item('不良品仓库:', stockList, this.hobby[i][j]['value']['label'],
+                  this.hobby[i][j],stock:this.hobby[i]),
+            );
+          } else {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
                     title: Text(this.hobby[i][j]["title"] +
                         '：' +
                         this.hobby[i][j]["value"]["label"].toString()),
                     trailing:
                     Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                      IconButton(
-                        icon: new Icon(Icons.filter_center_focus),
-                        tooltip: '点击扫描',
-                        onPressed: () {
-                          this._textNumber.text =
-                              this.hobby[i][j]["value"]["label"].toString();
-                          this._FNumber =
-                              this.hobby[i][j]["value"]["label"].toString();
-                          checkItem = 'FNumber';
-                          this.show = false;
-                          checkData = i;
-                          checkDataChild = j;
-                          scanDialog();
-                          print(this.hobby[i][j]["value"]["label"]);
-                          if (this.hobby[i][j]["value"]["label"] != 0) {
-                            this._textNumber.value = _textNumber.value.copyWith(
-                              text:
-                              this.hobby[i][j]["value"]["label"].toString(),
-                            );
-                          }
-                        },
-                      ),
-                    ])),
-              ),
-              divider,
-            ]),
-          );
-        } else if (j == 5) {
-          comList.add(
-            _item('良品仓库:', stockList, this.hobby[i][j]['value']['label'],
-                this.hobby[i][j],stock:this.hobby[i]),
-          );
-        } else if (j == 7) {
-          comList.add(
-            _item('不良品仓库:', stockList, this.hobby[i][j]['value']['label'],
-                this.hobby[i][j],stock:this.hobby[i]),
-          );
-        } else {
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                  title: Text(this.hobby[i][j]["title"] +
-                      '：' +
-                      this.hobby[i][j]["value"]["label"].toString()),
-                  trailing:
-                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                    /* MyText(orderDate[i][j],
+                      /* MyText(orderDate[i][j],
                         color: Colors.grey, rightpadding: 18),*/
-                  ]),
+                    ]),
+                  ),
                 ),
-              ),
-              divider,
-            ]),
-          );
+                divider,
+              ]),
+            );
+          }
         }
       }
       tempList.add(
@@ -595,7 +668,15 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
                               this.hobby[checkData][checkDataChild]['value']
                               ["value"] = _FNumber;
                             });
+                          }else if (checkItem == "position") {
+                            setState(() {
+                              this.hobby[checkData][checkDataChild]["value"]
+                              ["label"] = _FNumber;
+                              this.hobby[checkData][checkDataChild]['value']
+                              ["value"] = _FNumber;
+                            });
                           }
+                          checkItem = "";
                         },
                         child: Text(
                           '确定',
@@ -833,7 +914,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
     //下推
     Map<String, dynamic> pushMap = Map();
     pushMap['EntryIds'] = val;
-    pushMap['RuleId'] = "MSD_MO2INSTOCK_PDA";
+    pushMap['RuleId'] = "PRD_MO2INSTOCK";
     pushMap['TargetFormId'] = "PRD_INSTOCK";
     pushMap['IsEnableDefaultRule'] = "false";
     pushMap['IsDraftWhenSaveFail'] = "false";
@@ -887,6 +968,13 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               FEntityItem['FStockId'] = {
                 "FNumber": this.hobby[element][5]['value']['value']
               };
+              if(this.hobby[element][8]['value']['hide']){
+                FEntityItem['FStockLocId'] = {
+                  "FSTOCKLOCID__FF100011" : {
+                    "FNumber": this.hobby[element][8]['value']['value']
+                  }
+                };
+              }
               FEntity.add(FEntityItem);
             } else {
               Map<String, dynamic> FEntityItem = Map();
@@ -897,6 +985,18 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               this.hobby[element][6]['value']['value'];
               FEntityItem['FStockId'] = {
                 "FNumber": this.hobby[element][7]['value']['value']
+              };
+              if(this.hobby[element][8]['value']['hide']){
+                FEntityItem['FStockLocId'] = {
+                  "FSTOCKLOCID__FF100011" : {
+                    "FNumber": this.hobby[element][8]['value']['value']
+                  }
+                };
+              }
+              FEntityItem['FStockLocId'] = {
+                "FSTOCKLOCID__FF100011": {
+                  "FNumber": this.hobby[element][8]['value']['value']
+                }
               };
               FEntity.add(FEntityItem);
             }
@@ -930,6 +1030,7 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
       });
       var EntryIds1 = '';
       var EntryIds2 = '';
+      var ckInfo = '';
       //分两次读取良品，不良品数据
       for (var i = 0; i < 2; i++) {
         var hobbyIndex = 0;
@@ -937,6 +1038,11 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           if (i == 0) {
             if (element[4]['value']['value'] is String) {
               if (double.parse(element[4]['value']['value']) > 0) {
+                if(this.hobby[element][8]['value']['hide']){
+                  if(this.hobby[element][8]['value']['value'] == null || this.hobby[element][8]['value']['value'] == ""){
+                    ckInfo +=  this.hobby[element][0]['value']['label']+'-仓位不能为空';
+                  }
+                }
                 if (EntryIds1 == '') {
                   EntryIds1 = orderDate[hobbyIndex][5].toString();
                 } else {
@@ -946,6 +1052,11 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               }
             } else {
               if (element[4]['value']['value'] > 0) {
+                if(this.hobby[element][8]['value']['hide']){
+                  if(this.hobby[element][8]['value']['value'] == null || this.hobby[element][8]['value']['value'] == ""){
+                    ckInfo +=  this.hobby[element][0]['value']['label']+'-仓位不能为空';
+                  }
+                }
                 if (EntryIds1 == '') {
                   EntryIds1 = orderDate[hobbyIndex][5].toString();
                 } else {
@@ -957,6 +1068,11 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           } else {
             if (element[6]['value']['value'] is String) {
               if (double.parse(element[6]['value']['value']) > 0) {
+                if(this.hobby[element][8]['value']['hide']){
+                  if(this.hobby[element][8]['value']['value'] == null || this.hobby[element][8]['value']['value'] == ""){
+                    ckInfo +=  this.hobby[element][0]['value']['label']+'-仓位不能为空';
+                  }
+                }
                 if (EntryIds2 == '') {
                   EntryIds2 = orderDate[hobbyIndex][5].toString();
                 } else {
@@ -966,6 +1082,11 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               }
             } else {
               if (element[6]['value']['value'] > 0) {
+                if(this.hobby[element][8]['value']['hide']){
+                  if(this.hobby[element][8]['value']['value'] == null || this.hobby[element][8]['value']['value'] == ""){
+                    ckInfo +=  this.hobby[element][0]['value']['label']+'-仓位不能为空';
+                  }
+                }
                 if (EntryIds2 == '') {
                   EntryIds2 = orderDate[hobbyIndex][5].toString();
                 } else {
@@ -977,6 +1098,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           }
           hobbyIndex++;
         });
+      }
+      if(ckInfo!=''){
+        ToastUtil.showInfo('启用仓位，请录入仓位');
       }
       //判断是否填写数量
       if (EntryIds1 == '' && EntryIds2 == '') {

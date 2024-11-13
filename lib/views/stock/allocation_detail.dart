@@ -116,7 +116,8 @@ class _RetrievalDetailState extends State<AllocationDetail> {
           .listen(_onEvent, onError: _onError);
     }
     /*getWorkShop();*/
-   // _onEvent("13095;20190618考科;2019-06-18;1;,1006124995;2");
+  /* _onEvent("11041;202406183舜恩/骊骅;2024-06-18;1350;,1437050913;2");
+   _onEvent("11010;2024091401迪美/迪美;2024-09-14;75;,1437551116;2");*/
     EasyLoading.dismiss();
   }
 
@@ -140,18 +141,34 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
-    var initial = jsonDecode(res);
-    initial.forEach((element) {
+    stockListObj = jsonDecode(res);
+    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
+    stockListObj.forEach((element) {
       stockList.add(element[1]);
     });
-    stockListObj = initial;
+    /*if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
+      fStockIds.forEach((item){
+        stockListObj.forEach((element) {
+          if(element[0].toString() == item){
+            stockList.add(element[1]);
+          }
+        });
+      });
+    }else{
+      stockListObj.forEach((element) {
+        stockList.add(element[1]);
+      });
+    }*/
+    print(stockList);
   }
 
   //获取组织
   getOrganizationsList() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    setState(() {
+      this.organizationsNumber1 = sharedPreferences.getString('tissue');
+      this.organizationsName1 = sharedPreferences.getString('tissueName');
+    });
     Map<String, dynamic> userMap = Map();
     userMap['FormId'] = 'ORG_Organizations';
     userMap['FieldKeys'] = 'FForbidStatus,FName,FNumber,FDocumentStatus';
@@ -161,12 +178,6 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     String res = await CurrencyEntity.polling(dataMap);
     organizationsListObj = jsonDecode(res);
     organizationsListObj.forEach((element) {
-      if(element[2] == deptData[1]){
-        setState(() {
-          this.organizationsNumber1 = element[2];
-          this.organizationsName1 = element[1];
-        });
-      }
       organizationsList.add(element[1]);
     });
   }
@@ -537,7 +548,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
     }
     userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
-        'FMATERIALID.FName,FMATERIALID.FNumber,FMATERIALID.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FMATERIALID.FIsBatchManage,FLot.FNumber,FStockID.FNumber,FStockID.FName,FStockLocID,FStockLocID,FBaseQty,FProduceDate,FExpiryDate,FMATERIALID.FIsKFPeriod,FAuxPropIDHead,FStockID.FIsOpenLocation';
+        'FMATERIALID.FName,FMATERIALID.FNumber,FMATERIALID.FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FMATERIALID.FIsBatchManage,FLot.FNumber,FStockID.FNumber,FStockID.FName,FStockLocID,FStockLocID,FBaseQty,FProduceDate,FExpiryDate,FMATERIALID.FIsKFPeriod,FAuxPropId.FF100002.FNumber,FStockID.FIsOpenLocation';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -1092,10 +1103,10 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             }
           });
           arr.add({
-            "title": "规格型号",
+            "title": "包装规格",
             "isHide": false,
             "name": "FMaterialIdFSpecification",
-            "value": {"label": value[2], "value": value[2]}
+            "value": {"label": barcodeData[0][16], "value": barcodeData[0][16]}
           });
           arr.add({
             "title": "单位名称",
@@ -1811,6 +1822,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
       Model['FOwnerIdHead'] = {"FNumber": this.organizationsNumber2};
       var FEntity = [];
       var hobbyIndex = 0;
+      print(materialDate);
       this.hobby.forEach((element) {
         if (element[3]['value']['value'] != '0' && element[3]['value']['value'] != '' && element[7]['value']['value'] != '') {
           Map<String, dynamic> FEntityItem = Map();
@@ -1853,7 +1865,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             };
           }
           FEntityItem['FAuxPropID'] = {
-            "FAUXPROPID__FF100002": {"FNumber": materialDate[hobbyIndex][15]}
+            "FAUXPROPID__FF100002": {"FNumber": element[1]['value']['value']}
           };
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
           FEntityItem['FDestLot'] = {"FNumber": element[5]['value']['value']};
@@ -1899,13 +1911,13 @@ class _RetrievalDetailState extends State<AllocationDetail> {
         //提交
         HandlerOrder.orderHandler(context, submitMap, 1, "STK_TransferDirect",
             SubmitEntity.submit(submitMap))
-            .then((submitResult) {
+            .then((submitResult) async{
           if (submitResult) {
             //审核
-            HandlerOrder.orderHandler(context, submitMap, 1,
+            /*HandlerOrder.orderHandler(context, submitMap, 1,
                 "STK_TransferDirect", SubmitEntity.audit(submitMap))
                 .then((auditResult) async {
-              if (auditResult) {
+              if (auditResult) {*/
                 var errorMsg = "";
                 if (fBarCodeList == 1) {
                   for (int i = 0; i < this.hobby.length; i++) {
@@ -2020,7 +2032,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                   ToastUtil.showInfo('提交成功');
                   Navigator.of(context).pop("refresh");
                 });
-              } else {
+              /*} else {
                 //失败后反审
                 HandlerOrder.orderHandler(context, submitMap, 0,
                     "STK_TransferDirect", SubmitEntity.unAudit(submitMap))
@@ -2032,7 +2044,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
                   }
                 });
               }
-            });
+            });*/
           } else {
             this.isSubmit = false;
           }
@@ -2101,7 +2113,7 @@ class _RetrievalDetailState extends State<AllocationDetail> {
             child: Icon(Icons.filter_center_focus),
           ),
           appBar: AppBar(
-            title: Text("调拨"),
+            title: Text("移库"),
             centerTitle: true,
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),

@@ -103,11 +103,10 @@ class _InventoryDetailState extends State<InventoryDetail> {
   getDepartmentList() async {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var menuData = sharedPreferences.getString('MenuPermissions');
-    var deptData = jsonDecode(menuData)[0];
+    var tissue = sharedPreferences.getString('tissue');
     userMap['FormId'] = 'BD_Department';
     userMap['FieldKeys'] = 'FUseOrgId,FName,FNumber';
-    userMap['FilterString'] = "FUseOrgId.FNumber ="+deptData[1];
+    userMap['FilterString'] = "FUseOrgId.FNumber ='"+tissue+"'";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
