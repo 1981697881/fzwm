@@ -62,7 +62,6 @@ class _StockPageState extends State<StockPage> {
     /// 取消监听
     if (_subscription != null) {
       _subscription!.cancel();
-      ;
     }
   }
 

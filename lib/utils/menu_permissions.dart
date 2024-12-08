@@ -183,7 +183,7 @@ class MenuPermissions {
             menu.add(obj);
           }
           break;
-        case 14:
+        /*case 14:
           if (list[i] == true) {
             var obj = {
               "icon": Icons.loupe,
@@ -197,7 +197,7 @@ class MenuPermissions {
             };
             menu.add(obj);
           }
-          break;
+          break;*/
         case 16:
           if (list[i] == true) {
             var obj = {
@@ -338,12 +338,28 @@ class MenuPermissions {
       "color": Colors.pink.withOpacity(0.7),
       "router": ReceivingMaterialsPage(),
       "source": '',
-    });menu.add({
+    });
+    menu.add({
       "icon": Icons.loupe,
       "text": "生产检验",
       "parentId": 7,
       "color": Colors.pink.withOpacity(0.7),
       "router": ProductionReportPage(),
+      "source": '',
+    });
+    menu.add({
+      "icon": Icons.loupe,
+      "text": "其他出库(有源单)",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ExWarehousePage(),
+      "source": '',
+    });menu.add({
+      "icon": Icons.loupe,
+      "text": "其他出库(无源单)",
+      "parentId": 3,
+      "color": Colors.pink.withOpacity(0.7),
+      "router": ExWarehouseDetail(FBillNo: null),
       "source": '',
     });
     return menu;

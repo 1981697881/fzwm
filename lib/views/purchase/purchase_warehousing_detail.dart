@@ -951,6 +951,16 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           FEntityItem['FOWNERID'] = {"FNumber": deptData[1]};
           /*FEntityItem['FReturnType'] = 1;*/
           FEntityItem['FRealQty'] = element[3]['value']['value'];
+          FEntityItem['FInStockEntry_Link'] = [
+            {
+              "FInStockEntry_Link_FRuleId": "PUR_ReceiveBill-STK_InStock",
+              "FInStockEntry_Link_FSTableName": "T_PUR_ReceiveEntry",
+              "FInStockEntry_Link_FSBillId": orderDate[hobbyIndex][14],
+              "FInStockEntry_Link_FSId": orderDate[hobbyIndex][4],
+              "FInStockEntry_Link_FBaseUnitQty": element[3]['value']['value'],
+              "FInStockEntry_Link_FRemainInStockBaseQty": element[3]['value']['value']
+            }
+          ];
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;

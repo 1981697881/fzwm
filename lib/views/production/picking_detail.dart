@@ -2364,6 +2364,9 @@ class _PickingDetailState extends State<PickingDetail> {
   //保存
   saveOrder() async {
     Map<String, dynamic> dataMap = Map();
+    setState(() {
+      this.isSubmit = true;
+    });
     dataMap['formid'] = 'PRD_PickMtrl';
     Map<String, dynamic> orderMap = Map();
     orderMap['NeedUpDataFields'] = [
@@ -2491,7 +2494,7 @@ class _PickingDetailState extends State<PickingDetail> {
         FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
         FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
         FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
-        if(this.hobby[element][6]['value']['hide']){
+        if(element[6]['value']['hide']){
           FEntityItem['FStockLocId'] = {
             "FSTOCKLOCID__FF100011": {"FNumber": element[6]['value']['value']}
           };

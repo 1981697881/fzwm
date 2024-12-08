@@ -98,6 +98,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
     }
     EasyLoading.dismiss();
     getDepartmentList();
+    //_onEvent("12.0100");
   }
   //获取部门
   getDepartmentList() async {
@@ -224,9 +225,9 @@ class _InventoryDetailState extends State<InventoryDetail> {
     var menuData = sharedPreferences.getString('MenuPermissions');
     var deptData = jsonDecode(menuData)[0];
     var scanCode = _code.split(",");
-    userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FStockOrgId.FNumber = "+deptData[1];
+    userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FBaseQty>0 and FStockOrgId.FNumber = "+deptData[1];
     if(scanCode.length > 1){
-      userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FLot.FNumber='"+scanCode[1]+"' and FStockOrgId.FNumber = "+deptData[1];
+      userMap['FilterString'] = "FMaterialId.FNumber='"+scanCode[0]+"' and FBaseQty>0 and FLot.FNumber='"+scanCode[1]+"' and FStockOrgId.FNumber = "+deptData[1];
     }
     userMap['FormId'] = 'STK_Inventory';
     userMap['FieldKeys'] =
@@ -276,7 +277,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
           "title": "盘点数量",
           "name": "FCountQty",
           "isHide": false,
-          "value": {"label": value[7], "value": value[7]}
+          "value": {"label": value[7].toString(), "value": value[7].toString()}
         });
         arr.add({
           "title": "仓库",
@@ -295,6 +296,12 @@ class _InventoryDetailState extends State<InventoryDetail> {
           "name": "FStockOrgId",
           "isHide": true,
           "value": {"label": value[0], "value": value[0]}
+        });
+        arr.add({
+          "title": "操作",
+          "name": "",
+          "isHide": false,
+          "value": {"label": "", "value": ""}
         });
         hobby.add(arr);
       });
@@ -480,7 +487,33 @@ class _InventoryDetailState extends State<InventoryDetail> {
                 divider,
               ]),
             );
-          } else {
+          } else if (j == 8) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            new MaterialButton(
+                              color: Colors.red,
+                              textColor: Colors.white,
+                              child: new Text('删除'),
+                              onPressed: () {
+                                this.hobby.removeAt(i);
+                                setState(() {});
+                              },
+                            )
+                          ])),
+                ),
+                divider,
+              ]),
+            );
+          }else {
             comList.add(
               Column(children: [
                 Container(

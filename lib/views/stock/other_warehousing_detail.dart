@@ -189,8 +189,9 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     super.dispose();
     /// 取消监听
     if (_subscription != null) {
-      _subscription!.cancel();;
+      _subscription!.cancel();
     }
+
   }
 
   // 查询数据集合
@@ -293,7 +294,7 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
     var scanCode = _code.split(",");
-    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and and FUseOrgId.FNumber = '"+tissue+"'";
+    userMap['FilterString'] = "FNumber='"+scanCode[0]+"' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] =
     'FMATERIALID,FName,FNumber,FSpecification,FBaseUnitId.FName,FBaseUnitId.FNumber,FIsBatchManage';
@@ -907,8 +908,8 @@ class _OtherWarehousingDetailState extends State<OtherWarehousingDetail> {
                     ],
                   ),*/
                   _dateItem('日期：', DateMode.YMD),
-                  /*_item('供应商:', this.supplierList, this.supplierName,
-                    'supplier'),*/
+                  _item('供应商:', this.supplierList, this.supplierName,
+                    'supplier'),
                   _item('部门',  this.departmentList, this.departmentName,
                       'department'),
                   _item('类别',  this.typeList, this.typeName,

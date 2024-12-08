@@ -174,20 +174,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
     dataMap['data'] = userMap;
     String res = await CurrencyEntity.polling(dataMap);
     var initial = jsonDecode(res);
-    var fStockIds = jsonDecode(sharedPreferences.getString('FStockIds')).split(',');
-    if(jsonDecode(sharedPreferences.getString('FStockIds')) != ''){
-      fStockIds.forEach((item){
-        if(initial.indexWhere((v)=> v[0].toString() == item) != -1){
-          stockList.add(initial[initial.indexWhere((v)=> v[0].toString() == item)][1]);
-          stockListObj.add(initial[initial.indexWhere((v)=> v[0].toString() == item)]);
-        }
-      });
-    }else{
-      initial.forEach((element) {
-        stockList.add(element[1]);
-      });
-      stockListObj = initial;
-    }
+    initial.forEach((element) {
+      stockList.add(element[1]);
+    });
+    stockListObj = initial;
   }
   //获取组织
   getOrganizationsList() async {
@@ -234,10 +224,10 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
     Map<String, dynamic> userMap = Map();
     print(fBillNo);
     userMap['FilterString'] = "fBillNo='$fBillNo'";
-    userMap['FormId'] = 'PUR_MRAPP';
+    userMap['FormId'] = 'STK_InStock';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FPURCHASEORGID.FNumber,FPURCHASEORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FAPPORGID.FNumber,FAPPORGID.FName,FUNITID.FNumber,FUNITID.FName,FMRAPPQTY,FAPPROVEDATE,FMRQTY,FID,FSUPPLIERID.FNumber,FSUPPLIERID.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMATERIALID.FIsBatchManage,FPRICEUNITID_F.FNumber,FAPPROVEPRICE_F,FEntryTaxRate,FBASEUNITID.FName,FBASEUNITID.FNumber,FRequireOrgId.FNumber,FAUXPROPID,FRMREASON_M,FMaterialId.FIsKFPeriod,F_ora_Assistant.FNumber,F_ora_Assistant.FDataValue';
+    'FBillNo,FPurchaseOrgId.FNumber,FPurchaseOrgId.FName,FDate,FInStockEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitID.FNumber,FUnitID.FName,FRealQty,FDate,FReturnJoinQty,FID,FSupplierId.FNumber,FSupplierId.FName,FStockID.FName,FStockID.FNumber,FLot.FNumber,FStockID.FIsOpenLocation,FMaterialId.FIsBatchManage,FPriceUnitID.FNumber,FTaxPrice,FEntryTaxRate,FBaseUnitID.FName,FBaseUnitID.FNumber,FDemandOrgId.FNumber,FAuxPropId,F_ora_BaseProperty2,FMaterialId.FIsKFPeriod,F_ora_Assistant.FNumber,F_ora_Assistant.FDataValue,F_ora_Assistant1.FNumber,FReceiveLot';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -265,6 +255,8 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
           "FTAXPRICE": value[24],
           "FENTRYTAXRATE": value[25],
           "F_ora_Assistant": value[32],
+          "F_ora_Assistant1": value[34],
+          "FReceiveLot": value[35],
           "parseEntryID": -1,
           "isHide": false,
           "value": {
@@ -296,7 +288,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
         }else{
           inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";// and FStockIds
         }*/
-        inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";
+        inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[5] + "' and FBaseQty >0";
         inventoryMap['Limit'] = '20';
         inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
         inventoryMap['FieldKeys'] =
@@ -386,7 +378,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
         arr.add({
           "title": "最后扫描数量",
           "name": "FLastQty",
-          "isHide": false,
+          "isHide": true,
           "value": {"label": "0", "value": "0", "remainder": "0", "representativeQuantity": "0"}
         });
         arr.add({
@@ -400,6 +392,12 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
           "name": "",
           "isHide": true,
           "value": {"label": "", "value": ""}
+        });
+        arr.add({
+          "title": "明细",
+          "name": "",
+          "isHide": true,
+          "value": {"label": "", "value": "", "itemList": []}
         });
         arr.add({
           "title": "生产日期",
@@ -1590,7 +1588,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
                                   }
                                   Navigator.pop(context);
                                 }else{
-                                  ToastUtil.showInfo('输入数量大于用量');
+                                  ToastUtil.showInfo('输入数量大于可退数量');
                                 }
                               }else{
                                 ToastUtil.showInfo('输入数量大于库存数量');
@@ -2011,7 +2009,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
         Model['FStockOrgId'] = {"FNumber": orderDate[0][8].toString()};
         Model['FPurchaseOrgId'] = {"FNumber": orderDate[0][1].toString()};
         Model['FSupplierID'] = {"FNumber": orderDate[0][16].toString()};
-        Model['F_ora_Assistant1'] = {"FNumber": this.hobby[0][0]['F_ora_Assistant']};
+        //Model['F_ora_Assistant1'] = {"FNumber": this.hobby[0][0]['F_ora_Assistant1']};
       }else{
         if (this.supplierNumber == null) {
           this.isSubmit = false;
@@ -2047,7 +2045,7 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
           FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
           FEntityItem['FSTOCKID'] = {"FNumber": element[4]['value']['value']};
           FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
-          FEntityItem['FSRCBillTypeId'] = "PUR_MRAPP";
+          FEntityItem['FSRCBillTypeId'] = "STK_InStock";
 
           FEntityItem['FSTOCKLOCID'] = {
             "FSTOCKLOCID__FF100011": {
@@ -2062,13 +2060,14 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
             if(element[0]['FEntryID'] == 0){
               entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['parseEntryID'].toString()))]['index'];
               FEntityItem['FPRICEUNITID'] = {"FNumber": this.hobby[entryIndex][0]['FPRICEUNITID']};
-              FEntityItem['F_ora_Assistant'] = {"FNumber": this.hobby[entryIndex][0]['F_ora_Assistant']};
+              //FEntityItem['F_ora_Assistant'] = {"FNumber": this.hobby[entryIndex][0]['F_ora_Assistant']};
               FEntityItem['FTAXPRICE'] = this.hobby[entryIndex][0]['FTAXPRICE'];
               FEntityItem['FENTRYTAXRATE'] = this.hobby[entryIndex][0]['FENTRYTAXRATE'];
+              FEntityItem['FReceiveLot'] = {"FNumber": this.hobby[entryIndex][0]['FReceiveLot']};
               FEntityItem['FPURMRBENTRY_Link'] = [
                 {
-                  "FPURMRBENTRY_Link_FRuleId": "PUR_MRAPP-PUR_MRB",
-                  "FPURMRBENTRY_Link_FSTableName": "T_PUR_MRAPPENTRY",
+                  "FPURMRBENTRY_Link_FRuleId": "STK_InStock-PUR_MRB",
+                  "FPURMRBENTRY_Link_FSTableName": "T_STK_INSTOCKENTRY",
                   "FPURMRBENTRY_Link_FSBillId": this.hobby[entryIndex][0]['FID'],
                   "FPURMRBENTRY_Link_FSId": this.hobby[entryIndex][0]['FEntryId'],
                   "FPURMRBENTRY_Link_FCarryBaseQty": element[3]['value']['value'],
@@ -2077,13 +2076,14 @@ class _ReturnGoodsDetailState extends State<PurchaseReturnDetail> {
               ];
             }else{
               FEntityItem['FPRICEUNITID'] = {"FNumber": element[0]['FPRICEUNITID']};
-              FEntityItem['F_ora_Assistant'] = {"FNumber": element[0]['F_ora_Assistant']};
+              //FEntityItem['F_ora_Assistant'] = {"FNumber": element[0]['F_ora_Assistant']};
               FEntityItem['FTAXPRICE'] = element[0]['FTAXPRICE'];
               FEntityItem['FENTRYTAXRATE'] = element[0]['FENTRYTAXRATE'];
+              FEntityItem['FReceiveLot'] = {"FNumber": element[0]['FReceiveLot']};
               FEntityItem['FPURMRBENTRY_Link'] = [
                 {
-                  "FPURMRBENTRY_Link_FRuleId": "PUR_MRAPP-PUR_MRB",
-                  "FPURMRBENTRY_Link_FSTableName": "T_PUR_MRAPPENTRY",
+                  "FPURMRBENTRY_Link_FRuleId": "STK_InStock-PUR_MRB",
+                  "FPURMRBENTRY_Link_FSTableName": "T_STK_INSTOCKENTRY",
                   "FPURMRBENTRY_Link_FSBillId": element[0]['FID'],
                   "FPURMRBENTRY_Link_FSId": element[0]['FEntryId'],
                   "FPURMRBENTRY_Link_FCarryBaseQty": element[3]['value']['value'],

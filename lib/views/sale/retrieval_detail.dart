@@ -258,7 +258,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
         }else{
           inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";// and FStockIds
         }*/
-        inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";
+        inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[5] + "' and FBaseQty >0";
         inventoryMap['Limit'] = '20';
         inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
         inventoryMap['FieldKeys'] =
@@ -2011,7 +2011,7 @@ class _RetrievalDetailState extends State<RetrievalDetail> {
             FEntityItem['FEntryTaxRate'] = element[0]['FEntryTaxRate'];
             FEntityItem['FSoorDerno'] = element[0]['FSoorDerno'];
             FEntityItem['FEntrynote'] = element[0]['FEntrynote'];
-            FEntityItem['F_ora_Assistant'] = element[0]['F_ora_Assistant'];
+            FEntityItem['F_ora_Assistant'] = {"FNumber": element[0]['F_ora_Assistant']};
             FEntityItem['FEntity_Link'] = [
               {
                 "FEntity_Link_FRuleId": "DeliveryNotice-OutStock",

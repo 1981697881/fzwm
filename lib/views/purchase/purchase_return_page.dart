@@ -80,36 +80,36 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
-    userMap['FilterString'] = "FMRQTY>0 and FPrdOrgId.FNumber = '"+tissue+"'";
+    userMap['FilterString'] = "FRealQty>FReturnJoinQty and FStockOrgId.FNumber = '"+tissue+"'";
     var scanCode = keyWord.split(",");
     if(this._dateSelectText != ""){
       this.startDate = this._dateSelectText.substring(0,10);
       this.endDate = this._dateSelectText.substring(26,36);
-      userMap['FilterString'] = "FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate' and FPrdOrgId.FNumber = '"+tissue+"'";
+      userMap['FilterString'] = "FRealQty>FReturnJoinQty and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate' and FStockOrgId.FNumber = '"+tissue+"'";
     }
     if(this.isScan){
       if (this.keyWord != '') {
-        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FPrdOrgId.FNumber = '"+tissue+"'";
+        userMap['FilterString'] = "FRealQty>FReturnJoinQty and FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FStockOrgId.FNumber = '"+tissue+"'";
       }
     }else{
       if (this.keyWord != '') {
-        userMap['FilterString'] = "FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FPrdOrgId.FNumber = '"+tissue+"'";
+        userMap['FilterString'] = "FRealQty>FReturnJoinQty and FBillNo like '%"+keyWord+"%' and FDocumentStatus ='C' and FStockOrgId.FNumber = '"+tissue+"'";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);
           this.endDate = this._dateSelectText.substring(26, 36);
-          userMap['FilterString'] = "FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate' and FPrdOrgId.FNumber = '"+tissue+"'";
+          userMap['FilterString'] = "FRealQty>FReturnJoinQty and FDocumentStatus ='C' and FDate>= '$startDate' and FDate <= '$endDate' and FStockOrgId.FNumber = '"+tissue+"'";
         }else{
-          userMap['FilterString'] = "FDocumentStatus ='C' and FPrdOrgId.FNumber = '"+tissue+"'";
+          userMap['FilterString'] = "FRealQty>FReturnJoinQty and FDocumentStatus ='C' and FStockOrgId.FNumber = '"+tissue+"'";
         }
       }
     }
     this.isScan = false;
-    userMap['FormId'] = 'PUR_MRAPP';
+    userMap['FormId'] = 'STK_InStock';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['Limit'] = '20';
     userMap['FieldKeys'] =
-    'FBillNo,FPURCHASEORGID.FNumber,FPURCHASEORGID.FName,FDate,FEntity_FEntryId,FMATERIALID.FNumber,FMATERIALID.FName,FMATERIALID.FSpecification,FAPPORGID.FNumber,FAPPORGID.FName,FUNITID.FNumber,FUNITID.FName,FMRAPPQTY,FAPPROVEDATE,FMRQTY,FID,FSUPPLIERID.FNumber,FSUPPLIERID.FName';
+    'FBillNo,FPurchaseOrgId.FNumber,FPurchaseOrgId.FName,FDate,FInStockEntry_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FStockOrgId.FNumber,FStockOrgId.FName,FUnitID.FNumber,FUnitID.FName,FRealQty,FDate,FReturnJoinQty,FID,FSupplierId.FNumber,FSupplierId.FName';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -163,7 +163,7 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
           "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
-          "title": "应收数量",
+          "title": "入库数量",
           "name": "FBaseQty",
           "isHide": false,
           "value": {"label": value[12], "value": value[12]}
@@ -175,10 +175,10 @@ class _ReturnGoodsPageState extends State<PurchaseReturnPage> {
           "value": {"label": value[13], "value": value[13]}
         });
         arr.add({
-          "title": "实收数量",
+          "title": "可退数量",
           "name": "FJoinRetQty",
           "isHide": false,
-          "value": {"label": value[14], "value": value[14]}
+          "value": {"label": (value[12] - value[14])>0?(value[12] - value[14]): 0, "value": (value[12] - value[14])>0?(value[12] - value[14]): 0}
         });
         hobby.add(arr);
       });

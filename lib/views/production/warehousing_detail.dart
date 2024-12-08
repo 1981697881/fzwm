@@ -1038,9 +1038,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           if (i == 0) {
             if (element[4]['value']['value'] is String) {
               if (double.parse(element[4]['value']['value']) > 0) {
-                if(this.hobby[element][8]['value']['hide']){
-                  if(this.hobby[element][8]['value']['value'] == null || this.hobby[element][8]['value']['value'] == ""){
-                    ckInfo +=  this.hobby[element][0]['value']['label']+'-仓位不能为空';
+                if(element[8]['value']['hide']){
+                  if(element[8]['value']['value'] == null || element[8]['value']['value'] == ""){
+                    ckInfo +=  element[0]['value']['label']+'-仓位不能为空';
                   }
                 }
                 if (EntryIds1 == '') {
@@ -1052,9 +1052,10 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               }
             } else {
               if (element[4]['value']['value'] > 0) {
-                if(this.hobby[element][8]['value']['hide']){
-                  if(this.hobby[element][8]['value']['value'] == null || this.hobby[element][8]['value']['value'] == ""){
-                    ckInfo +=  this.hobby[element][0]['value']['label']+'-仓位不能为空';
+                print(element[8]);
+                if(element[8]['value']['hide']){
+                  if(element[8]['value']['value'] == null || element[8]['value']['value'] == ""){
+                    ckInfo +=  element[0]['value']['label']+'-仓位不能为空';
                   }
                 }
                 if (EntryIds1 == '') {
@@ -1068,9 +1069,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
           } else {
             if (element[6]['value']['value'] is String) {
               if (double.parse(element[6]['value']['value']) > 0) {
-                if(this.hobby[element][8]['value']['hide']){
-                  if(this.hobby[element][8]['value']['value'] == null || this.hobby[element][8]['value']['value'] == ""){
-                    ckInfo +=  this.hobby[element][0]['value']['label']+'-仓位不能为空';
+                if(element[8]['value']['hide']){
+                  if(element[8]['value']['value'] == null || element[8]['value']['value'] == ""){
+                    ckInfo +=  element[0]['value']['label']+'-仓位不能为空';
                   }
                 }
                 if (EntryIds2 == '') {
@@ -1082,9 +1083,9 @@ class _WarehousingDetailState extends State<WarehousingDetail> {
               }
             } else {
               if (element[6]['value']['value'] > 0) {
-                if(this.hobby[element][8]['value']['hide']){
-                  if(this.hobby[element][8]['value']['value'] == null || this.hobby[element][8]['value']['value'] == ""){
-                    ckInfo +=  this.hobby[element][0]['value']['label']+'-仓位不能为空';
+                if(element[8]['value']['hide']){
+                  if(element[8]['value']['value'] == null || element[8]['value']['value'] == ""){
+                    ckInfo +=  element[0]['value']['label']+'-仓位不能为空';
                   }
                 }
                 if (EntryIds2 == '') {

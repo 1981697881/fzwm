@@ -78,28 +78,28 @@ class _ReturnGoodsPageState extends State<ReturnGoodsPage> {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
-    userMap['FilterString'] = "FJoinRetQty>0 and FSaleOrgId.FNumber = '"+tissue+"'";
+    userMap['FilterString'] = "FBillCloseStatus = 'A' and FSaleOrgId.FNumber = '"+tissue+"'";
     var scanCode = keyWord.split(",");
     if(this._dateSelectText != ""){
       this.startDate = this._dateSelectText.substring(0,10);
       this.endDate = this._dateSelectText.substring(26,36);
-      userMap['FilterString'] = "FJoinRetQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FSaleOrgId.FNumber = '"+tissue+"'";
+      userMap['FilterString'] = "FBillCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate' and FSaleOrgId.FNumber = '"+tissue+"'";
     }
     if(isScan){
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "FBillNo like '%"+scanCode[0]+"%' and FJoinRetQty>0 and FSaleOrgId.FNumber = '"+tissue+"'";
+            "FBillNo like '%"+scanCode[0]+"%' and FBillCloseStatus = 'A' and FSaleOrgId.FNumber = '"+tissue+"'";
       }
     }else{
       if (this.keyWord != '') {
-        userMap['FilterString'] = "FBillNo='$keyWord' and FJoinRetQty>0 and FSaleOrgId.FNumber = '"+tissue+"'";
+        userMap['FilterString'] = "FBillNo='$keyWord' and FBillCloseStatus = 'A' and FSaleOrgId.FNumber = '"+tissue+"'";
       }else{
         if(this._dateSelectText != ""){
           this.startDate = this._dateSelectText.substring(0,10);
           this.endDate = this._dateSelectText.substring(26,36);
-          userMap['FilterString'] = "FJoinRetQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FSaleOrgId.FNumber = '"+tissue+"'";
+          userMap['FilterString'] = "FBillCloseStatus = 'A' and FDate>= '$startDate' and FDate <= '$endDate' and FSaleOrgId.FNumber = '"+tissue+"'";
         }else{
-          userMap['FilterString'] = "FJoinRetQty>0 and FSaleOrgId.FNumber = '"+tissue+"'";
+          userMap['FilterString'] = "FBillCloseStatus = 'A' and FSaleOrgId.FNumber = '"+tissue+"'";
         }
       }
     }

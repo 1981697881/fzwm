@@ -933,6 +933,17 @@ class _ReturnGoodsDetailState extends State<ReturnGoodsDetail> {
           };
           FEntityItem['FRealQty'] = element[8]['value']['value'];
           FEntityItem['F_ora_Assistant2'] = {"FNumber": element[12]['value']['value']};
+          FEntityItem['FEntity_Link'] = [
+            {
+              "FEntity_Link_FRuleId": "SalReturnNotice-SalReturnStock",
+              "FEntity_Link_FSTableName": "T_SAL_RETURNNOTICEENTRY",
+              "FEntity_Link_FSBillId": orderDate[hobbyIndex][15],
+              "FEntity_Link_FSId": orderDate[hobbyIndex][4],
+              "FEntity_Link_FSalBaseQty": element[3]['value']['value'],
+              "FEntity_Link_FBaseunitQty": element[3]['value']['value'],
+              "FEntity_Link_FAuxUnitQty ": element[3]['value']['value'],
+            }
+          ];
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;

@@ -122,7 +122,7 @@ class _ExWarehousePageState extends State<ExWarehousePage> {
           "title": "申请组织",
           "name": "FPurchaseOrgId",
           "isHide": false,
-          "value": {"label": value[9], "value": value[8]}
+          "value": {"label": value[2], "value": value[1]}
 
         });
         arr.add({
