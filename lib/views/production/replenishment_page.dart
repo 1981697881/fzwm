@@ -165,7 +165,7 @@ class _ReplenishmentPageState extends State<ReplenishmentPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": orderDate[value][5], "value": orderDate[value][4]}
+          "value": {"label": orderDate[value][5] + "- (" + orderDate[value][4] + ")", "value": orderDate[value][4]}
         });
         arr.add({
           "title": "规格型号",

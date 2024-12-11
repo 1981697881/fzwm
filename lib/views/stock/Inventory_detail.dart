@@ -152,7 +152,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5]}
         });
         arr.add({
           "title": "规格型号",
@@ -247,7 +247,7 @@ class _InventoryDetailState extends State<InventoryDetail> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[1], "value": value[2]}
+          "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2]}
         });
         arr.add({
           "title": "规格型号",

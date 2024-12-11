@@ -229,7 +229,7 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
         OrderMap['FilterString'] =
         "FID='$entitysNumber' ";//and FLot.FNumber != ''
         OrderMap['FieldKeys'] =
-        'FBillNo,FSubOrgId.FNumber,FSubOrgId.FName,FPOOrderBillNo,FPOOrderSeq,FEntity_FEntryID,FEntity_FSeq,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FUnitID.FNumber,FUnitID.FName,FAppQty,FLot.FNumber,FID,FMaterialId.FIsBatchManage,FAuxPropId,FOwnerId.FNumber,FParentOwnerId.FNumber,FBaseUnitId.FNumber,FStockUnitId.FNumber,FOwnerTypeId,FParentOwnerTypeId,FKeeperTypeId,FKeeperId.FNumber,FParentMaterialId.FNumber,FMoEntryId,FReqEntryId,FStockId0.FNumber,FMaterialId.FIsKFPeriod,FEntrySrcInterId,FStockId.FNumber,FStockId.FName,F_ora_Assistant.FDataValue,F_ora_Assistant,FStockID.FIsOpenLocation';
+        'FBillNo,FSubOrgId.FNumber,FSubOrgId.FName,FPOOrderBillNo,FPOOrderSeq,FEntity_FEntryID,FEntity_FSeq,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FUnitID.FNumber,FUnitID.FName,FAppQty,FLot.FNumber,FID,FMaterialId.FIsBatchManage,FAuxPropId,FOwnerId.FNumber,FParentOwnerId.FNumber,FBaseUnitId.FNumber,FStockUnitId.FNumber,FOwnerTypeId,FParentOwnerTypeId,FKeeperTypeId,FKeeperId.FNumber,FParentMaterialId.FNumber,FSubReqEntryId,FReqEntryId,FStockId.FNumber,FMaterialId.FIsKFPeriod,FSrcInterId,FStockId.FNumber,FStockId.FName,F_ora_Assistant.FDataValue,F_ora_Assistant,FStockID.FIsOpenLocation';
         String order = await CurrencyEntity.polling({'data': OrderMap});
         this.getOrderListT(order);
       } else {
@@ -320,7 +320,7 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
         }else{
           inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";// and FStockIds
         }*/
-        inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[5] + "' and FBaseQty >0";
+        inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";
         inventoryMap['Limit'] = '20';
         inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
         inventoryMap['FieldKeys'] =
@@ -2174,7 +2174,8 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
     }
   }
   //删除
-  deleteOrder(Map<String, dynamic> map,title) async {
+  //删除
+  deleteOrder(Map<String, dynamic> map, title,{var type = 0}) async {
     var subData = await SubmitEntity.delete(map);
     print(subData);
     if (subData != null) {
@@ -2186,17 +2187,32 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
           this.FBillNo = '';
           ToastUtil.showInfo('提交成功');
           Navigator.of(context).pop("refresh");*/
-          setState(() {
-            this.isSubmit = false;
-            ToastUtil.errorDialog(context,
-                title);
-          });
+          if(type == 1){
+            setState(() {
+              EasyLoading.dismiss();
+            });
+
+          }else{
+            setState(() {
+              this.isSubmit = false;
+              ToastUtil.errorDialog(context, title);
+            });
+          }
         } else {
-          setState(() {
-            this.isSubmit = false;
-            ToastUtil.errorDialog(context,
-                res['Result']['ResponseStatus']['Errors'][0]['Message']);
-          });
+          if(type == 1){
+            setState(() {
+              EasyLoading.dismiss();
+              ToastUtil.errorDialog(context,
+                  res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
+
+          }else{
+            setState(() {
+              this.isSubmit = false;
+              ToastUtil.errorDialog(context,
+                  res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
+          }
         }
       }
     }
@@ -2375,7 +2391,6 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
           print(element[0]['parseEntryID']);
           print(entryIndex);
           FEntityItem['FParentMaterialId'] = {"FNumber": this.hobby[entryIndex][0]['FParentMaterialId']};
-          FEntityItem['FEntryWorkShopId'] = {"FNumber": this.hobby[entryIndex][0]['FEntryWorkShopId']};
           FEntityItem['FMoEntryId'] = this.hobby[entryIndex][0]['FMoEntryId'];
           FEntityItem['FPPBomEntryId'] = this.hobby[entryIndex][0]['FPPBomEntryId'];
           FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
@@ -2565,9 +2580,24 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
           appBar: AppBar(
             title: Text("委外领料"),
             centerTitle: true,
-            leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
-              Navigator.of(context).pop("refresh");
-            }),
+            leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () async {
+                  if(this.fBillNo != null && this.hobby.length>0){
+                    Map<String, dynamic> deleteMap = Map();
+                    deleteMap = {
+                      "formid": 'SUB_PickMtrl',
+                      "data": {
+                        'Ids': orderDate[0][14]
+                      }
+                    };
+                    EasyLoading.show(status: '删除下推单据...');
+                    await deleteOrder(deleteMap, '删除', type: 1);
+                    Navigator.of(context).pop("refresh");
+                  }else{
+                    Navigator.of(context).pop("refresh");
+                  }
+                }),
           ),
           body: Column(
             children: <Widget>[

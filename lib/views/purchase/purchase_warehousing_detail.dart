@@ -217,7 +217,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5],"barcode": []}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5],"barcode": []}
         });
         arr.add({
           "title": "规格型号",
@@ -369,7 +369,7 @@ class _PurchaseWarehousingDetailState extends State<PurchaseWarehousingDetail> {
             "title": "物料名称",
             "name": "FMaterial",
             "isHide": false,
-            "value": {"label": value[1], "value": value[2],"barcode": [_code]}
+            "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2],"barcode": [_code]}
           });
           arr.add({
             "title": "规格型号",

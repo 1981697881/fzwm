@@ -1177,7 +1177,6 @@ class _ReturnDetailState extends State<ReturnDetail> {
             });
             var elementIndex = 0;
             data.forEach((element) {
-            print( element);
             if (element == p) {
               hobby['value']['value'] = stockListObj[elementIndex][2];
             }
@@ -1724,7 +1723,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
       dataMap['formid'] = 'PRD_ReturnMtrl';
       Map<String, dynamic> orderMap = Map();
       orderMap['NeedReturnFields'] = [];
-      orderMap['IsDeleteEntry'] = false;
+      orderMap['IsDeleteEntry'] = true;
       Map<String, dynamic> Model = Map();
       Model['FID'] = 0;
       Model['FBillType'] = {"FNUMBER": "SCTLD01_SYS"};
@@ -1790,6 +1789,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
               FEntityItem['FWorkShopId1'] = {"FNumber": this.hobby[entryIndex][0]['FWorkShopId']};
               FEntityItem['FParentMaterialId'] = {"FNumber": this.hobby[entryIndex][0]['FPARENTMATERIALID']};
               FEntityItem['FMoEntryId'] = this.hobby[entryIndex][0]['FMoEntryId'];
+              FEntityItem['FPPBOMEntryId'] = this.hobby[entryIndex][0]['FEntryID'];
 
               FEntityItem['FEntity_Link'] = [
                 {
@@ -1804,6 +1804,7 @@ class _ReturnDetailState extends State<ReturnDetail> {
               FEntityItem['FWorkShopId1'] = {"FNumber": element[0]['FWorkShopId']};
               FEntityItem['FParentMaterialId'] = {"FNumber": element[0]['FPARENTMATERIALID']};
               FEntityItem['FMoEntryId'] = element[0]['FMoEntryId'];
+              FEntityItem['FPPBOMEntryId'] = element[0]['FEntryID'];
               FEntityItem['FEntity_Link'] = [
                 {
                   "FEntity_Link_FRuleId": "PRD_PPBOM2FEEDMTRL",

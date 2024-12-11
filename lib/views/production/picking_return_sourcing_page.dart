@@ -7,14 +7,18 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:fzwm/views/production/picking_detail.dart';
-import 'package:fzwm/views/production/return_detail.dart';
+import 'package:fzwm/views/sale/return_goods_detail.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'picking_return_sourcing_detail.dart';
+
+final String _fontFamily = Platform.isWindows ? "Roboto" : "";
+
 class PickingReturnSourcingPage extends StatefulWidget {
-  PickingReturnSourcingPage({Key ?key}) : super(key: key);
+  PickingReturnSourcingPage({Key? key}) : super(key: key);
 
   @override
   _PickingReturnSourcingPageState createState() => _PickingReturnSourcingPageState();
@@ -25,11 +29,6 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
   String keyWord = '';
   String startDate = '';
   String endDate = '';
-  var isScan = false;
-  //生产车间
-  String FName = '';
-  String FNumber = '';
-  String username = '';
   final divider = Divider(height: 1, indent: 20);
   final rightIcon = Icon(Icons.keyboard_arrow_right);
   final scanIcon = Icon(Icons.filter_center_focus);
@@ -38,17 +37,17 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
   const EventChannel('com.shinow.pda_scanner/plugin');
   StreamSubscription ?_subscription;
   var _code;
+  var isScan = false;
 
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
-
   @override
   void initState() {
     super.initState();
-    DateTime dateTime = DateTime.now();
-    DateTime newDate = dateTime.add(Duration(days: 4));
-    //_dateSelectText ="${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')} 00:00:00.000";
-    EasyLoading.dismiss();
+    DateTime dateTime = DateTime.now().add(Duration(days: -1));
+    DateTime newDate = DateTime.now();
+    //_dateSelectText = "${dateTime.year}-${dateTime.month.toString().padLeft(2,'0')}-${dateTime.day.toString().padLeft(2,'0')} 00:00:00.000 - ${newDate.year}-${newDate.month.toString().padLeft(2,'0')}-${newDate.day.toString().padLeft(2,'0')} 00:00:00.000";
+
     /// 开启监听
     if (_subscription == null) {
       _subscription = scannerPlugin
@@ -57,8 +56,6 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
     }
   }
   _initState() {
-    isScan = false;
-    EasyLoading.show(status: 'loading...');
     this.getOrderList();
     /// 开启监听
     _subscription = scannerPlugin
@@ -78,242 +75,122 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
 
   // 集合
   List hobby = [];
-
-  void getWorkShop() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    setState(() {
-      if (sharedPreferences.getString('FWorkShopName') != null) {
-        username = sharedPreferences.getString('FStaffNumber');
-        FName = sharedPreferences.getString('FWorkShopName');
-        FNumber = sharedPreferences.getString('FWorkShopNumber');
-      }
-    });
-  }
-
   getOrderList() async {
-    setState(() {
-      hobby = [];
-      this._getHobby();
-    });
+    EasyLoading.show(status: 'loading...');
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FNoStockInQty>0";
-    if (this._dateSelectText != "") {
-      this.startDate = this._dateSelectText.substring(0, 10);
-      this.endDate = this._dateSelectText.substring(26, 36);
-      userMap['FilterString'] =
-      "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var tissue = sharedPreferences.getString('tissue');
+    userMap['FilterString'] = "FDocumentStatus = 'C' and FSubOrgId.FNumber = '"+tissue+"'";
+    var scanCode = keyWord.split(",");
+    if(this._dateSelectText != ""){
+      this.startDate = this._dateSelectText.substring(0,10);
+      this.endDate = this._dateSelectText.substring(26,36);
+      userMap['FilterString'] = "FDocumentStatus = 'C' and FDate>= '$startDate' and FDate <= '$endDate' and FSubOrgId.FNumber = '"+tissue+"'";
     }
-    if(this.isScan){
-      userMap['FilterString'] =
-      "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
-      if(this.keyWord != ''){
+    if(isScan){
+      if (this.keyWord != '') {
         userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+            "FBillNo like '%"+scanCode[0]+"%' and FDocumentStatus = 'C' and FSubOrgId.FNumber = '"+tissue+"'";
       }
     }else{
-      if(this.keyWord != ''){
-        userMap['FilterString'] =
-            "(FBillNo like '%"+keyWord+"%' or FMaterialId.FNumber like '%"+keyWord+"%' or FMaterialId.FName like '%"+keyWord+"%') and FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+      if (this.keyWord != '') {
+        userMap['FilterString'] = "FBillNo='$keyWord' and FDocumentStatus = 'C' and FSubOrgId.FNumber = '"+tissue+"'";
       }else{
-        if (this._dateSelectText != "") {
-          this.startDate = this._dateSelectText.substring(0, 10);
-          this.endDate = this._dateSelectText.substring(26, 36);
-          userMap['FilterString'] =
-          "FPreDeliveryDate >= '$startDate' and FDocumentStatus = 'C' and FENTRYSTATUS = 'A' and FPreDeliveryDate  <= '$endDate'";
+        if(this._dateSelectText != ""){
+          this.startDate = this._dateSelectText.substring(0,10);
+          this.endDate = this._dateSelectText.substring(26,36);
+          userMap['FilterString'] = "FDocumentStatus = 'C' and FDate>= '$startDate' and FDate <= '$endDate' and FSubOrgId.FNumber = '"+tissue+"'";
         }else{
-          userMap['FilterString'] =
-          "FPickMtrlStatus !='1' and FStatus in (4) and FNoStockInQty>0";
+          userMap['FilterString'] = "FDocumentStatus = 'C' and FSubOrgId.FNumber = '"+tissue+"'";
         }
       }
     }
-    this.isScan = false;
-    userMap['FormId'] = 'PRD_MO';
-    userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
+    userMap['FormId'] = 'SUB_PickMtrl';
+    userMap['Limit'] = '20';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkShopID.FNumber,FWorkShopID.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
+    'FBillNo,FSubOrgId.FNumber,FSubOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOwnerId0.FNumber,FOwnerId0.FName,FUnitId.FNumber,FUnitId.FName,FActualQty,FApproveDate,FSelPrcdReturnQty,FID,FSupplierId.FNumber,FSupplierId.FName';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
     orderDate = [];
     orderDate = jsonDecode(order);
     print(orderDate);
-    //获取当前的时间
-    DateTime now = DateTime.now();
-    DateTime start = DateTime(2022, 05, 30);
-    final difference = start.difference(now).inDays;
-    hobby = [];
     if (orderDate.length > 0) {
-      for (var value = 0; value < orderDate.length; value++) {
-        /* orderDate.forEach((value) async {*/
-        /* Map<String, dynamic> instockMap = Map();
-        instockMap['FilterString'] =
-        "FMoBillNo='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FMoEntrySeq='${orderDate[value][19]}'";
-        instockMap['FormId'] = 'PRD_INSTOCK';
-        instockMap['FieldKeys'] = 'FID,FDocumentStatus';
-        Map<String, dynamic> dataMap1 = Map();
-        dataMap1['data'] = instockMap;
-        String order1 = await CurrencyEntity.polling(dataMap1);
-        Map<String, dynamic> pickmtrlMap = Map();
-        pickmtrlMap['FilterString'] =
-        "FMoBillNo ='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FMoEntrySeq='${orderDate[value][19]}'";
-        pickmtrlMap['FormId'] = 'PRD_PickMtrl';
-        pickmtrlMap['FieldKeys'] = 'FID,FDocumentStatus';
-        Map<String, dynamic> dataMap2 = Map();
-        dataMap2['data'] = pickmtrlMap;
-        String order2 = await CurrencyEntity.polling(dataMap2);
-        print(order1);
-        print(order2);*/
+      hobby = [];
+      orderDate.forEach((value) {
         List arr = [];
         arr.add({
           "title": "单据编号",
           "name": "FBillNo",
           "isHide": false,
-          "value": {"label": orderDate[value][0], "value": orderDate[value][0]}
+          "value": {"label": value[0], "value": value[0]}
         });
         arr.add({
-          "title": "生产组织",
-          "name": "FPrdOrgId",
+          "title": "委外组织",
+          "name": "FSubOrgId",
+          "isHide": false,
+          "value": {"label": value[2], "value": value[1]}
+        });
+        arr.add({
+          "title": "客户",
+          "name": "FSubOrgId",
           "isHide": true,
-          "value": {"label": orderDate[value][2], "value": orderDate[value][1]}
+          "value": {"label": value[17], "value": value[16]}
         });
         arr.add({
           "title": "单据日期",
           "name": "FDate",
           "isHide": false,
-          "value": {"label": orderDate[value][3], "value": orderDate[value][3]}
+          "value": {"label": value[3], "value": value[3]}
         });
         arr.add({
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": orderDate[value][6] + "- (" + orderDate[value][5] + ")", "value": orderDate[value][5]}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5]}
         });
         arr.add({
           "title": "规格型号",
           "name": "FMaterialIdFSpecification",
-          "isHide": true,
-          "value": {"label": orderDate[value][7], "value": orderDate[value][7]}
+          "isHide": false,
+          "value": {"label": value[6], "value": value[6]}
         });
         arr.add({
           "title": "单位名称",
           "name": "FUnitId",
           "isHide": false,
-          "value": {
-            "label": orderDate[value][11],
-            "value": orderDate[value][10]
-          }
+          "value": {"label": value[11], "value": value[10]}
         });
         arr.add({
           "title": "数量",
           "name": "FBaseQty",
           "isHide": false,
-          "value": {
-            "label": orderDate[value][12],
-            "value": orderDate[value][12]
-          }
+          "value": {"label": value[12], "value": value[12]}
         });
         arr.add({
-          "title": "生产序号",
-          "name": "FProdOrder",
-          "isHide": true,
-          "value": {
-            /* "label": orderDate[value][18],
-            "value": orderDate[value][18]*/
-          }
-        });
-        arr.add({
-          "title": "计划开工日期",
-          "name": "FBaseQty",
-          "isHide": true,
-          "value": {
-            "label": orderDate[value][13],
-            "value": orderDate[value][13]
-          }
-        });
-        arr.add({
-          "title": "未入库数量",
-          "name": "FBaseQty",
-          "isHide": true,
-          "value": {
-            "label": orderDate[value][16],
-            "value": orderDate[value][16]
-          }
-        });
-        arr.add({
-          "title": "行号",
-          "name": "FSeq",
-          "isHide": true,
-          "value": {
-            "label": orderDate[value][18],
-            "value": orderDate[value][18]
-          }
-        });
-        arr.add({
-          "title": "分录内码",
-          "name": "FEntryId",
-          "isHide": true,
-          "value": {"label": orderDate[value][4], "value": orderDate[value][4]}
-        });
-        arr.add({
-          "title": "FID",
-          "name": "FID",
-          "isHide": true,
-          "value": {
-            "label": orderDate[value][17],
-            "value": orderDate[value][17]
-          }
-        });
-        /*arr.add({
-          "title": "状态",
-          "name": "FStatus",
+          "title": "退料日期",
+          "name": "FDeliverydate",
           "isHide": false,
-          "value": {
-            "label": orderDate[value][20] == "3" ? "下达" : "开工",
-            "value": orderDate[value][20]
-          }
+          "value": {"label": value[13], "value": value[13]}
         });
         arr.add({
-          "title": "checked",
-          "name": "checked",
-          "isHide": true,
-          "value": false
+          "title": "退料数量",
+          "name": "FJoinRetQty",
+          "isHide": false,
+          "value": {"label": value[14], "value": value[14]}
         });
-         var order1Date = jsonDecode(order1);
-        var order2Date = jsonDecode(order2);
-        if (order1Date.length > 0) {
-          arr.add({
-            "title": "入库单状态",
-            "name": "PRD_INSTOCK",
-            "isHide": false,
-            "value": {
-              "label": order1Date[0][1] == "A" ? "创建" : "审核中",
-              "value": order1Date[0][0]
-            }
-          });
-        }
-        if (order2Date.length > 0) {
-          arr.add({
-            "title": "领料单状态",
-            "name": "PRD_PickMtrl",
-            "isHide": false,
-            "value": {
-              "label": order2Date[0][1] == "A" ? "创建" : "审核中",
-              "value": order2Date[0][0]
-            }
-          });
-        }*/
         hobby.add(arr);
-      }
-      /*)*/;
-      print(hobby);
+      });
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
     } else {
       setState(() {
         EasyLoading.dismiss();
         this._getHobby();
+        isScan = false;
       });
       ToastUtil.showInfo('无数据');
     }
@@ -322,13 +199,13 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
   void _onEvent(event) async {
     /*  setState(() {*/
     _code = event;
+    isScan = true;
     EasyLoading.show(status: 'loading...');
     keyWord = _code;
     this.controller.text = _code;
     await getOrderList();
     /*});*/
   }
-
   void _onError(Object error) {
     setState(() {
       _code = "扫描异常";
@@ -340,7 +217,7 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
-        if (!this.hobby[i][j]['isHide']) {
+        if(!this.hobby[i][j]['isHide']){
           comList.add(
             Column(children: [
               Container(
@@ -351,21 +228,21 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return ReturnDetail(
-                            FBillNo: this.hobby[i][0]['value'],
-                            FSeq: this.hobby[i][10]['value'],
+                          return PickingReturnSourcingDetail(FBillNo:this.hobby[i][0]['value']
                             // 路由参数
                           );
                         },
                       ),
                     ).then((data) {
                       //延时500毫秒执行
-                      Future.delayed(const Duration(milliseconds: 500), () {
-                        setState(() {
-                          //延时更新状态
-                          this._initState();
-                        });
-                      });
+                      Future.delayed(
+                          const Duration(milliseconds: 500),
+                              () {
+                            setState(() {
+                              //延时更新状态
+                              this._initState();
+                            });
+                          });
                     });
                   },
                   title: Text(this.hobby[i][j]["title"] +
@@ -404,11 +281,12 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
 
 //用于验证数据(也可以在控制台直接打印，但模拟器体验不好)
   void getScan(String scan) async {
-    _onEvent(scan);
+    keyWord = scan;
+    isScan = true;
+    this.controller.text = scan;
+    await getOrderList();
   }
-
   String _dateSelectText = "";
-
   void showDateSelect() async {
     //获取当前的时间
     DateTime dateTime = DateTime.now().add(Duration(days: -1));
@@ -444,7 +322,10 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
       //选择结果中的结束时间
       DateTime selectEnd = selectTimeRange.end;
     }
-    setState(() {});
+    print(_dateSelectText);
+    setState(() {
+
+    });
   }
   double hc_ScreenWidth() {
     return window.physicalSize.width / window.devicePixelRatio;
@@ -465,7 +346,7 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("生产订单"),
+            title: Text("委外领料单"),
             centerTitle: true,
           ),
           body: CustomScrollView(
@@ -478,127 +359,111 @@ class _PickingReturnSourcingPageState extends State<PickingReturnSourcingPage> {
                   child: Container(
                     color: Theme.of(context).primaryColor,
                     child: Padding(
-                        padding: EdgeInsets.only(top: 2.0),
-                        child: Column(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                this.showDateSelect();
-                              },
-                              child: Flex(
-                                direction: Axis.horizontal,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                        padding: EdgeInsets.all(6.0),
-                                        height: 40.0,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                            "开始:" +
-                                                (this._dateSelectText == ""
-                                                    ? ""
-                                                    : this
-                                                    ._dateSelectText
-                                                    .substring(0, 10)),
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                decoration:
-                                                TextDecoration.none))),
+                      padding: EdgeInsets.only(top: 2.0),
+                      child: Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              this.showDateSelect();
+                            },
+                            child: Flex(
+                              direction: Axis.horizontal,
+                              children: <Widget>[
+                                Expanded(
+                                  flex: 5,
+                                  child: Container(
+                                      padding: EdgeInsets.all(6.0),
+                                      height: 40.0,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text("开始:"+(this._dateSelectText == ""?"":this._dateSelectText.substring(0,10)),style: TextStyle(
+                                          color: Colors.white, decoration: TextDecoration.none))
                                   ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                        padding: EdgeInsets.all(6.0),
-                                        height: 40.0,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                            "结束:" +
-                                                (this._dateSelectText == ""
-                                                    ? ""
-                                                    : this
-                                                    ._dateSelectText
-                                                    .substring(26, 36)),
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                decoration:
-                                                TextDecoration.none))),
+                                ),
+                                Expanded(
+                                  flex: 5,
+                                  child: Container(
+                                      padding: EdgeInsets.all(6.0),
+                                      height: 40.0,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text("结束:"+(this._dateSelectText == ""?"":this._dateSelectText.substring(26,36)),style: TextStyle(
+                                          color: Colors.white, decoration: TextDecoration.none))
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            Container(
-                              height: 52.0,
-                              child: new Padding(
-                                padding: const EdgeInsets.all(2.0),
-                                child: Row(children: [
-                                  Card(
-                                    child: new Container(
-                                        width: hc_ScreenWidth() - 80,
-                                        child: Row(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                          children: <Widget>[
-                                            SizedBox(
-                                              width: 6.0,
-                                            ),
-                                            Icon(
-                                              Icons.search,
-                                              color: Colors.grey,
-                                            ),
-                                            Expanded(
-                                              child: Container(
-                                                alignment: Alignment.center,
-                                                child: TextField(
-                                                  controller: this.controller,
-                                                  decoration: new InputDecoration(
-                                                      contentPadding:
-                                                      EdgeInsets.only(
-                                                          bottom: 12.0),
-                                                      hintText: '输入关键字',
-                                                      border: InputBorder.none),
-                                                  onSubmitted: (value) {
-                                                    setState(() {
-                                                      this.keyWord = value;
-                                                      this.getOrderList();
-                                                    });
-                                                  },
-                                                  // onChanged: onSearchTextChanged,
-                                                ),
+                          ),
+                          Container(
+                            height: 52.0,
+                            child: new Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: Row(children: [
+                                Card(
+                                  child: new Container(
+                                      width: hc_ScreenWidth() - 80,
+                                      child: Row(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                        children: <Widget>[
+                                          SizedBox(
+                                            width: 6.0,
+                                          ),
+                                          Icon(
+                                            Icons.search,
+                                            color: Colors.grey,
+                                          ),
+                                          Expanded(
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: TextField(
+                                                controller: this.controller,
+                                                decoration: new InputDecoration(
+                                                    contentPadding:
+                                                    EdgeInsets.only(
+                                                        bottom: 12.0),
+                                                    hintText: '输入关键字',
+                                                    border: InputBorder.none),
+                                                onSubmitted: (value) {
+                                                  setState(() {
+                                                    this.keyWord = value;
+                                                    this.getOrderList();
+                                                  });
+                                                },
+                                                // onChanged: onSearchTextChanged,
                                               ),
                                             ),
-                                            new IconButton(
-                                              icon: new Icon(Icons.cancel),
-                                              color: Colors.grey,
-                                              iconSize: 18.0,
-                                              onPressed: () {
-                                                this.controller.clear();
-                                                // onSearchTextChanged('');
-                                              },
-                                            ),
-                                          ],
-                                        )),
+                                          ),
+                                          new IconButton(
+                                            icon: new Icon(Icons.cancel),
+                                            color: Colors.grey,
+                                            iconSize: 18.0,
+                                            onPressed: () {
+                                              this.controller.clear();
+                                              // onSearchTextChanged('');
+                                            },
+                                          ),
+                                        ],
+                                      )),
+                                ),
+                                new SizedBox(
+                                  width: 60.0,
+                                  height: 40.0,
+                                  child: new RaisedButton(
+                                    color: Colors.lightBlueAccent,
+                                    child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
+                                    onPressed: (){
+                                      setState(() {
+                                        this.keyWord = this.controller.text;
+                                        this.getOrderList();
+                                      });
+                                    },
                                   ),
-                                  new SizedBox(
-                                    width: 60.0,
-                                    height: 40.0,
-                                    child: new RaisedButton(
-                                      color: Colors.lightBlueAccent,
-                                      child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
-                                      onPressed: (){
-                                        setState(() {
-                                          EasyLoading.show(status: 'loading...');
-                                          this.keyWord = this.controller.text;
-                                          this.getOrderList();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ]),
-                              ),
+                                ),
+                              ]),
                             ),
-                          ],
-                        )),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -620,15 +485,11 @@ class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final Container child;
   final double minHeight;
   final double maxHeight;
-
-  StickyTabBarDelegate(
-      {required this.minHeight,
-        required this.maxHeight,
-        required this.child});
+  StickyTabBarDelegate({required this.minHeight,
+    required this.maxHeight,required this.child});
 
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return this.child;
   }
 

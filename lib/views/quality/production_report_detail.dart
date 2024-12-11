@@ -52,6 +52,8 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
   var supplierNumber;
   var typeName;
   var typeNumber;
+  var qcName;
+  var qcNumber;
   var businessTypeName;
   var businessTypeNumber;
   var departmentName;
@@ -65,6 +67,8 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
   var selectData = {
     DateMode.YMD: '',
   };
+  var qcList = [];
+  List<dynamic> qcListObj = [];
   var typeList = [];
   List<dynamic> typeListObj = [];
   var departmentList = [];
@@ -115,7 +119,22 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
     }
     /*getWorkShop();*/
     getDecisionList();
+    getQcList();
     getDepartmentList();
+  }
+  //获取质检员
+  getQcList() async {
+    Map<String, dynamic> userMap = Map();
+    userMap['FormId'] = 'BD_Empinfo';
+    userMap['FieldKeys'] = 'FId,FName,FNumber';
+    userMap['FilterString'] = "FPost.FNumber ='GW000065'";
+    Map<String, dynamic> dataMap = Map();
+    dataMap['data'] = userMap;
+    String res = await CurrencyEntity.polling(dataMap);
+    qcListObj = jsonDecode(res);
+    qcListObj.forEach((element) {
+      qcList.add(element[1]);
+    });
   }
   //获取线路名称
   getTypeList() async {
@@ -251,7 +270,7 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
           "title": "检验数量",
           "name": "FRealQty",
           "isHide": false,/*value[12]*/
-          "value": {"label": "0", "value": "0"}
+          "value": {"label": ((value[13] - value[17])>0?value[13] - value[17]: 0).toString(), "value": ((value[13] - value[17])>0?value[13] - value[17]: 0).toString()}
         });
         arr.add({
           "title": "仓库",
@@ -312,7 +331,7 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
           "title": "决策",
           "name": "FLastQty",
           "isHide": false,
-          "value": {"label": "", "value": ""}
+          "value": {"label": "接收", "value": "A"}
         });
         arr.add({
           "title": "样本破坏数",
@@ -1131,6 +1150,15 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
               }
               elementIndex++;
             });
+          }else if(hobby  == 'qc'){
+            qcName = p;
+            var elementIndex = 0;
+            data.forEach((element) {
+              if (element == p) {
+                qcNumber = qcListObj[elementIndex][2];
+              }
+              elementIndex++;
+            });
           }else if(hobby['title']  == '决策'){
             setState(() {
               hobby['value']['label'] = p;
@@ -1524,7 +1552,7 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
       Model['FSourceOrgId'] = {"FNumber": orderDate[0][1]};
       Model['FInspectDepId'] = {"FNumber": this.departmentNumber};
       Model['FInspectOrgId'] = {"FNumber": deptData[1]};
-      Model['FInspectorId'] = {"FNUMBER": deptData[0]};
+      Model['FInspectorId'] = {"FNUMBER": qcNumber};
       //判断有源单 无源单
       if(this.isScanWork){
 
@@ -1535,8 +1563,8 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
       var FPolicyDetail = [];
       var hobbyIndex = 0;
       this.hobby.forEach((element) {
-        if (element[3]['value']['value'] != '0' &&
-            element[4]['value']['value'] != '') {
+        if (element[3]['value']['value'] != '0'/* &&
+            element[4]['value']['value'] != ''*/) {
           Map<String, dynamic> FEntityItem = Map();
           Map<String, dynamic> FPolicyDetailItem = Map();
           FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
@@ -1581,7 +1609,7 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
       });
       if(FEntity.length==0){
         this.isSubmit = false;
-        ToastUtil.showInfo('请输入数量,仓库');
+        ToastUtil.showInfo('请输入数量');/*,仓库*/
         return;
       }
       Model['FEntity'] = FEntity;
@@ -1747,6 +1775,8 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
                   ),
                   _item('部门', this.departmentList, this.departmentName,
                       'department'),
+                  _item('质检员', this.qcList, this.qcName,
+                      'qc'),
                   _dateItem('日期：', DateMode.YMD),
                   Column(
                     children: [

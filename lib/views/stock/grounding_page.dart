@@ -187,7 +187,7 @@ class _GroundingPageState extends State<GroundingPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[1], "value": value[2]}
+          "value": {"label": value[1] + "- (" + value[2] + ")", "value": value[2]}
         });
         arr.add({
           "title": "规格型号",

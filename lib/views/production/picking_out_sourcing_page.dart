@@ -94,42 +94,42 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
       this._getHobby();
     });
     Map<String, dynamic> userMap = Map();
-    userMap['FilterString'] = "FNoStockInQty>0";
+    userMap['FilterString'] = "FMustQty>FPickedQty";
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FStatus in(3,4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FMOStatus in(3,4) and FMustQty>FPickedQty and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if(this.isScan){
       userMap['FilterString'] =
-      "FStatus in(3,4) and FNoStockInQty>0";
+      "FMOStatus in(3,4) and FMustQty>FPickedQty";
       if(this.keyWord != ''){
         userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FStatus in(3,4) and FNoStockInQty>0";
+        "FBillNo like '%"+keyWord+"%' and FMOStatus in(3,4) and FMustQty>FPickedQty";
       }
     }else{
       if(this.keyWord != ''){
         userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FStatus in(3,4) and FNoStockInQty>0";
+        "FBillNo like '%"+keyWord+"%' and FMOStatus in(3,4) and FMustQty>FPickedQty";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);
           this.endDate = this._dateSelectText.substring(26, 36);
           userMap['FilterString'] =
-          "FStatus in(3,4) and FNoStockInQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
+          "FMOStatus in(3,4) and FMustQty>FPickedQty and FDate>= '$startDate' and FDate <= '$endDate'";
         }else{
           userMap['FilterString'] =
-          "FStatus in(3,4) and FNoStockInQty>0";
+          "FMOStatus in(3,4) and FMustQty>FPickedQty";
         }
       }
     }
     this.isScan = false;
-    userMap['FormId'] = 'SUB_SUBREQORDER';
+    userMap['FormId'] = 'SUB_PPBOM';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSubOrgId.FNumber,FSubOrgId.FName,FDate,FTreeEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOwnerId.FNumber,FOwnerId.FName,FUnitId.FNumber,FUnitId.FName,FQty,FPlanStartDate,FPlanFinishDate,FSrcBillNo,FNoStockInQty,FID,FTreeEntity_FSeq,FStatus';
-
+    'FBillNo,FSubOrgId.FNumber,FSubOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOwnerId.FNumber,FOwnerId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FNeedDate2,FNeedDate2,FSrcBillNo,FPickedQty,FID,FEntity_FSeq,FMOStatus';
+    userMap['Limit'] = '20';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -148,22 +148,20 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
         /* orderDate.forEach((value) async {*/
         /* Map<String, dynamic> instockMap = Map();
         instockMap['FilterString'] =
-        "FMoBillNo='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FMoEntrySeq='${orderDate[value][19]}'";
+        "FMoBillNo='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FSubReqEntrySeq='${orderDate[value][19]}'";
         instockMap['FormId'] = 'PRD_INSTOCK';
         instockMap['FieldKeys'] = 'FID,FDocumentStatus';
         Map<String, dynamic> dataMap1 = Map();
         dataMap1['data'] = instockMap;
-        String order1 = await CurrencyEntity.polling(dataMap1);
+        String order1 = await CurrencyEntity.polling(dataMap1);*/
         Map<String, dynamic> pickmtrlMap = Map();
         pickmtrlMap['FilterString'] =
-        "FMoBillNo ='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FMoEntrySeq='${orderDate[value][19]}'";
-        pickmtrlMap['FormId'] = 'PRD_PickMtrl';
+        "FMoBillNo ='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FSubReqEntrySeq='${orderDate[value][19]}'";
+        pickmtrlMap['FormId'] = 'SUB_PickMtrl';
         pickmtrlMap['FieldKeys'] = 'FID,FDocumentStatus';
         Map<String, dynamic> dataMap2 = Map();
         dataMap2['data'] = pickmtrlMap;
         String order2 = await CurrencyEntity.polling(dataMap2);
-        print(order1);
-        print(order2);*/
         List arr = [];
         arr.add({
           "title": "单据编号",
@@ -187,7 +185,7 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": orderDate[value][5], "value": orderDate[value][4]}
+          "value": {"label": orderDate[value][6] + "- (" + orderDate[value][5] + ")", "value": orderDate[value][5]}
         });
         arr.add({
           "title": "规格型号",
@@ -280,7 +278,7 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
           "value": false
         });
         var order1Date = jsonDecode(order1);
-        var order2Date = jsonDecode(order2);
+
         if (order1Date.length > 0) {
           arr.add({
             "title": "入库单状态",
@@ -291,18 +289,19 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
               "value": order1Date[0][0]
             }
           });
-        }
+        }*/
+        var order2Date = jsonDecode(order2);
         if (order2Date.length > 0) {
           arr.add({
             "title": "领料单状态",
-            "name": "PRD_PickMtrl",
+            "name": "SUB_PickMtrl",
             "isHide": false,
             "value": {
               "label": order2Date[0][1] == "A" ? "创建" : "审核中",
               "value": order2Date[0][0]
             }
           });
-        }*/
+        }
         hobby.add(arr);
       }
       /*)*/;
@@ -502,7 +501,7 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
             ),*/
-            title: Text("委外领料"),
+            title: Text("用料清单"),
             centerTitle: true,
           ),
           body: CustomScrollView(

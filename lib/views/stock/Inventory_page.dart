@@ -122,7 +122,7 @@ class _InventoryPageState extends State<InventoryPage> {
           "title": "物料名称",
           "name": "FMaterial",
           "isHide": false,
-          "value": {"label": value[6], "value": value[5]}
+          "value": {"label": value[6] + "- (" + value[5] + ")", "value": value[5]}
         });
         arr.add({
           "title": "规格型号",
