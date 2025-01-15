@@ -77,37 +77,37 @@ class _PurchaseWarehousingPageState extends State<PurchaseWarehousingPage> {
     Map<String, dynamic> userMap = Map();
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
-    userMap['FilterString'] = "FActReceiveQty-FInStockQty>0 and FStockOrgId.FNumber = '"+tissue+"'";
+    userMap['FilterString'] = "FCheckQty-FINSTOCKJOINSECQTY>0 and FStockOrgId.FNumber = '"+tissue+"'";
     var scanCode = keyWord.split(",");
     if (this._dateSelectText != "") {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-          "FActReceiveQty-FInStockQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FStockOrgId.FNumber = '"+tissue+"'";
+          "FCheckQty-FINSTOCKJOINSECQTY>0 and FDate>= '$startDate' and FDate <= '$endDate' and FStockOrgId.FNumber = '"+tissue+"'";
     }
     if(isScan){
       userMap['FilterString'] =
-          "FActReceiveQty-FInStockQty>0 and FBillNo like '%"+scanCode[0]+"%' and FStockOrgId.FNumber = '"+tissue+"'";
+          "FCheckQty-FINSTOCKJOINSECQTY>0 and FBillNo like '%"+scanCode[0]+"%' and FStockOrgId.FNumber = '"+tissue+"'";
     }else {
       if (this.keyWord != '') {
-        userMap['FilterString'] = /*and FInStockQty>0*/
-        "FActReceiveQty-FInStockQty>0 and FBillNo like '%"+scanCode[0]+"%' and FStockOrgId.FNumber = '"+tissue+"'";
+        userMap['FilterString'] = /*and FINSTOCKJOINSECQTY>0*/
+        "FCheckQty-FINSTOCKJOINSECQTY>0 and FBillNo like '%"+scanCode[0]+"%' and FStockOrgId.FNumber = '"+tissue+"'";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);
           this.endDate = this._dateSelectText.substring(26, 36);
-          userMap['FilterString'] = /*and FInStockQty>0*/
-          "FActReceiveQty-FInStockQty>0 and FDate>= '$startDate' and FDate <= '$endDate' and FStockOrgId.FNumber = '"+tissue+"'";
+          userMap['FilterString'] = /*and FINSTOCKJOINSECQTY>0*/
+          "FCheckQty-FINSTOCKJOINSECQTY>0 and FDate>= '$startDate' and FDate <= '$endDate' and FStockOrgId.FNumber = '"+tissue+"'";
         }else{
           userMap['FilterString'] =
-              "FActReceiveQty-FInStockQty>0 and FStockOrgId.FNumber = '"+tissue+"'";
+              "FCheckQty-FINSTOCKJOINSECQTY>0 and FStockOrgId.FNumber = '"+tissue+"'";
         }
       }
     }
     userMap['FormId'] = 'PUR_ReceiveBill';
     userMap['Limit'] = '20';
     userMap['FieldKeys'] =
-    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FActReceiveQty,FSrcBillNo,FID,FInStockQty';
+    'FBillNo,FSupplierId.FNumber,FSupplierId.FName,FDate,FDetailEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FPurOrgId.FNumber,FPurOrgId.FName,FUnitId.FNumber,FUnitId.FName,FCheckQty,FSrcBillNo,FID,FINSTOCKJOINSECQTY';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);

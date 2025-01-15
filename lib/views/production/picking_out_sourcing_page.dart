@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
 import 'package:fzwm/model/currency_entity.dart';
+import 'package:fzwm/model/submit_entity.dart';
 import 'package:fzwm/utils/toast_util.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -99,28 +100,28 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
       this.startDate = this._dateSelectText.substring(0, 10);
       this.endDate = this._dateSelectText.substring(26, 36);
       userMap['FilterString'] =
-      "FMOStatus in(3,4) and FMustQty>FPickedQty and FDate>= '$startDate' and FDate <= '$endDate'";
+      "FDocumentStatus = 'C' and FMustQty>FPickedQty and FDate>= '$startDate' and FDate <= '$endDate'";
     }
     if(this.isScan){
       userMap['FilterString'] =
-      "FMOStatus in(3,4) and FMustQty>FPickedQty";
+      "FDocumentStatus = 'C' and FMustQty>FPickedQty";
       if(this.keyWord != ''){
         userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FMOStatus in(3,4) and FMustQty>FPickedQty";
+        "FBillNo like '%"+keyWord+"%' and FDocumentStatus = 'C' and FMustQty>FPickedQty";
       }
     }else{
       if(this.keyWord != ''){
         userMap['FilterString'] =
-        "FBillNo like '%"+keyWord+"%' and FMOStatus in(3,4) and FMustQty>FPickedQty";
+        "FBillNo like '%"+keyWord+"%' and FDocumentStatus = 'C' and FMustQty>FPickedQty";
       }else{
         if (this._dateSelectText != "") {
           this.startDate = this._dateSelectText.substring(0, 10);
           this.endDate = this._dateSelectText.substring(26, 36);
           userMap['FilterString'] =
-          "FMOStatus in(3,4) and FMustQty>FPickedQty and FDate>= '$startDate' and FDate <= '$endDate'";
+          "FDocumentStatus = 'C' and FMustQty>FPickedQty and FDate>= '$startDate' and FDate <= '$endDate'";
         }else{
           userMap['FilterString'] =
-          "FMOStatus in(3,4) and FMustQty>FPickedQty";
+          "FDocumentStatus = 'C' and FMustQty>FPickedQty";
         }
       }
     }
@@ -128,7 +129,7 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
     userMap['FormId'] = 'SUB_PPBOM';
     userMap['OrderString'] = 'FBillNo ASC,FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FSubOrgId.FNumber,FSubOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOwnerId.FNumber,FOwnerId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FNeedDate2,FNeedDate2,FSrcBillNo,FPickedQty,FID,FEntity_FSeq,FMOStatus';
+    'FBillNo,FSubOrgId.FNumber,FSubOrgId.FName,FCreateDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOwnerId.FNumber,FOwnerId.FName,FUnitId.FNumber,FUnitId.FName,FMustQty,FNeedDate2,FNeedDate2,FSubReqBillNO,FPickedQty,FID,FEntity_FSeq,FDocumentStatus';
     userMap['Limit'] = '20';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
@@ -156,7 +157,7 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
         String order1 = await CurrencyEntity.polling(dataMap1);*/
         Map<String, dynamic> pickmtrlMap = Map();
         pickmtrlMap['FilterString'] =
-        "FMoBillNo ='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FSubReqEntrySeq='${orderDate[value][19]}'";
+        "FPPbomBillNo ='${orderDate[value][0]}' and FDocumentStatus in ('A','B') and FSubReqEntrySeq='${orderDate[value][18]}'";
         pickmtrlMap['FormId'] = 'SUB_PickMtrl';
         pickmtrlMap['FieldKeys'] = 'FID,FDocumentStatus';
         Map<String, dynamic> dataMap2 = Map();
@@ -361,62 +362,122 @@ class _PickingOutSourcingPageState extends State<PickingOutSourcingPage> {
       _code = "扫描异常";
     });
   }
-
+//删除
+  deleteOrder(Map<String, dynamic> map, title, {var type}) async {
+    var subData = await SubmitEntity.delete(map);
+    print(subData);
+    if (subData != null) {
+      var res = jsonDecode(subData);
+      if (res != null) {
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          if (type == 1) {
+            ToastUtil.showInfo('删除成功');
+            this.getOrderList();
+            EasyLoading.dismiss();
+          }
+        } else {
+          if (type == 1) {
+            EasyLoading.dismiss();
+            setState(() {
+              ToastUtil.errorDialog(context,
+                  res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
+          }
+        }
+      }
+    }
+  }
   List<Widget> _getHobby() {
     List<Widget> tempList = [];
     for (int i = 0; i < this.hobby.length; i++) {
       List<Widget> comList = [];
       for (int j = 0; j < this.hobby[i].length; j++) {
         if (!this.hobby[i][j]['isHide']) {
-          comList.add(
-            Column(children: [
-              Container(
-                color: Colors.white,
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return PickingOutSourcingDetail(
-                            FBillNo: this
-                                .hobby[i][0]['value'],
-                            FBarcode: _code,
-                            FSeq: this.hobby[i][10]['value'],
-                            FEntryId: this.hobby[i][11]
-                            ['value'],
-                            FID: this.hobby[i][12]['value'],
-                            FProdOrder: this
-                                .hobby[i][7]['value'],
-                            // 路由参数
-                          );
-                        },
-                      ),
-                    ).then((data) {
-                      //延时500毫秒执行
-                      Future.delayed(
-                          const Duration(milliseconds: 500),
-                              () {
-                            setState(() {
-                              //延时更新状态
-                              this._initState();
-                            });
-                          });
-                    });
-                  },
-                  title: Text(this.hobby[i][j]["title"] +
-                      '：' +
-                      this.hobby[i][j]["value"]["label"].toString()),
-                  trailing:
-                  Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                    /* MyText(orderDate[i][j],
-                        color: Colors.grey, rightpadding: 18),*/
-                  ]),
+          if (j == 16) {
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                      title: Text(this.hobby[i][j]["title"] +
+                          '：' +
+                          this.hobby[i][j]["value"]["label"].toString()),
+                      trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+
+                            new MaterialButton(
+                              color: Colors.red,
+                              textColor: Colors.white,
+                              child: new Text('删除'),
+                              onPressed: () {
+                                Map<String, dynamic> deleteMap = Map();
+                                deleteMap = {
+                                  "formid": this.hobby[i][j]["name"],
+                                  "data": {
+                                    'Ids': this.hobby[i][j]["value"]["value"]
+                                  }
+                                };
+                                EasyLoading.show(status: 'loading...');
+                                deleteOrder(deleteMap, '删除', type: 1);
+                              },
+                            )
+                          ])),
                 ),
-              ),
-              divider,
-            ]),
-          );
+                divider,
+              ]),
+            );
+          }else{
+            comList.add(
+              Column(children: [
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return PickingOutSourcingDetail(
+                              FBillNo: this
+                                  .hobby[i][0]['value'],
+                              FBarcode: _code,
+                              FSeq: this.hobby[i][10]['value'],
+                              FEntryId: this.hobby[i][11]
+                              ['value'],
+                              FID: this.hobby[i][12]['value'],
+                              FProdOrder: this
+                                  .hobby[i][7]['value'],
+                              // 路由参数
+                            );
+                          },
+                        ),
+                      ).then((data) {
+                        //延时500毫秒执行
+                        Future.delayed(
+                            const Duration(milliseconds: 500),
+                                () {
+                              setState(() {
+                                //延时更新状态
+                                this._initState();
+                              });
+                            });
+                      });
+                    },
+                    title: Text(this.hobby[i][j]["title"] +
+                        '：' +
+                        this.hobby[i][j]["value"]["label"].toString()),
+                    trailing:
+                    Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      /* MyText(orderDate[i][j],
+                        color: Colors.grey, rightpadding: 18),*/
+                    ]),
+                  ),
+                ),
+                divider,
+              ]),
+            );
+          }
         }
       }
       tempList.add(

@@ -180,6 +180,15 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
     departmentListObj.forEach((element) {
       departmentList.add(element[1]);
     });
+    setState(() {
+      if(tissue == "101"){
+        this.departmentName = "质检部";
+        this.departmentNumber = "1010F";
+      }else if(tissue == "102"){
+        this.departmentName = "质检部";
+        this.departmentNumber = "1010G";
+      }
+    });
   }
   //获取仓库
   getStockList() async {
@@ -231,7 +240,7 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
     userMap['FormId'] = 'PRD_MORPT';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
-    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FMoBillNo,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkshipId.FNumber,FWorkshipId.FName,FUnitId.FNumber,FUnitId.FName,FFinishQty,FProduceDate,FExpiryDate,FSrcBillNo,FInspectQty,FID,FDocumentStatus,FStockId.FNumber,FStockId.FName,FStockInOrgId.FNumber,FMaterialId.FIsBatchManage,F_xlmc.FDataValue,F_jdh';
+    'FBillNo,FPrdOrgId.FNumber,FPrdOrgId.FName,FDate,FMoBillNo,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FWorkshipId.FNumber,FWorkshipId.FName,FUnitId.FNumber,FUnitId.FName,FFinishQty,FProduceDate,FExpiryDate,FSrcBillNo,FInspectQty,FID,FDocumentStatus,FStockId.FNumber,FStockId.FName,FStockInOrgId.FNumber,FMaterialId.FIsBatchManage,F_xlmc.FDataValue,F_jdh,FWorkshopId.FNumber,FLot.FNumber';
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);
@@ -251,6 +260,10 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
         arr.add({
           "title": "物料名称",
           "name": "FMaterial",
+          "FID": value[18],
+          "FEntryId": value[5],
+          "FWorkshopId": value[26],
+          "FLot": value[27],
           "isHide": false,
           "value": {"label": value[7] + "- (" + value[6] + ")", "value": value[6],"barcode": [],"kingDeeCode": [],"scanCode": []}
         });
@@ -1528,9 +1541,93 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
       print(val);
     });
   }
-
+  pushDown(val, type) async {
+    //下推
+    Map<String, dynamic> pushMap = Map();
+    pushMap['EntryIds'] = val;
+    pushMap['RuleId'] = "OM_PRDMoRpt2Inspect";
+    pushMap['TargetFormId'] = "QM_InspectBill";
+    pushMap['IsEnableDefaultRule'] = "true";
+    pushMap['IsDraftWhenSaveFail'] = "true";
+    var pushData = jsonEncode(pushMap);
+    var downData = await SubmitEntity.pushDown(
+        {"formid": "PRD_MORPT", "data": pushMap});
+    var res = jsonDecode(downData);
+    print(res);
+    //判断成功
+    if (res['Result']['ResponseStatus']['IsSuccess']) {
+      //查询下推单据
+      var entitysNumber =
+      res['Result']['ResponseStatus']['SuccessEntitys'][0]['Number'];
+      Map<String, dynamic> inOrderMap = Map();
+      inOrderMap['FormId'] = 'QM_InspectBill';
+      inOrderMap['FilterString'] = "FBillNo='$entitysNumber'";
+      inOrderMap['FieldKeys'] =
+      'FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FUnitId.FNumber';
+      String order = await CurrencyEntity.polling({'data': inOrderMap});
+      print(order);
+      var resData = jsonDecode(order);
+      //组装数据
+      Map<String, dynamic> dataMap = Map();
+      dataMap['data'] = inOrderMap;
+      Map<String, dynamic> orderMap = Map();
+      orderMap['NeedUpDataFields'] = [];
+      orderMap['IsDeleteEntry'] = true;
+      Map<String, dynamic> Model = Map();
+      Model['FID'] = res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id'];
+      Model['FBusinessType'] = "3";
+      Model['FInspectDepId'] = {"FNumber": this.departmentNumber};
+      Model['FInspectorId'] = {"FNumber": qcNumber};
+      var FEntity = [];
+      for (int entity = 0; entity < resData.length; entity++) {
+        for (int element = 0; element < this.hobby.length; element++) {
+          if (resData[entity][1].toString() ==
+              this.hobby[element][0]['value']['value'].toString()) {
+            Map<String, dynamic> FEntityItem = Map();
+            var FPolicyDetail = [];
+            Map<String, dynamic> FPolicyDetailItem = Map();
+            FEntityItem['FEntryID'] = resData[entity][0];
+            FEntityItem['FStockId'] = {"FNumber": this.hobby[element][4]['value']['value']};
+            if(this.hobby[element][6]['value']['hide']){
+              FEntityItem['FStockLocId'] = {
+                "FSTOCKLOCID__FF100011": {"FNumber": this.hobby[element][6]['value']['value']}
+              };
+            }
+            /*FEntityItem['FQCBusinessType'] = this.businessTypeNumber;
+            FEntityItem['FInspectTimes'] = "1";
+            FEntityItem['FQCStatus'] = "3";
+            FEntityItem['FInspectStartDate'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd, " ", hh, ":", nn, ":", ss]);
+            FEntityItem['FInspectEndDate'] = formatDate(DateTime.now(), [yyyy, "-", mm, "-", dd, " ", hh, ":", nn, ":", ss]);*/
+            FEntityItem['FInspectResult1'] = this.hobby[element][11]['value']['value']?'1':'2';
+            FEntityItem['FInspectQty'] = this.hobby[element][3]['value']['value'];
+            //FEntityItem['FBaseInspectQty'] = this.hobby[element][3]['value']['value'];
+            FPolicyDetailItem['FUsePolicy'] = this.hobby[element][12]['value']['value'];
+            FPolicyDetailItem['FPolicyQty'] = this.hobby[element][3]['value']['value'];
+            /*FPolicyDetailItem['FPolicyStatus'] = this.hobby[element][11]['value']['value']?'1':'2';
+            FPolicyDetailItem['FBasePolicyQty'] = this.hobby[element][3]['value']['value'];*/
+            FPolicyDetail.add(FPolicyDetailItem);
+            FEntityItem['FPolicyDetail'] = FPolicyDetail;
+            FEntity.add(FEntityItem);
+          }
+        }
+      }
+      Model['FEntity'] = FEntity;
+      orderMap['Model'] = Model;
+      dataMap = {"formid": "QM_InspectBill", "data": orderMap, "isBool": true};
+      print(jsonEncode(dataMap));
+      //返回保存参数
+      return dataMap;
+    } else {
+      Map<String, dynamic> errorMap = Map();
+      errorMap = {
+        "msg": res['Result']['ResponseStatus']['Errors'][0]['Message'],
+        "isBool": false
+      };
+      return errorMap;
+    }
+  }
   //保存
-  saveOrder() async {
+  saveOrder(type) async {
     //获取登录信息
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var menuData = sharedPreferences.getString('MenuPermissions');
@@ -1539,148 +1636,263 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
       setState(() {
         this.isSubmit = true;
       });
-      Map<String, dynamic> dataMap = Map();
-      dataMap['formid'] = 'QM_InspectBill';
-      Map<String, dynamic> orderMap = Map();
-      orderMap['NeedReturnFields'] = [];
-      orderMap['IsDeleteEntry'] = false;
-      Map<String, dynamic> Model = Map();
-      Model['FID'] = 0;
-      Model['FBillTypeID'] = {"FNUMBER": "JYD002_SYS"};
-      Model['FDate'] = FDate;
-      Model['FBusinessType'] = "3";
-      Model['FSourceOrgId'] = {"FNumber": orderDate[0][1]};
-      Model['FInspectDepId'] = {"FNumber": this.departmentNumber};
-      Model['FInspectOrgId'] = {"FNumber": deptData[1]};
-      Model['FInspectorId'] = {"FNUMBER": qcNumber};
-      //判断有源单 无源单
-      if(this.isScanWork){
-
-      }else{
-
-      }
-      var FEntity = [];
-      var FPolicyDetail = [];
-      var hobbyIndex = 0;
-      this.hobby.forEach((element) {
-        if (element[3]['value']['value'] != '0'/* &&
-            element[4]['value']['value'] != ''*/) {
-          Map<String, dynamic> FEntityItem = Map();
-          Map<String, dynamic> FPolicyDetailItem = Map();
-          FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
-          FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
-          FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
-          FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
-          if(element[6]['value']['hide']){
-            FEntityItem['FStockLocId'] = {
-              "FSTOCKLOCID__FF100011": {"FNumber": element[6]['value']['value']}
-            };
-          }
-          FEntityItem['FInspectQty'] = element[3]['value']['value'];
-          FEntityItem['FBaseWBInspectQty'] = element[3]['value']['value'];
-          FEntityItem['FBaseInspectQty'] = element[3]['value']['value'];
-          FEntityItem['FSampleDamageQty'] = element[13]['value']['value'];
-          FEntityItem['FTimeUnit'] = "24";
-          FEntityItem['FSampleDamageBearer'] = "1";
-          FEntityItem['FQCStatus'] = "3";
-          FEntityItem['FCurrentStringency'] = "1";
-          FEntityItem['FInspectResult'] = element[11]['value']['value']?'1':'2';
-          FPolicyDetailItem['FPolicyMaterialId'] = {"FNUMBER": element[0]['value']['value']};
-          FPolicyDetailItem['FPolicyStatus'] = element[11]['value']['value']?'1':'2';
-          FPolicyDetailItem['FUsePolicy'] = element[12]['value']['value'];
-          FPolicyDetailItem['FPolicyQty'] = element[3]['value']['value'];
-          FPolicyDetailItem['FBasePolicyQty'] = element[3]['value']['value'];
-          FPolicyDetailItem['FInstockFlag'] = "0";
-          FPolicyDetail.add(FPolicyDetailItem);
-          FEntityItem['FPolicyDetail'] = FPolicyDetail;
-          FEntityItem['FEntity_Link'] = [
-            {
-              "FEntity_Link_FRuleId": "OM_PRDMoRpt2Inspect",
-              "FEntity_Link_FSTableName": "T_PRD_MORPTENTRY",
-              "FEntity_Link_FSBillId": orderDate[hobbyIndex][18],
-              "FEntity_Link_FSId": orderDate[hobbyIndex][5],
-              "FEntity_Link_FInspectQty": element[3]['value']['value'],
-              "FEntity_Link_FBaseInspectQty": element[3]['value']['value'],
-            }
-          ];
-          FEntity.add(FEntityItem);
-        }
-        hobbyIndex++;
-      });
-      if(FEntity.length==0){
+      if (this.departmentNumber  == null) {
         this.isSubmit = false;
-        ToastUtil.showInfo('请输入数量');/*,仓库*/
+        ToastUtil.showInfo('部门为空');
         return;
       }
-      Model['FEntity'] = FEntity;
-      orderMap['Model'] = Model;
-      dataMap['data'] = orderMap;
-      var datass = jsonEncode(dataMap);
-      String order = await SubmitEntity.save(dataMap);
-      var res = jsonDecode(order);
-      print(res);
-      if (res['Result']['ResponseStatus']['IsSuccess']) {
-        Map<String, dynamic> submitMap = Map();
-        submitMap = {
-          "formid": "QM_InspectBill",
-          "data": {
-            'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+      if (this.qcNumber  == null) {
+        this.isSubmit = false;
+        ToastUtil.showInfo('质检员不能为空');
+        return;
+      }
+      if (type) {
+        var hobbyIndex = 0;
+        var EntryIds = '';
+        this.hobby.forEach((element) {
+          if (double.parse(element[3]['value']['value']) > 0) {
+            if (EntryIds == '') {
+              EntryIds = orderDate[hobbyIndex][4].toString();
+            } else {
+              EntryIds = EntryIds + ',' + orderDate[hobbyIndex][4].toString();
+            }
           }
-        };
-        //提交
-        HandlerOrder.orderHandler(
-            context,
-            submitMap,
-            1,
-            "QM_InspectBill",
-            SubmitEntity.submit(submitMap))
-            .then((submitResult) {
-          if (submitResult) {
-            //审核
-            HandlerOrder.orderHandler(
-                context,
-                submitMap,
-                1,
-                "QM_InspectBill",
-                SubmitEntity.audit(submitMap))
-                .then((auditResult) async{
-              if (auditResult) {
-                //提交清空页面
-                setState(() {
-                  this.hobby = [];
-                  this.orderDate = [];
-                  this.FBillNo = '';
-                  ToastUtil.showInfo('提交成功');
-                  Navigator.of(context).pop("refresh");
-                });
-              } else {
-                //失败后反审
-                HandlerOrder.orderHandler(
-                    context,
-                    submitMap,
-                    0,
-                    "QM_InspectBill",
-                    SubmitEntity.unAudit(submitMap))
-                    .then((unAuditResult) {
-                  if (unAuditResult) {
-                    this.isSubmit = false;
-                  }else{
-                    this.isSubmit = false;
+          hobbyIndex++;
+        });
+        var resCheck = await this.pushDown(EntryIds, 'defective');
+        print(resCheck);
+        if (resCheck['isBool'] != false) {
+          var datass = jsonEncode(resCheck);
+          String order = await SubmitEntity.save(resCheck);
+          var res = jsonDecode(order);
+          print(res);
+          if (res['Result']['ResponseStatus']['IsSuccess']) {
+            print(resCheck);
+            Map<String, dynamic> submitMap = Map();
+            submitMap = {
+              "formid": "QM_InspectBill",
+              "data": {'Ids': resCheck['data']['Model']['FID']}
+            };
+            //提交
+            HandlerOrder.orderHandler(context, submitMap, 1, "QM_InspectBill",
+                SubmitEntity.submit(submitMap))
+                .then((submitResult) {
+              if (submitResult) {
+                //审核
+                HandlerOrder.orderHandler(context, submitMap, 1,
+                    "QM_InspectBill", SubmitEntity.audit(submitMap))
+                    .then((auditResult) async {
+                  if (auditResult) {
+                    //提交清空页面
+                    setState(() {
+                      this.hobby = [];
+                      this.orderDate = [];
+                      this.FBillNo = '';
+                      ToastUtil.showInfo('提交成功');
+                      Navigator.of(context).pop("refresh");
+                    });
+                  } else {
+                    //失败后反审
+                    HandlerOrder.orderHandler(context, submitMap, 0,
+                        "QM_InspectBill", SubmitEntity.unAudit(submitMap))
+                        .then((unAuditResult) {
+                      if (unAuditResult) {
+                        this.isSubmit = false;
+                      } else {
+                        this.isSubmit = false;
+                      }
+                    });
                   }
                 });
+              } else {
+                this.isSubmit = false;
               }
             });
           } else {
-            this.isSubmit = false;
+            setState(() {
+              this.isSubmit = false;
+              ToastUtil.errorDialog(
+                  context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
+            });
           }
-        });
+        } else {
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(context, resCheck['msg']);
+          });
+        }
       } else {
-        setState(() {
-          this.isSubmit = false;
-          ToastUtil.errorDialog(
-              context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
+        Map<String, dynamic> dataMap = Map();
+        dataMap['formid'] = 'QM_InspectBill';
+        Map<String, dynamic> orderMap = Map();
+        orderMap['NeedReturnFields'] = [];
+        orderMap['IsDeleteEntry'] = false;
+        Map<String, dynamic> Model = Map();
+        Model['FID'] = 0;
+        Model['FBillTypeID'] = {"FNUMBER": "JYD002_SYS"};
+        Model['FDate'] = FDate;
+        Model['FBusinessType'] = "3";
+        Model['FSourceOrgId'] = {"FNumber": orderDate[0][1]};
+        Model['FInspectDepId'] = {"FNumber": this.departmentNumber};
+        Model['FInspectOrgId'] = {"FNumber": deptData[1]};
+        Model['FInspectorId'] = {"FNUMBER": qcNumber};
+        //判断有源单 无源单
+        if(this.isScanWork){
+
+        }else{
+
+        }
+        var FEntity = [];
+
+        var hobbyIndex = 0;
+        this.hobby.forEach((element) {
+          if (element[3]['value']['value'] != '0'/* &&
+            element[4]['value']['value'] != ''*/) {
+            Map<String, dynamic> FEntityItem = Map();
+            var FPolicyDetail = [];
+            var FReferDetail = [];
+            Map<String, dynamic> FPolicyDetailItem = Map();
+            Map<String, dynamic> FReferDetailItem = Map();
+            FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
+            FEntityItem['FUnitID'] = {"FNumber": element[2]['value']['value']};
+            FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
+            FEntityItem['FWorkshopId'] = {"FNUMBER": element[0]['FWorkshopId']};
+            FEntityItem['FLot'] = {"FNumber": element[0]['FLot']};
+            if(element[6]['value']['hide']){
+              FEntityItem['FStockLocId'] = {
+                "FSTOCKLOCID__FF100011": {"FNumber": element[6]['value']['value']}
+              };
+            }
+
+            FEntityItem['FInspectQty'] = element[3]['value']['value'];
+            FEntityItem['FBaseWBInspectQty'] = element[3]['value']['value'];
+            FEntityItem['FBaseInspectQty'] = element[3]['value']['value'];
+            FEntityItem['FSampleDamageQty'] = element[13]['value']['value'];
+            FEntityItem['FTimeUnit'] = "24";
+            FEntityItem['FSampleDamageBearer'] = "2";
+            FEntityItem['FQCStatus'] = "3";
+            FEntityItem['FQCBusinessType'] = "3";
+            FEntityItem['FInspectTimes'] = "1";
+            FEntityItem['FCurrentStringency'] = "1";
+            FEntityItem['FInspectResult'] = element[11]['value']['value']?'1':'2';
+            if(element[11]['value']['value']){
+              FEntityItem['FQualifiedQty'] = element[3]['value']['value'];
+              FEntityItem['FBaseWBInspectQty'] = element[3]['value']['value'];
+              FEntityItem['FBaseAcceptQty '] = element[3]['value']['value'];
+            }else{
+              FEntityItem['FUnqualifiedQty'] = element[3]['value']['value'];
+            }
+
+            FEntityItem['FSrcBillType0'] = "PRD_MORPT";
+            FEntityItem['FSrcBillNo0'] = this.FBillNo;
+            FEntityItem['FSrcInterId0'] = element[0]['FID'];
+            FEntityItem['FSrcEntryId0'] = element[0]['FEntryId'];
+            FReferDetailItem['FSrcInterId'] = element[0]['FID'];
+            FReferDetailItem['FSrcEntryId'] = element[0]['FEntryId'];
+            FPolicyDetailItem['FPolicyMaterialId'] = {"FNUMBER": element[0]['value']['value']};
+            FPolicyDetailItem['FPolicyStatus'] = element[11]['value']['value']?'1':'2';
+            FPolicyDetailItem['FUsePolicy'] = element[12]['value']['value'];
+            FPolicyDetailItem['FPolicyQty'] = element[3]['value']['value'];
+            FPolicyDetailItem['FBasePolicyQty'] = element[3]['value']['value'];
+            FPolicyDetailItem['FBaseInspectQty'] = element[3]['value']['value'];
+
+            FPolicyDetailItem['FInstockFlag'] = "0";
+            FPolicyDetail.add(FPolicyDetailItem);
+            FReferDetail.add(FReferDetailItem);
+            FEntityItem['FPolicyDetail'] = FPolicyDetail;
+            FEntityItem['FReferDetail'] = FReferDetail;
+            FEntityItem['FEntity_Link'] = [
+              {
+                "FEntity_Link_FRuleId": "OM_PRDMoRpt2Inspect",
+                "FEntity_Link_FSTableName": "T_PRD_MORPTENTRY",
+                "FEntity_Link_FSBillId": element[0]['FID'],
+                "FEntity_Link_FSId": element[0]['FEntryId'],
+                "FEntity_Link_FInspectQty": element[3]['value']['value'],
+                "FEntity_Link_FBaseInspectQty": element[3]['value']['value'],
+                "FEntity_Link_FBaseWBInspectQty": element[3]['value']['value'],
+                "FEntity_Link_FBaseAcceptQty": element[3]['value']['value'],
+              }
+            ];
+            FEntity.add(FEntityItem);
+          }
+          hobbyIndex++;
         });
+        if(FEntity.length==0){
+          this.isSubmit = false;
+          ToastUtil.showInfo('请输入数量');/*,仓库*/
+          return;
+        }
+        Model['FEntity'] = FEntity;
+        orderMap['Model'] = Model;
+        dataMap['data'] = orderMap;
+        var datass = jsonEncode(dataMap);
+        String order = await SubmitEntity.save(dataMap);
+        var res = jsonDecode(order);
+        print(res);
+        if (res['Result']['ResponseStatus']['IsSuccess']) {
+          Map<String, dynamic> submitMap = Map();
+          submitMap = {
+            "formid": "QM_InspectBill",
+            "data": {
+              'Ids': res['Result']['ResponseStatus']['SuccessEntitys'][0]['Id']
+            }
+          };
+          //提交
+          HandlerOrder.orderHandler(
+              context,
+              submitMap,
+              1,
+              "QM_InspectBill",
+              SubmitEntity.submit(submitMap))
+              .then((submitResult) {
+            if (submitResult) {
+              //审核
+              HandlerOrder.orderHandler(
+                  context,
+                  submitMap,
+                  1,
+                  "QM_InspectBill",
+                  SubmitEntity.audit(submitMap))
+                  .then((auditResult) async{
+                if (auditResult) {
+                  //提交清空页面
+                  setState(() {
+                    this.hobby = [];
+                    this.orderDate = [];
+                    this.FBillNo = '';
+                    ToastUtil.showInfo('提交成功');
+                    Navigator.of(context).pop("refresh");
+                  });
+                } else {
+                  //失败后反审
+                  HandlerOrder.orderHandler(
+                      context,
+                      submitMap,
+                      0,
+                      "QM_InspectBill",
+                      SubmitEntity.unAudit(submitMap))
+                      .then((unAuditResult) {
+                    if (unAuditResult) {
+                      this.isSubmit = false;
+                    }else{
+                      this.isSubmit = false;
+                    }
+                  });
+                }
+              });
+            } else {
+              this.isSubmit = false;
+            }
+          });
+        } else {
+          setState(() {
+            this.isSubmit = false;
+            ToastUtil.errorDialog(
+                context, res['Result']['ResponseStatus']['Errors'][0]['Message']);
+          });
+        }
       }
+
     } else {
       ToastUtil.showInfo('无提交数据');
     }
@@ -1704,7 +1916,7 @@ class _ReturnGoodsDetailState extends State<ProductionReportDetail> {
                 child: new Text('确定'),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  saveOrder();
+                  saveOrder(true);
                 },
               )
             ],

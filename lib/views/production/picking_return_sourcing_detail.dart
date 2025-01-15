@@ -927,17 +927,16 @@ class _PickingReturnSourcingDetailState extends State<PickingReturnSourcingDetai
             }
           };
           FEntityItem['FQty'] = element[8]['value']['value'];
-          /*FEntityItem['FEntity_Link'] = [
+          FEntityItem['FEntity_Link'] = [
             {
-              "FEntity_Link_FRuleId": "SalReturnNotice-SalReturnStock",
-              "FEntity_Link_FSTableName": "T_SAL_RETURNNOTICEENTRY",
+              "FEntity_Link_FRuleId": "SUB_PPBOM2RETURNMTRL",
+              "FEntity_Link_FSTableName": "T_SUB_PPBOMENTRY",
               "FEntity_Link_FSBillId": orderDate[hobbyIndex][15],
               "FEntity_Link_FSId": orderDate[hobbyIndex][4],
-              "FEntity_Link_FSalBaseQty": element[3]['value']['value'],
-              "FEntity_Link_FBaseunitQty": element[3]['value']['value'],
-              "FEntity_Link_FAuxUnitQty ": element[3]['value']['value'],
+              "FEntity_Link_FBaseQtyOld": element[3]['value']['value'],
+              "FEntity_Link_FBaseQty": element[3]['value']['value'],
             }
-          ];*/
+          ];
           FEntity.add(FEntityItem);
         }
         hobbyIndex++;

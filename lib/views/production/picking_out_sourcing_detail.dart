@@ -181,7 +181,7 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
   getOrderList() async {
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] =
-    "FSubReqBillNO='$fBillNo' and FSubReqEntrySeq = '$FSeq'";
+    "FBillNo='$fBillNo' and FSubReqEntrySeq = '$FSeq'";
     userMap['FormId'] = 'SUB_PPBOM';
     userMap['OrderString'] = 'FMaterialId.FNumber ASC';
     userMap['FieldKeys'] =
@@ -320,7 +320,7 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
         }else{
           inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";// and FStockIds
         }*/
-        inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty >0";
+        inventoryMap['FilterString'] = "FMaterialId.FNumber='" + value[7] + "' and FBaseQty>0";
         inventoryMap['Limit'] = '20';
         inventoryMap['OrderString'] = 'FLot.FNumber DESC, FProduceDate DESC';
         inventoryMap['FieldKeys'] =
@@ -2351,15 +2351,7 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
     orderMap['NeedReturnFields'] = ['FEntity','FSerialSubEntity','FSerialNo'];
     orderMap['IsDeleteEntry'] = true;
     Map<String, dynamic> Model = Map();
-    Model['FID'] = collarOrderDate[0][0];
-    var orderData = [];
-    var orderDataList = [];
-    for(var item in collarOrderDate){
-      if(orderData.indexOf(item[3]) == -1){
-        orderData.add(item[3]);
-        orderDataList.add(item);
-      }
-    }
+    Model['FID'] = orderDate[0][14];
     var FEntity = [];
     var hobbyIndex = 0;
     this.hobbyItem = [];
@@ -2383,15 +2375,10 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
           element[4]['value']['value'] != '') {
         Map<String, dynamic> FEntityItem = Map();
         var entryIndex;
-
         if(element[0]['FEntryID'] == 0){
           entryIndex = this.hobbyItem[this.hobbyItem.indexWhere((v)=> v['number'] == (element[0]['value']['value']+'-'+element[0]['parseEntryID'].toString()))]['index'];
-          print(this.hobbyItem);
-          print(element[0]['value']['value']);
-          print(element[0]['parseEntryID']);
-          print(entryIndex);
           FEntityItem['FParentMaterialId'] = {"FNumber": this.hobby[entryIndex][0]['FParentMaterialId']};
-          FEntityItem['FMoEntryId'] = this.hobby[entryIndex][0]['FMoEntryId'];
+          FEntityItem['FSubReqEntryId'] = this.hobby[entryIndex][0]['FMoEntryId'];
           FEntityItem['FPPBomEntryId'] = this.hobby[entryIndex][0]['FPPBomEntryId'];
           FEntityItem['FMaterialId'] = {"FNumber": element[0]['value']['value']};
           FEntityItem['FOwnerId'] = {"FNumber": this.hobby[entryIndex][0]['FOwnerId']};
@@ -2406,8 +2393,8 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
           FEntityItem['FKeeperId'] = {"FNumber": this.hobby[entryIndex][0]['FKeeperId']};
           FEntityItem['FEntity_Link'] = [
             {
-              "FEntity_Link_FRuleId": "PRD_IssueMtr2PickMtrl",
-              "FEntity_Link_FSTableName": "T_PRD_PPBOMENTRY",
+              "FEntity_Link_FRuleId": "SUB_PPBOM_Pick",
+              "FEntity_Link_FSTableName": "T_SUB_PPBOMENTRY",
               "FEntity_Link_FSBillId": this.hobby[entryIndex][0]['FEntrySrcInterId'],
               "FEntity_Link_FSId": this.hobby[entryIndex][0]['FPPBomEntryId'],
               "FEntity_Link_FBaseActualQty": element[3]['value']['value']
@@ -2424,7 +2411,7 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
         FEntityItem['FStockId'] = {"FNumber": element[4]['value']['value']};
         FEntityItem['FStockStatusId'] = {"FNumber": "KCZT01_SYS"};
         FEntityItem['FLot'] = {"FNumber": element[5]['value']['value']};
-        if(this.hobby[element][6]['value']['hide']){
+        if(element[6]['value']['hide']){
           FEntityItem['FStockLocId'] = {
             "FSTOCKLOCID__FF100011": {"FNumber": element[6]['value']['value']}
           };
@@ -2550,7 +2537,7 @@ class _PickingOutSourcingDetailState extends State<PickingOutSourcingDetail> {
                 child: new Text('确定'),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  pushDown();
+                  saveOrder();
                 },
               )
             ],

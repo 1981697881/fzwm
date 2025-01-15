@@ -82,7 +82,6 @@ class _ReturnGoodsPageState extends State<ProductionReportPage> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var tissue = sharedPreferences.getString('tissue');
     userMap['FilterString'] = "FActlandQty>0 and FPrdOrgId.FNumber = '"+tissue+"'";
-    var scanCode = keyWord.split(",");
     if(this._dateSelectText != ""){
       this.startDate = this._dateSelectText.substring(0,10);
       this.endDate = this._dateSelectText.substring(26,36);
