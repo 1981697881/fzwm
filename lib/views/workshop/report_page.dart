@@ -83,14 +83,14 @@ class _ReportPageState extends State<ReportPage> {
     Map<String, dynamic> userMap = Map();
     userMap['FilterString'] = "FUnSubmitQty>0";
     userMap['StartRow'] = "0";
-    userMap['Limit'] = "10";
+    userMap['Limit'] = "20";
     var scanCode = keyWord.split(",");
     if(isScan){
       if(scanCode.length>0){
         userMap['FilterString'] =
-            "FOrderNo like '"+scanCode[0]+"%' and FUnSubmitQty>0";
+            "(FOrderNo like '"+scanCode[0]+"%' or FPONumber like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FUnSubmitQty>0";
       }else{
-        userMap['FilterString'] = "FOrderNo like '"+data.toString()+"%' and FUnSubmitQty>0";
+        userMap['FilterString'] = "(FOrderNo like '"+scanCode[0]+"%' or FPONumber like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FUnSubmitQty>0";
       }
     }else{
      /* if (this._dateSelectText != "") {
@@ -101,7 +101,7 @@ class _ReportPageState extends State<ReportPage> {
       }*/
       if (this.keyWord != '') {
         userMap['FilterString'] =
-        "FOrderNo like '"+scanCode[0]+"%' and FUnSubmitQty>0"; /*and FDate>= '$startDate' and FDate <= '$endDate'*/
+        "(FOrderNo like '"+scanCode[0]+"%' or FPONumber like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FUnSubmitQty>0"; /*and FDate>= '$startDate' and FDate <= '$endDate'*/
       }else{
         ToastUtil.showInfo('请输入相对精确的查询条件');
         EasyLoading.dismiss();

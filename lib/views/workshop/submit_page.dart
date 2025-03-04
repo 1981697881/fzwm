@@ -108,6 +108,7 @@ class _SubmitPageState extends State<SubmitPage> {
       }
     }
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
+    userMap['OrderString'] = 'FDate ASC';
     userMap['FieldKeys'] =
     'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID,FProcessID.FDataValue';
     Map<String, dynamic> dataMap = Map();

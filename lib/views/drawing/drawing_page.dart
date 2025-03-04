@@ -81,7 +81,7 @@ class _DrawingPageState extends State<DrawingPage> {
     userMap['FilterString'] = "FNumber like '"+keyWord+"%' and FForbidStatus = 'A' and FUseOrgId.FNumber = '"+tissue+"'";
     userMap['FormId'] = 'BD_MATERIAL';
     userMap['FieldKeys'] = 'F_ora_Text';
-    userMap['Limit'] = "10";
+    userMap['Limit'] = "20";
     Map<String, dynamic> dataMap = Map();
     dataMap['data'] = userMap;
     String order = await CurrencyEntity.polling(dataMap);

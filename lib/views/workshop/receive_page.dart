@@ -87,10 +87,10 @@ class _ReceivePageState extends State<ReceivePage> {
     if(isScan){
       if(scanCode.length>0){
         userMap['FilterString'] =
-            "FOrderNo like '"+scanCode[0]+"%' and FDocumentStatus in ('A','D')";
+            "(FOrderNo like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FDocumentStatus in ('A','D')";
       }else{
         userMap['FilterString'] =
-            "FOrderNo like '"+data.toString()+"%' and FDocumentStatus in ('A','D')";
+            "(FOrderNo like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FDocumentStatus in ('A','D')";
       }
     }else{
       /*if (this._dateSelectText != "") {
@@ -101,7 +101,7 @@ class _ReceivePageState extends State<ReceivePage> {
       }*/
       if (this.keyWord != '') {
         userMap['FilterString'] =
-            "FOrderNo like '"+scanCode[0]+"%' and FDocumentStatus in ('A','D')"; /*and FDate>= '$startDate' and FDate <= '$endDate'*/
+            "(FOrderNo like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FDocumentStatus in ('A','D')"; /*and FDate>= '$startDate' and FDate <= '$endDate'*/
       }else{
         ToastUtil.showInfo('请输入相对精确的查询条件');
         EasyLoading.dismiss();
@@ -109,6 +109,7 @@ class _ReceivePageState extends State<ReceivePage> {
       }
     }
     userMap['FormId'] = 'QDEP_Proc_HandOver';
+    userMap['OrderString'] = 'FDate ASC';
     userMap['FieldKeys'] =
     'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FHandQty,FPlanStarDate,FPlanEndDate,FID,FQty,FAcceptQty,FUnHandQty,FProcessID,FProcessID.FNumber';
     Map<String, dynamic> dataMap = Map();

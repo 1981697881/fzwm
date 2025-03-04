@@ -595,8 +595,7 @@ class _ReportDetailState extends State<ReportDetail> {
       var hobbyIndex = 0;
       var qtySummary = 0.0;
       this.hobby.forEach((element) {
-        if (element[0]['value']['value'] != '0' ||
-            element[1]['value']['value'] != '0') {
+        if ((element[0]['value']['value'] != '0' && element[0]['value']['value'] != '') || (element[1]['value']['value'] != '0' && element[1]['value']['value'] != '')) {
           Map<String, dynamic> FEntityItem = Map();
           /*FEntityItem['FMaterialId'] = {
             "FNumber": fMaterialNumber
