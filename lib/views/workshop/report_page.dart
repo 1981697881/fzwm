@@ -38,6 +38,7 @@ class _ReportPageState extends State<ReportPage> {
   StreamSubscription ?_subscription;
   var _code;
   var isScan = false;
+  var precise = false;
 
   List<dynamic> orderDate = [];
   final controller = TextEditingController();
@@ -85,30 +86,52 @@ class _ReportPageState extends State<ReportPage> {
     userMap['StartRow'] = "0";
     userMap['Limit'] = "20";
     var scanCode = keyWord.split(",");
-    if(isScan){
-      if(scanCode.length>0){
-        userMap['FilterString'] =
-            "(FOrderNo like '"+scanCode[0]+"%' or FPONumber like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FUnSubmitQty>0";
+    if(this.precise){
+      if(isScan){
+        if(scanCode.length>0){
+          userMap['FilterString'] =
+              "(FOrderNo = '"+scanCode[0]+"' or FPONumber = '"+scanCode[0]+"' or FMaterialID.FNumber = '"+scanCode[0]+"') and FUnSubmitQty>0";
+        }else{
+          userMap['FilterString'] = "(FOrderNo = '"+scanCode[0]+"' or FPONumber = '"+scanCode[0]+"' or FMaterialID.FNumber = '"+scanCode[0]+"') and FUnSubmitQty>0";
+        }
       }else{
-        userMap['FilterString'] = "(FOrderNo like '"+scanCode[0]+"%' or FPONumber like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FUnSubmitQty>0";
+        if (this.keyWord != '') {
+          userMap['FilterString'] =
+              "(FOrderNo = '"+scanCode[0]+"' or FPONumber = '"+scanCode[0]+"' or FMaterialID.FNumber = '"+scanCode[0]+"') and FUnSubmitQty>0"; /*and FDate>= '$startDate' and FDate <= '$endDate'*/
+        }else{
+          ToastUtil.showInfo('请输入相对精确的查询条件');
+          EasyLoading.dismiss();
+          return;
+        }
       }
     }else{
-     /* if (this._dateSelectText != "") {
+      if(isScan){
+        if(scanCode.length>0){
+          userMap['FilterString'] =
+              "(FOrderNo like '"+scanCode[0]+"%' or FPONumber like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FUnSubmitQty>0";
+        }else{
+          userMap['FilterString'] = "(FOrderNo like '"+scanCode[0]+"%' or FPONumber like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FUnSubmitQty>0";
+        }
+      }else{
+        /* if (this._dateSelectText != "") {
         this.startDate = this._dateSelectText.substring(0, 10);
         this.endDate = this._dateSelectText.substring(26, 36);
         userMap['FilterString'] =
         "FUnSubmitQty>0 and FDate>= '$startDate' and FDate <= '$endDate'";
       }*/
-      if (this.keyWord != '') {
-        userMap['FilterString'] =
-        "(FOrderNo like '"+scanCode[0]+"%' or FPONumber like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FUnSubmitQty>0"; /*and FDate>= '$startDate' and FDate <= '$endDate'*/
-      }else{
-        ToastUtil.showInfo('请输入相对精确的查询条件');
-        EasyLoading.dismiss();
-        return;
+        if (this.keyWord != '') {
+          userMap['FilterString'] =
+              "(FOrderNo like '"+scanCode[0]+"%' or FPONumber like '"+scanCode[0]+"%' or FMaterialID.FNumber like '"+scanCode[0]+"%') and FUnSubmitQty>0"; /*and FDate>= '$startDate' and FDate <= '$endDate'*/
+        }else{
+          ToastUtil.showInfo('请输入相对精确的查询条件');
+          EasyLoading.dismiss();
+          return;
+        }
       }
     }
+
     userMap['FormId'] = 'kb7752aa5c53c4c9ea2f02a290942ac61';
+    userMap['OrderString'] = 'FOrderNo ASC';
     userMap['FieldKeys'] =
     'FBillNo,FCreateOrgId.FNumber,FCreateOrgId.FName,FDate,FEntity_FEntryId,FMaterialId.FNumber,FMaterialId.FName,FMaterialId.FSpecification,FOrderNo,FProcessLine,FOrderQty,FPlanStarDate,FPlanEndDate,FID,FQty,FSubmitQty,FUnSubmitQty,FProcessID,FProcessID.FDataValue';
     Map<String, dynamic> dataMap = Map();
@@ -432,7 +455,7 @@ class _ReportPageState extends State<ReportPage> {
                               child: Row(children: [
                                 Card(
                                   child: new Container(
-                                      width: hc_ScreenWidth() - 80,
+                                      width: hc_ScreenWidth() - 140,
                                       child: Row(
                                         crossAxisAlignment:
                                         CrossAxisAlignment.center,
@@ -482,10 +505,25 @@ class _ReportPageState extends State<ReportPage> {
                                   height: 40.0,
                                   child: new RaisedButton(
                                     color: Colors.lightBlueAccent,
-                                    child: new Text('搜索',style: TextStyle(fontSize: 14.0, color: Colors.white)),
+                                    child: new Text('精准',style: TextStyle(fontSize: 14.0, color: Colors.white)),
                                     onPressed: (){
                                       setState(() {
                                         this.keyWord = this.controller.text;
+                                        this.precise = true;
+                                        this.getOrderList();
+                                      });
+                                    },
+                                  ),
+                                ),new SizedBox(
+                                  width: 60.0,
+                                  height: 40.0,
+                                  child: new RaisedButton(
+                                    color: Colors.lightBlueAccent,
+                                    child: new Text('模糊',style: TextStyle(fontSize: 14.0, color: Colors.white)),
+                                    onPressed: (){
+                                      setState(() {
+                                        this.keyWord = this.controller.text;
+                                        this.precise = false;
                                         this.getOrderList();
                                       });
                                     },
