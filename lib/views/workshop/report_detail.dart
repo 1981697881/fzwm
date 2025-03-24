@@ -603,6 +603,14 @@ class _ReportDetailState extends State<ReportDetail> {
           FEntityItem['FProcessID'] = {
             "FNumber": fProcessID
           };*/
+          print(element[1]['value']['value']);
+          print(element[0]['value']['value']);
+          if(element[0]['value']['value'] == ''){
+            element[0]['value']['value'] = '0';
+          }
+          if(element[1]['value']['value'] == ''){
+            element[1]['value']['value'] = '0';
+          }
           qtySummary = qtySummary + double.parse(element[0]['value']['value']) + double.parse(element[1]['value']['value']);
           FEntityItem['FOKQTY'] = element[0]['value']['value'];
           FEntityItem['FBadQty'] = element[1]['value']['value'];
@@ -636,7 +644,7 @@ class _ReportDetailState extends State<ReportDetail> {
       Model['FEntity'] = FEntity;
       orderMap['Model'] = Model;
       dataMap['data'] = orderMap;
-      print(jsonEncode(dataMap));
+      var dataParams = jsonEncode(dataMap);
       String order = await SubmitEntity.save(dataMap);
       var res = jsonDecode(order);
       print(res);
@@ -829,13 +837,13 @@ class _ReportDetailState extends State<ReportDetail> {
                             "title": "合格数量",
                             "name": "FOKQTY",
                             "isHide": false,
-                            "value": {"label": hobby.length>0?hobby[hobby.length-1][0]["value"]["label"]: '', "value": hobby.length>0?hobby[hobby.length-1][0]["value"]["value"]: ''}
+                            "value": {"label": hobby.length>0?hobby[hobby.length-1][0]["value"]["label"]: '', "value": hobby.length>0?hobby[hobby.length-1][0]["value"]["value"]: '0'}
                           });
                           arr.add({
                             "title": "不合格数量",
                             "name": "FBadQty",
                             "isHide": false,
-                            "value": {"label": "", "value": ""}
+                            "value": {"label": "", "value": "0"}
                           });
                           arr.add({
                             "title": "班组",
